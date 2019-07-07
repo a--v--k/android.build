@@ -5,9 +5,10 @@ gradle.properties
 
 .idea/
 .gradle/
+build/
 
 **/*.li
 **/*.iml
 **/*.ipr
 **/*.iws
-**/build/
+
