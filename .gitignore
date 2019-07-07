@@ -1,0 +1,13 @@
+local.properties
+gradle.properties
+
+*.log
+
+.idea/
+.gradle/
+
+**/*.li
+**/*.iml
+**/*.ipr
+**/*.iws
+**/build/
