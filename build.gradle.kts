@@ -56,8 +56,8 @@ gradlePlugin {
 
 pluginBundle {
     // These settings are set for the whole plugin bundle
-    website = "http://www.gradle.org/"
-    vcsUrl = "https://github.com/gradle/gradle"
+    website = "https://github.com/a--v--k/android.build"
+    vcsUrl = "https://github.com/a--v--k/android.build"
 
     // tags and description can be set for the whole bundle here, but can also
     // be set / overridden in the config for specific plugins
