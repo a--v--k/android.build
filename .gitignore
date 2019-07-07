@@ -3,9 +3,9 @@ gradle.properties
 
 *.log
 
-.idea/
-.gradle/
-build/
+/.idea/
+/.gradle/
+/build/
 
 **/*.li
 **/*.iml
