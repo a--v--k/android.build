@@ -25,7 +25,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.KotlinBuildScript
 
-class AppSetConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.configurators.application"), AppSetConfigurator {
+class AppSetConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
 
     private val knownApplications = project.applicationFolders()
             .map { AppFlavorConfiguratorImpl(this, it.name, it) }

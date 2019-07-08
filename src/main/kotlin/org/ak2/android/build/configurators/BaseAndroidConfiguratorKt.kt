@@ -69,8 +69,8 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
         if (config.useKotlinInProd || config.useKotlinInTest) {
             println("${this.path}: Configure Kotlin ${config.kotlinVersion} ...")
 
-            plugins.apply("kotlin-configurators")
-            plugins.apply("kotlin-configurators-extensions")
+            plugins.apply("kotlin-android")
+            plugins.apply("kotlin-android-extensions")
             plugins.apply("kotlin-kapt")
 
             val stdlibVersion = when (config.javaVersion) {

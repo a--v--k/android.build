@@ -24,7 +24,7 @@ import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.flavors.VariantConfig
 import org.gradle.kotlin.dsl.KotlinBuildScript
 
-class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.configurators.application"), AppConfigurator {
+class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppConfigurator {
 
     private val appFlavor = AppFlavorConfiguratorImpl(this, getDefaultAppName(project.name)).apply { enabled = true }
 

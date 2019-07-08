@@ -34,7 +34,7 @@ open class GoogleSupportDependencyKt(private val dependency : String) : Dependen
     }
 }
 
-class GoogleSupportAnnotations : GoogleSupportDependencyKt("com.configurators.support:support-annotations")
+class GoogleSupportAnnotations : GoogleSupportDependencyKt("com.android.support:support-annotations")
 {
     override fun configure(appName: String?, scope: DependencyScope, android: BaseExtension) {
         super.configure(appName, DependencyScope.COMPILE_ONLY, android)

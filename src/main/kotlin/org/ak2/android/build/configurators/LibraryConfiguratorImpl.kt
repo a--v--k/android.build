@@ -25,7 +25,7 @@ import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
 import org.gradle.kotlin.dsl.KotlinBuildScript
 
-class LibraryConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.configurators.library"), LibraryConfigurator {
+class LibraryConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.library"), LibraryConfigurator {
 
     private val flavors = FlavorConfigs()
 
