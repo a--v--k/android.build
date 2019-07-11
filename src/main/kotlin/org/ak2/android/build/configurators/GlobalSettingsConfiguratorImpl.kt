@@ -24,13 +24,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class GlobalSettingsConfiguratorImpl(private val settings: Settings) : GlobalSettingsConfigurator {
 
-    private val configured = AtomicBoolean()
-
     override fun module(path : String)                 { Modules.add(ModuleDependencyKt(dependencyPath = path)) }
     override fun module(alias : String, path : String) { Modules.add(ModuleDependencyKt(alias, path))           }
 
     fun configure(block: GlobalSettingsConfigurator.() -> Unit) {
-        if (configured.compareAndSet(false, true)) {
+        if (Modules.configured.compareAndSet(false, true)) {
             settings.rootProject.buildFileName = "build.gradle.kts"
             this.block()
 
@@ -43,11 +41,17 @@ class GlobalSettingsConfiguratorImpl(private val settings: Settings) : GlobalSet
 
 object Modules {
 
+    internal val configured = AtomicBoolean()
     internal val modules = TreeMap<String, ModuleDependencyKt>()
 
     fun module(alias: String): ModuleDependencyKt {
-        val module = modules[alias]
-        return module ?: throw IllegalArgumentException("Unknown module $alias")
+        if (configured.get()) {
+            val module = modules[alias]
+            return module ?: throw IllegalArgumentException("Unknown module $alias")
+        } else {
+            // Fallback dependency creation if global {} was not called from settings.gradle.kts
+            return modules.computeIfAbsent(alias) { ModuleDependencyKt(dependencyPath = alias) }
+        }
     }
 
     internal fun add(module: ModuleDependencyKt) = apply {

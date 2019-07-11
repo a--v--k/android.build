@@ -26,22 +26,6 @@ import org.ak2.android.build.release.ReleaseCallback
 import org.gradle.api.initialization.Settings
 import org.gradle.kotlin.dsl.KotlinBuildScript
 
-fun KotlinBuildScript.androidLibrary(block : LibraryConfigurator.() -> Unit) {
-    LibraryConfiguratorImpl(this).configure(block)
-}
-
-fun KotlinBuildScript.androidApp(block : AppConfigurator.() -> Unit) {
-    AppConfiguratorImpl(this).configure(block)
-}
-
-fun KotlinBuildScript.androidAppSet(block : AppSetConfigurator.() -> Unit) {
-    AppSetConfiguratorImpl(this).configure(block)
-}
-
-fun Settings.global(block : GlobalSettingsConfigurator.() -> Unit) {
-    GlobalSettingsConfiguratorImpl(this).configure(block)
-}
-
 interface GlobalSettingsConfigurator {
 
     fun module(path: String)
