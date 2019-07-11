@@ -25,14 +25,10 @@ import org.gradle.kotlin.dsl.repositories
 class BuildPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        require(project is KotlinBuildScript) { "Unsupported gradle project class: $project" }
-
         if (project.name == "buildSrc" && project.parent == null) {
             println("Add required plugins...")
-            project.plugins {
-                id("org.gradle.kotlin.kotlin-dsl")
-                id("org.gradle.java-gradle-plugin")
-            }
+            project.plugins.apply("org.gradle.kotlin.kotlin-dsl")
+            project.plugins.apply("org.gradle.java-gradle-plugin")
 
             println("Add required repositories...")
             project.repositories {
