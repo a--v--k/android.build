@@ -44,7 +44,7 @@ class BuildPlugin : Plugin<Project> {
 
             println("Add required dependencies...")
             project.dependencies {
-                add("compile", "gradle.plugin.org.ak2:android.build:3.4.1-rc6")
+                add("compile", "gradle.plugin.org.ak2:android.build:3.4.1-rc7")
             }
         }
     }
