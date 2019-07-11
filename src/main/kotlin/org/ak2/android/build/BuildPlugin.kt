@@ -18,23 +18,26 @@ package org.ak2.android.build
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.repositories
 
 class BuildPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         if (project.name == "buildScr" && project.parent == null) {
+            println("Add required plugins...")
             project.plugins.apply("kotlin-dsl")
             project.plugins.apply("java-gradle-plugin")
 
-            project.repositories {
-                    google()
-                    gradlePluginPortal()
-                }
+            println("Add required repositories...")
+            project.repositories.apply {
+                google()
+                jcenter()
+                mavenCentral()
+                gradlePluginPortal()
+            }
 
-            project.dependencies {
-                project.dependencies.add("compile", "gradle.plugin.org.ak2:android.build:3.4.1-rc3")
+            println("Add required dependencies...")
+            project.dependencies.apply {
+                add("compile", "gradle.plugin.org.ak2:android.build:3.4.1-rc4")
             }
         }
     }
