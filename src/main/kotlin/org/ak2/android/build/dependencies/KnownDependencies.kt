@@ -18,7 +18,7 @@ package org.ak2.android.build.dependencies
 
 import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.DependenciesConfigurator.*
-import org.ak2.android.build.configurators.Modules
+import org.ak2.android.build.configurators.GlobalSettingsConfiguratorImpl
 import org.ak2.android.build.dependencies.base.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -37,7 +37,7 @@ class KnownDependencies : DependencyBuilder {
     override val test            : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.TEST_COMPILE, ::ScopedDependenciesImpl)
     override val testRuntime     : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.TEST_RUNTIME, ::ScopedDependenciesImpl)
 
-    override fun module(alias: String) = Modules.module(alias)
+    override fun module(alias: String) = GlobalSettingsConfiguratorImpl.module(alias)
 
     override fun modules(vararg aliases: String) = aliases.map(this::module)
 

@@ -24,38 +24,47 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class GlobalSettingsConfiguratorImpl(private val settings: Settings) : GlobalSettingsConfigurator {
 
-    override fun module(path : String)                 { Modules.add(ModuleDependencyKt(dependencyPath = path)) }
-    override fun module(alias : String, path : String) { Modules.add(ModuleDependencyKt(alias, path))           }
+    override fun module(path: String) {
+        add(ModuleDependencyKt(dependencyPath = path))
+    }
+
+    override fun module(alias: String, path: String) {
+        add(ModuleDependencyKt(alias, path))
+    }
 
     fun configure(block: GlobalSettingsConfigurator.() -> Unit) {
-        if (Modules.configured.compareAndSet(false, true)) {
+        if (configured.compareAndSet(false, true)) {
+            println("Configure global settings...")
             settings.rootProject.buildFileName = "build.gradle.kts"
             this.block()
 
-            Modules.modules.values.forEach {
+            modules.values.forEach {
                 settings.include(it.dependencyPath)
             }
-        }
-    }
-}
-
-object Modules {
-
-    internal val configured = AtomicBoolean()
-    internal val modules = TreeMap<String, ModuleDependencyKt>()
-
-    fun module(alias: String): ModuleDependencyKt {
-        if (configured.get()) {
-            val module = modules[alias]
-            return module ?: throw IllegalArgumentException("Unknown module $alias")
         } else {
-            // Fallback dependency creation if global {} was not called from settings.gradle.kts
-            return modules.computeIfAbsent(alias) { ModuleDependencyKt(dependencyPath = alias) }
+            println("Skipping global settings...")
         }
     }
 
-    internal fun add(module: ModuleDependencyKt) = apply {
-        println("Add module ${module.effectiveAlias}/${module.dependencyPath}")
-        modules[module.effectiveAlias] = module
+
+    companion object {
+
+        internal val configured = AtomicBoolean()
+        internal val modules = TreeMap<String, ModuleDependencyKt>()
+
+        fun module(alias: String): ModuleDependencyKt {
+            if (configured.get()) {
+                val module = modules[alias]
+                return module ?: throw IllegalArgumentException("Unknown module $alias")
+            } else {
+                // Fallback dependency creation if global {} was not called from settings.gradle.kts
+                return modules.computeIfAbsent(alias) { ModuleDependencyKt(dependencyPath = alias) }
+            }
+        }
+
+        internal fun add(module: ModuleDependencyKt) {
+            println("Add module ${module.effectiveAlias}/${module.dependencyPath}")
+            modules[module.effectiveAlias] = module
+        }
     }
 }
