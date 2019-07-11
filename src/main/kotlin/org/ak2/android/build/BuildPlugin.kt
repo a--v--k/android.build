@@ -22,7 +22,7 @@ import org.gradle.api.Project
 class BuildPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        if (project.name == "buildScr" && project.parent == null) {
+        if (project.name == "buildSrc" && project.parent == null) {
             println("Add required plugins...")
             project.plugins.apply("kotlin-dsl")
             project.plugins.apply("java-gradle-plugin")
