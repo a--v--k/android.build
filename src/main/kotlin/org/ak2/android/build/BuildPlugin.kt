@@ -18,17 +18,25 @@ package org.ak2.android.build
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.KotlinBuildScript
+import org.gradle.kotlin.dsl.`kotlin-dsl`
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.repositories
 
 class BuildPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        require(project is KotlinBuildScript) { "Unsupported gradle project class: $project" }
+
         if (project.name == "buildSrc" && project.parent == null) {
             println("Add required plugins...")
-            project.plugins.apply("kotlin-dsl")
-            project.plugins.apply("java-gradle-plugin")
+            project.plugins {
+                `kotlin-dsl`
+                id("org.gradle.java-gradle-plugin")
+            }
 
             println("Add required repositories...")
-            project.repositories.apply {
+            project.repositories {
                 google()
                 jcenter()
                 mavenCentral()
@@ -36,7 +44,7 @@ class BuildPlugin : Plugin<Project> {
             }
 
             println("Add required dependencies...")
-            project.dependencies.apply {
+            project.dependencies {
                 add("compile", "gradle.plugin.org.ak2:android.build:3.4.1-rc5")
             }
         }
