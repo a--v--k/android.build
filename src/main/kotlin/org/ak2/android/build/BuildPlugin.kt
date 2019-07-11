@@ -19,7 +19,6 @@ package org.ak2.android.build
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.KotlinBuildScript
-import org.gradle.kotlin.dsl.`kotlin-dsl`
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.repositories
 
@@ -31,7 +30,7 @@ class BuildPlugin : Plugin<Project> {
         if (project.name == "buildSrc" && project.parent == null) {
             println("Add required plugins...")
             project.plugins {
-                `kotlin-dsl`
+                id("org.gradle.kotlin.kotlin-dsl")
                 id("org.gradle.java-gradle-plugin")
             }
 
