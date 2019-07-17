@@ -25,23 +25,5 @@ import org.gradle.kotlin.dsl.repositories
 class BuildPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        if (project.name == "buildSrc" && project.parent == null) {
-            println("Add required plugins...")
-            project.plugins.apply("org.gradle.kotlin.kotlin-dsl")
-            project.plugins.apply("org.gradle.java-gradle-plugin")
-
-            println("Add required repositories...")
-            project.repositories {
-                google()
-                jcenter()
-                mavenCentral()
-                gradlePluginPortal()
-            }
-
-            println("Add required dependencies...")
-            project.dependencies {
-                add("compile", "gradle.plugin.org.ak2:android.build:3.4.1-rc8")
-            }
-        }
     }
 }
