@@ -16,13 +16,10 @@
 
 import org.ak2.android.build.AppConfigurator
 import org.ak2.android.build.AppSetConfigurator
-import org.ak2.android.build.GlobalSettingsConfigurator
 import org.ak2.android.build.LibraryConfigurator
 import org.ak2.android.build.configurators.AppConfiguratorImpl
 import org.ak2.android.build.configurators.AppSetConfiguratorImpl
-import org.ak2.android.build.configurators.GlobalSettingsConfiguratorImpl
 import org.ak2.android.build.configurators.LibraryConfiguratorImpl
-import org.gradle.api.initialization.Settings
 import org.gradle.kotlin.dsl.KotlinBuildScript
 
 fun KotlinBuildScript.androidLibrary(block : LibraryConfigurator.() -> Unit) {
@@ -37,6 +34,3 @@ fun KotlinBuildScript.androidAppSet(block : AppSetConfigurator.() -> Unit) {
     AppSetConfiguratorImpl(this).configure(block)
 }
 
-fun Settings.global(block : GlobalSettingsConfigurator.() -> Unit) {
-    GlobalSettingsConfiguratorImpl(this).configure(block)
-}

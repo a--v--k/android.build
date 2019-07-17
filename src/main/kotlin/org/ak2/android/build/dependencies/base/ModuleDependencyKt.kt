@@ -19,10 +19,7 @@ package org.ak2.android.build.dependencies.base
 import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.configurators.*
 
-class ModuleDependencyKt(private val alias: String? = null, val dependencyPath: String) : DependencyKt {
-
-    val effectiveAlias : String
-        get() = alias ?: dependencyPath.split(':').last()
+class ModuleDependencyKt(val dependencyPath: String) : DependencyKt {
 
     override fun configure(appName: String?, scope: DependencyScope, android: BaseExtension) {
         val project = android.androidProject
@@ -38,6 +35,4 @@ class ModuleDependencyKt(private val alias: String? = null, val dependencyPath: 
             }
         }
     }
-
-
 }

@@ -93,7 +93,7 @@ interface DependenciesConfigurator {
         val test            : ScopedDependencies
         val testRuntime     : ScopedDependencies
 
-        fun module(alias: String)           : ModuleDependencyKt
+        fun module(path: String)           : ModuleDependencyKt
         fun modules(vararg aliases: String) : List<ModuleDependencyKt>
         fun library(dependency: String)     : LibraryDependencyKt
         fun local(localPath: String)        : LocalJarDependencyKt
