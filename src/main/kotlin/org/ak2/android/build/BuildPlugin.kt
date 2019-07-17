@@ -18,9 +18,6 @@ package org.ak2.android.build
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.KotlinBuildScript
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.repositories
 
 class BuildPlugin : Plugin<Project> {
 
