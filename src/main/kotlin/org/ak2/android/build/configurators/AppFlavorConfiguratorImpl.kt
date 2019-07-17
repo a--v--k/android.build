@@ -29,8 +29,6 @@ import org.ak2.android.build.dependencies.KnownDependencies
 import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.flavors.Flavor
 import org.ak2.android.build.flavors.VariantConfig
-import org.ak2.android.build.i18n.checkLocalization
-import org.ak2.android.build.i18n.updateLocalization
 import org.ak2.android.build.ndk.NativeConfiguratorImpl
 import org.ak2.android.build.release.getReleaseCallbacks
 import org.ak2.android.build.signing.DebugSigningConfiguratorKt
@@ -136,17 +134,6 @@ class AppFlavorConfiguratorImpl(val parent: BaseAndroidConfiguratorKt, override 
                     getReleaseCallbacks(parent.project, name).forEach { it(name, _appVersion.versionName.orEmpty()) }
                 }
             }
-        }
-
-        val appName = this.name
-        android.androidProject.run {
-            val organizeTask = rootProject.tasks.maybeCreate("${appName}OrganizeStrings")
-            organizeTask.doLast { updateLocalization(android, appName) }
-            organizeTask.group = "ak2"
-
-            val checkTask = rootProject.tasks.create("${appName}CheckStrings")
-            checkTask.doLast { checkLocalization(android, appName) }
-            checkTask.group = "ak2"
         }
     }
 

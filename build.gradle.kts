@@ -36,8 +36,6 @@ dependencies {
     implementation( "com.android.tools.build:gradle:3.4.1")
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.31")
     implementation("org.jacoco:org.jacoco.core:0.7.9")
-    implementation("org.languagetool:language-en:4.2")
-    implementation("org.languagetool:language-ru:4.2")
     implementation(kotlin("stdlib-jdk8"))
 }
 
