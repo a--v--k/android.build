@@ -16,15 +16,13 @@
 
 package org.ak2.android.build
 
-import org.ak2.android.build.configurators.*
+import org.ak2.android.build.configurators.AppVersionKt
+import org.ak2.android.build.configurators.ProjectConfiguration
 import org.ak2.android.build.dependencies.base.*
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.NativeAbiType
 import org.ak2.android.build.flavors.NativePlatforms
-import org.ak2.android.build.flavors.native32
 import org.ak2.android.build.release.ReleaseCallback
-import org.gradle.api.initialization.Settings
-import org.gradle.kotlin.dsl.KotlinBuildScript
 
 interface GlobalSettingsConfigurator {
 
@@ -59,11 +57,15 @@ interface AppConfigurator : BaseAppConfigurator
 
 interface AppSetConfigurator : DependenciesConfigurator, NativeConfigurator {
 
-    fun app(appName : String, block: AppFlavorConfigurator.() -> Unit)
+    fun app(appName : String, id : String? = null, block: AppFlavorConfigurator.() -> Unit)
 
     interface AppFlavorConfigurator : BaseAppConfigurator {
 
-        fun id(id: String)
+        val name : String
+
+        var id : String?
+
+        var enabled : Boolean
     }
 }
 

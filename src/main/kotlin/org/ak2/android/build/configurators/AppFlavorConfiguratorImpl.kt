@@ -39,18 +39,22 @@ import java.io.FileInputStream
 import java.util.*
 
 
-class AppFlavorConfiguratorImpl(val parent: BaseAndroidConfiguratorKt, override val name: String, appFolder: File = parent.project.projectDir) : Flavor, AppFlavorConfigurator {
-
+class AppFlavorConfiguratorImpl(
+    val parent: BaseAndroidConfiguratorKt,
+    override val name: String,
+    appFolder: File = parent.project.projectDir
+) : Flavor, AppFlavorConfigurator {
 
     val singleAppMode = appFolder == parent.project.projectDir
+
+    override var id: String? = null
+
+    override var enabled : Boolean = false
 
     override val dimensionName = "App"
 
     override val config = if (singleAppMode) parent.config else InnerProjectConfiguration(parent.project, appFolder, parent.config)
 
-    var enabled = false
-
-    private var _id: String? = null
     private val _appVersion = AppVersionKt()
 
     private var _appProperties: Properties
@@ -83,10 +87,6 @@ class AppFlavorConfiguratorImpl(val parent: BaseAndroidConfiguratorKt, override 
 
     }
 
-    override fun id(id: String) {
-        _id = id
-    }
-
     override fun version(block: AppVersionKt.() -> Unit) = _appVersion.block()
     override fun dependsOn(block: DependencyBuilder.() -> Unit) = _localDependencies.block()
     override fun release(block: AppReleaseConfigurator.() -> Unit) = _releaseConfigurator.block()
@@ -106,7 +106,7 @@ class AppFlavorConfiguratorImpl(val parent: BaseAndroidConfiguratorKt, override 
     override fun configure(android: BaseExtension) {
         val productFlavor = android.productFlavors.maybeCreate(this.name)
         productFlavor.dimension = dimensionName
-        productFlavor.applicationId = _id
+        productFlavor.applicationId = id
 
         _localNativeConfigurator.configure(android, productFlavor)
         _localDependencies.configure(this.name, android)
