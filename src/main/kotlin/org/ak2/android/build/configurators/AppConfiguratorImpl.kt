@@ -21,6 +21,7 @@ import org.ak2.android.build.BaseAppConfigurator.AppDebugConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppReleaseConfigurator
 import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
+import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
 import org.ak2.android.build.flavors.VariantConfig
 import org.gradle.kotlin.dsl.KotlinBuildScript
 
@@ -33,6 +34,7 @@ class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorK
     override fun       release(block: AppReleaseConfigurator.() -> Unit) = appFlavor.release(block)
     override fun         debug(block: AppDebugConfigurator.()   -> Unit) = appFlavor.debug(block)
     override fun nativeOptions(block: NativeOptionsBuilder.()   -> Unit) = appFlavor.nativeOptions(block)
+    override fun checkStrings(block:  StringCheckOptions.()     -> Unit) = appFlavor.checkStrings(block)
 
     fun configure(block: AppConfiguratorImpl.() -> Unit)     = configureProject { this.block()  }
 

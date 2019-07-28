@@ -24,12 +24,6 @@ import org.ak2.android.build.flavors.NativeAbiType
 import org.ak2.android.build.flavors.NativePlatforms
 import org.ak2.android.build.release.ReleaseCallback
 
-interface GlobalSettingsConfigurator {
-
-    fun module(path: String)
-    fun module(alias: String, path: String)
-}
-
 interface LibraryConfigurator : BuildConfigurator, DependenciesConfigurator, NativeConfigurator {
 
     val config : ProjectConfiguration
@@ -53,13 +47,13 @@ interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
     }
 }
 
-interface AppConfigurator : BaseAppConfigurator
+interface AppConfigurator : BaseAppConfigurator, ResourceCheckConfigurator
 
 interface AppSetConfigurator : DependenciesConfigurator, NativeConfigurator {
 
     fun app(appName : String, id : String? = null, block: AppFlavorConfigurator.() -> Unit)
 
-    interface AppFlavorConfigurator : BaseAppConfigurator {
+    interface AppFlavorConfigurator : BaseAppConfigurator, ResourceCheckConfigurator {
 
         val name : String
 
@@ -126,3 +120,12 @@ interface NativeConfigurator {
     }
 }
 
+interface ResourceCheckConfigurator {
+
+    fun checkStrings(block : StringCheckOptions.() -> Unit)
+
+    interface StringCheckOptions {
+
+        val languagesToCheck : MutableSet<String>
+    }
+}

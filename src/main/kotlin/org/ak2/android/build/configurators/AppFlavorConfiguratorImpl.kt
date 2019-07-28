@@ -25,10 +25,14 @@ import org.ak2.android.build.BaseAppConfigurator.AppDebugConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppReleaseConfigurator
 import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
+import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
 import org.ak2.android.build.dependencies.KnownDependencies
 import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.flavors.Flavor
 import org.ak2.android.build.flavors.VariantConfig
+import org.ak2.android.build.i18n.StringCheckOptionsImpl
+import org.ak2.android.build.i18n.checkLocalization
+import org.ak2.android.build.i18n.updateLocalization
 import org.ak2.android.build.ndk.NativeConfiguratorImpl
 import org.ak2.android.build.release.getReleaseCallbacks
 import org.ak2.android.build.signing.DebugSigningConfiguratorKt
@@ -62,6 +66,7 @@ class AppFlavorConfiguratorImpl(
 
     private val _localDependencies = KnownDependencies()
     private val _localNativeConfigurator = NativeConfiguratorImpl()
+    private val _stringCheckOptions = StringCheckOptionsImpl()
 
     private val _debugSigningConfigurator: DebugSigningConfiguratorKt
     private val _releaseSigningConfigurator: ReleaseAppFlavorSigningConfiguratorKt
@@ -84,14 +89,14 @@ class AppFlavorConfiguratorImpl(
         _appVersion.fromProperties(_appProperties)
 
         _proguardFile = File(appFolder, "proguard.cfg")
-
     }
 
-    override fun version(block: AppVersionKt.() -> Unit) = _appVersion.block()
-    override fun dependsOn(block: DependencyBuilder.() -> Unit) = _localDependencies.block()
-    override fun release(block: AppReleaseConfigurator.() -> Unit) = _releaseConfigurator.block()
-    override fun debug(block: AppDebugConfigurator.() -> Unit) = _debugConfigurator.block()
-    override fun nativeOptions(block: NativeOptionsBuilder.() -> Unit) = _localNativeConfigurator.block()
+    override fun version(block: AppVersionKt.() -> Unit)                = _appVersion.block()
+    override fun dependsOn(block: DependencyBuilder.() -> Unit)         = _localDependencies.block()
+    override fun release(block: AppReleaseConfigurator.() -> Unit)      = _releaseConfigurator.block()
+    override fun debug(block: AppDebugConfigurator.() -> Unit)          = _debugConfigurator.block()
+    override fun nativeOptions(block: NativeOptionsBuilder.() -> Unit)  = _localNativeConfigurator.block()
+    override fun checkStrings(block: StringCheckOptions.() -> Unit)     = _stringCheckOptions.block()
 
     fun configure(block: AppFlavorConfiguratorImpl.() -> Unit) = apply {
         enabled = true
@@ -133,6 +138,19 @@ class AppFlavorConfiguratorImpl(
                 doOnce(android, "ApplicationReleaseConfigurator$name") {
                     getReleaseCallbacks(parent.project, name).forEach { it(name, _appVersion.versionName.orEmpty()) }
                 }
+            }
+        }
+
+        if (_stringCheckOptions.languagesToCheck.isNotEmpty()) {
+            val appName = this.name
+            android.androidProject.run {
+                val organizeTask = rootProject.tasks.maybeCreate("${appName}OrganizeStrings")
+                organizeTask.doLast { updateLocalization(android, appName, _stringCheckOptions) }
+                organizeTask.group = "ak2"
+
+                val checkTask = rootProject.tasks.create("${appName}CheckStrings")
+                checkTask.doLast { checkLocalization(android, appName, _stringCheckOptions) }
+                checkTask.group = "ak2"
             }
         }
     }
