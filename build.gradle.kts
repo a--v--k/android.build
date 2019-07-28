@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "org.ak2"
-version = "3.4.1-rc10"
+version = "3.4.1-rc11"
 
 buildscript {
     repositories {
