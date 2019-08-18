@@ -154,6 +154,7 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
 
     protected open fun configureFlavors() {
         println("${project.path}: Configure flavors...")
+
         project.androidExtension.addVariantConfigurator { variant ->
             val dependencyName = getDependencyName(variant.name)
             project.configurations.maybeCreate(dependencyName)
@@ -162,6 +163,8 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
 
         val variantConfigs = project.androidExtension.getVariantConfigs()
         val dimensionsNames = variantConfigs.values.getDimensions()
+        println("${project.path}: Add flavors $dimensionsNames for this project")
+
         project.androidExtension.flavorDimensions(* dimensionsNames.toTypedArray())
 
         variantConfigs.values.toFlavors().forEach { it.configure(project.androidExtension) }

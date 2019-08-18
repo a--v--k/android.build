@@ -33,7 +33,11 @@ sealed class AppFlavorBuildTypeConfigurator(val buildType: String, val appFlavor
         } else {
             localFlavors.toFlavors()
                 .map {
-                    it.toVariantConfig(this.buildType, appFlavor)
+                    if (appFlavor.singleAppMode) {
+                        it.toVariantConfig(this.buildType)
+                    } else {
+                        it.toVariantConfig(this.buildType, appFlavor)
+                    }
                 }
                 .forEach {
                     variantConfigs.put(it.name.value, it)
