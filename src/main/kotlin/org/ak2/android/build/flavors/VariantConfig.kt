@@ -29,6 +29,13 @@ data class VariantConfig(val buildType: String? = null, val appFlavor: AppFlavor
                 .build()
     }
 
+    val suffix = lazy {
+        sequenceOf(androidFlavor, nativeFlavor)
+            .filterNotNull()
+            .map { it.name.toLowerCase() }
+            .joinToString(separator = "-")
+    }
+
     val dimensions = lazy {
         toFlavors().map(Flavor::dimensionName).toList()
     }

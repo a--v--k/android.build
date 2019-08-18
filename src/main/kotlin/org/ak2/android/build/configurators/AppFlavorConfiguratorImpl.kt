@@ -221,66 +221,69 @@ class AppFlavorConfiguratorImpl(
             val appFlavorName = appFlavor.name
             val buildTypeName = variant.buildType
 
-            val suffix = sequenceOf(variant.androidFlavor, variant.nativeFlavor)
-                .filterNotNull()
-                .map { it.name.toLowerCase() }
-                .joinToString(separator = "-")
-
             val apkFolder = "../../$buildTypeName/$appFlavorName"
 
-            var apkName = if (suffix.isNullOrEmpty())
-                "$apkFolder/$appFlavorName.apk"
-            else
-                "$apkFolder/$appFlavorName-$suffix.apk"
+            val apkConfig = if (buildTypeName == "release") {
+                ApkConfig.Release(android, appFlavor, variant, apkFolder)
+            } else {
+                ApkConfig.Debug(android, appFlavor, variant, apkFolder)
+            }
 
-            var versionName: String? = null
-            var versionCode :Int = 0
+            v.outputs.forEach {
+                setAppProperties(v, it as ApkVariantOutput, apkConfig)
+            }
+        }
 
-            if (buildTypeName == "release") {
+        private fun setAppProperties(v: ApkVariant, output: ApkVariantOutput, apkConfig : ApkConfig) {
+            // TODO should be replaced later
+            // val originFolder = output.outputFile.parentFile.canonicalFile
+            // val target = File(originFolder, apkConfig.apkName).canonicalPath
+
+            apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let { versionName -> output.versionNameOverride = versionName }
+            apkConfig.versionCode.takeIf  { it != 0         }?.let { versionCode -> output.versionCodeOverride = versionCode }
+
+            output.outputFileName = apkConfig.apkPath
+        }
+    }
+
+    sealed class ApkConfig(var apkPath: String? = null, var versionName : String? = null, var versionCode : Int = 0) {
+
+        class Release(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
+            init {
                 versionCode = appFlavor._appVersion.versionCode
 
-                val indexOf = appFlavor._releaseConfigurator.localFlavors.toFlavors().indexOf(variant.toFlavorConfig());
-                require(indexOf >= 0) { "Cannot find variant ${variant.name} in ${android.androidProject.path}" }
-                versionCode += indexOf
+                if (!appFlavor.singleAppMode) {
+                    val index = appFlavor._releaseConfigurator.localFlavors.toFlavors().indexOf(variant.toFlavorConfig());
+                    require(index >= 0) { "Cannot find variant ${variant.name} in ${android.androidProject.path}" }
+                    versionCode += index
+                }
 
                 versionName = appFlavor._appVersion.versionName
 
-                apkName = if (suffix.isNullOrEmpty())
-                    "$apkFolder/$versionName/$appFlavorName-$versionName-$versionCode.apk"
-                else
-                    "$apkFolder/$versionName/$appFlavorName-$versionName-$versionCode-$suffix.apk"
-            } else {
-                apkName = if (suffix.isNullOrEmpty())
-                    "$apkFolder/$appFlavorName-debug.apk"
-                else
-                    "$apkFolder/$appFlavorName-$suffix-debug.apk"
+                val apkName = listOf(appFlavor.name, versionName, versionCode.toString(), variant.suffix.value)
+                    .filterNotNull()
+                    .filter{ it.isNotEmpty() }
+                    .joinToString(separator = "-")
+
+                apkPath = "$apkFolder/${versionName}/${apkName}.apk"
+            }
+        }
+
+        class Debug(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
+            init {
+                val apkName = listOf(appFlavor.name, variant.suffix.value, variant.buildType)
+                    .filterNotNull()
+                    .filter{ it.isNotEmpty() }
+                    .joinToString(separator = "-")
+
+                apkPath ="$apkFolder/$apkName.apk"
 
                 android.androidProject.config.debugVersion?.let {
                     versionCode = it.versionCode
                     versionName = it.versionName
                 }
             }
-
-            v.outputs.forEach {
-                setAppProperties(v, it as ApkVariantOutput, versionName, versionCode, apkName)
-            }
         }
-
-        private fun setAppProperties(v: ApkVariant, output: ApkVariantOutput, versionName: String?, versionCode: Int, apkName: String) {
-            // TODO should be replaced later
-            val originFolder = output.outputFile.parentFile.canonicalFile
-            val target = File(originFolder, apkName).canonicalPath
-
-            if (!versionName.isNullOrEmpty()) {
-                output.versionNameOverride = versionName
-            }
-            if (versionCode != 0) {
-                output.versionCodeOverride = versionCode
-            }
-
-            output.outputFileName = apkName
-        }
-
     }
 }
 
@@ -295,3 +298,6 @@ private fun loadFromFile(propertyFile: File): Properties {
     }
     return p
 }
+
+
+
