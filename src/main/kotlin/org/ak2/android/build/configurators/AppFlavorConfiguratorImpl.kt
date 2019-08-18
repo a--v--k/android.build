@@ -221,7 +221,9 @@ class AppFlavorConfiguratorImpl(
             val appFlavorName = appFlavor.name
             val buildTypeName = variant.buildType
 
-            val apkFolder = "../../$buildTypeName/$appFlavorName"
+            val backToOutputs = if (variant.hasFlavors()) { "../../.." } else { "../.." }
+
+            val apkFolder = "$backToOutputs/packages/$buildTypeName/$appFlavorName"
 
             val apkConfig = if (buildTypeName == "release") {
                 ApkConfig.Release(android, appFlavor, variant, apkFolder)
