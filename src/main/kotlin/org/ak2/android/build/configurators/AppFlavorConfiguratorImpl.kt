@@ -254,7 +254,7 @@ class AppFlavorConfiguratorImpl(
             init {
                 versionCode = appFlavor._appVersion.versionCode
 
-                if (!appFlavor.singleAppMode) {
+                if (variant.hasFlavors()) {
                     val index = appFlavor._releaseConfigurator.localFlavors.toFlavors().indexOf(variant.toFlavorConfig());
                     require(index >= 0) { "Cannot find variant ${variant.name} in ${android.androidProject.path}" }
                     versionCode += index
