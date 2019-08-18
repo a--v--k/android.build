@@ -114,7 +114,10 @@ class AppFlavorConfiguratorImpl(
         }
 
         _localNativeConfigurator.configure(android, productFlavor)
-        _localDependencies.configure(this.name, android)
+
+        if (!singleAppMode) {
+            _localDependencies.configure(this.name, android)
+        }
 
         if (_proguardFile.exists()) {
             println("${android.androidProject.path}: Configure proguard: ${_proguardFile}")
@@ -138,8 +141,6 @@ class AppFlavorConfiguratorImpl(
         } else {
             ReleaseAppFlavorSigningConfiguratorKt(name, config.releaseSigningConfig).defineSigningConfig(android, productFlavor)
         }
-
-        _localNativeConfigurator.configure(android, productFlavor)
 
         doOnce(android, "ApplicationVersionConfigurator") {
             android.addPostConfigurator {
