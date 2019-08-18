@@ -18,11 +18,11 @@ package org.ak2.android.build.flavors
 
 import org.ak2.android.build.configurators.AppFlavorConfiguratorImpl
 
-data class VariantConfig(val buildType: String? = null, val appFlavor: AppFlavorConfiguratorImpl? = null, val androidFlavor: AndroidPlatforms?, val nativeFlavor: NativePlatforms? = null) {
+data class VariantConfig(val buildType: String? = null, val appFlavor: AppFlavorConfiguratorImpl? = null, val androidFlavor: AndroidPlatforms? = null, val nativeFlavor: NativePlatforms? = null) {
 
     val name = lazy {
         VariantNameBuilder()
-                .append(if (appFlavor == null) "" else appFlavor.name)
+                .append(appFlavor?.name ?: "")
                 .append(androidFlavor)
                 .append(nativeFlavor)
                 .append(buildType)

@@ -27,13 +27,18 @@ import org.ak2.android.build.release.addReleaseCallback
 sealed class AppFlavorBuildTypeConfigurator(val buildType: String, val appFlavor: AppFlavorConfiguratorImpl, val localFlavors : FlavorConfigs = FlavorConfigs()) : BuildConfigurator by localFlavors {
 
     fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>) {
-        localFlavors.toFlavors()
+        if (localFlavors.isEmpty()) {
+            val buildTypeConfig = VariantConfig(buildType = buildType)
+            variantConfigs.put(buildTypeConfig.name.value, buildTypeConfig)
+        } else {
+            localFlavors.toFlavors()
                 .map {
                     it.toVariantConfig(this.buildType, appFlavor)
                 }
                 .forEach {
                     variantConfigs.put(it.name.value, it)
                 }
+        }
     }
 
     class AppReleaseConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator("release", appFlavor), AppReleaseConfigurator {

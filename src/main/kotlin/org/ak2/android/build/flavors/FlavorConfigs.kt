@@ -34,5 +34,7 @@ class FlavorConfigs : BuildConfigurator {
     }
 
     fun toFlavors() = flavors.values.asSequence()
+
+    fun isEmpty() = flavors.isEmpty()
 }
 
