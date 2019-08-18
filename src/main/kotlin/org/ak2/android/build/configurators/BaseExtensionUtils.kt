@@ -97,13 +97,6 @@ private fun BaseExtension.getPostConfigurators(): MutableList<VariantPostConfigu
     return putExtraIfAbsent(this, "VariantPostConfiguratorList") { ArrayList() }
 }
 
-fun getDefaultAppName(projectName: String) =
-        StringBuilder()
-                .append(projectName[0].toLowerCase())
-                .append(projectName.substring(1, projectName.length))
-                .toString()
-
-
 fun getDependencyName(variantName: String) =
         StringBuilder()
                 .append(variantName[0].toLowerCase())

@@ -27,7 +27,7 @@ import org.gradle.kotlin.dsl.KotlinBuildScript
 
 class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppConfigurator {
 
-    private val appFlavor = AppFlavorConfiguratorImpl(this, getDefaultAppName(project.name)).apply { enabled = true }
+    private val appFlavor = AppFlavorConfiguratorImpl(this, project.name).apply { enabled = true }
 
     override fun       version(block: AppVersionKt.()           -> Unit) = appFlavor.version(block)
     override fun     dependsOn(block: DependencyBuilder.()      -> Unit) = knownDependencies.block()

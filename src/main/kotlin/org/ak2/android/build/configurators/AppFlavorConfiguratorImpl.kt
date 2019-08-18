@@ -260,7 +260,8 @@ class AppFlavorConfiguratorImpl(
 
                 versionName = appFlavor._appVersion.versionName
 
-                val apkName = listOf(appFlavor.name, versionName, versionCode.toString(), variant.suffix.value)
+                val packageName = appFlavor._appProperties.getProperty("package.name", appFlavor.name)
+                val apkName = listOf(packageName, versionName, versionCode.toString(), variant.suffix.value)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
                     .joinToString(separator = "-")
@@ -271,7 +272,8 @@ class AppFlavorConfiguratorImpl(
 
         class Debug(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
             init {
-                val apkName = listOf(appFlavor.name, variant.suffix.value, variant.buildType)
+                val packageName = appFlavor._appProperties.getProperty("package.name", appFlavor.name)
+                val apkName = listOf(packageName, variant.suffix.value, variant.buildType)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
                     .joinToString(separator = "-")
