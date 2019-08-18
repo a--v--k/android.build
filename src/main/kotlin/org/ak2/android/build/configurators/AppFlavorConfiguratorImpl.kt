@@ -106,7 +106,7 @@ class AppFlavorConfiguratorImpl(
     override fun configure(android: BaseExtension) {
         println("${android.androidProject.path}: Configure ${this.name}")
 
-        val productFlavor: ProductFlavor? = singleAppMode.takeIf { it }?.let {
+        val productFlavor: ProductFlavor? = singleAppMode.takeIf { !it }?.let {
             android.productFlavors.maybeCreate(this.name).apply {
                 dimension = dimensionName
                 applicationId = id
