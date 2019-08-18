@@ -16,10 +16,10 @@
 
 package org.ak2.android.build.configurators
 
-import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.ApkVariant
 import com.android.build.gradle.api.ApkVariantOutput
+import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.AppSetConfigurator.AppFlavorConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppDebugConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppReleaseConfigurator
@@ -37,6 +37,7 @@ import org.ak2.android.build.ndk.NativeConfiguratorImpl
 import org.ak2.android.build.release.getReleaseCallbacks
 import org.ak2.android.build.signing.DebugSigningConfiguratorKt
 import org.ak2.android.build.signing.ReleaseAppFlavorSigningConfiguratorKt
+import org.ak2.android.build.signing.ReleaseSigningConfiguratorKt
 import org.gradle.api.GradleException
 import java.io.File
 import java.io.FileInputStream
@@ -68,9 +69,6 @@ class AppFlavorConfiguratorImpl(
     private val _localNativeConfigurator = NativeConfiguratorImpl()
     private val _stringCheckOptions = StringCheckOptionsImpl()
 
-    private val _debugSigningConfigurator: DebugSigningConfiguratorKt
-    private val _releaseSigningConfigurator: ReleaseAppFlavorSigningConfiguratorKt
-
     private val _releaseConfigurator = AppFlavorBuildTypeConfigurator.AppReleaseConfiguratorImpl(this)
     private val _debugConfigurator = AppFlavorBuildTypeConfigurator.AppDebugConfiguratorImpl(this)
 
@@ -82,10 +80,7 @@ class AppFlavorConfiguratorImpl(
 
         _appProperties = loadFromFile(buildProperties)
 
-        _debugSigningConfigurator = DebugSigningConfiguratorKt(config.debugSigningConfig)
-        _releaseSigningConfigurator = ReleaseAppFlavorSigningConfiguratorKt(name, config.releaseSigningConfig)
-
-        _localNativeConfigurator.load(parent.project, _appProperties, _releaseSigningConfigurator.params)
+        _localNativeConfigurator.load(parent.project, _appProperties, config.releaseSigningConfig)
         _appVersion.fromProperties(_appProperties)
 
         _proguardFile = File(appFolder, "proguard.cfg")
@@ -111,30 +106,48 @@ class AppFlavorConfiguratorImpl(
     override fun configure(android: BaseExtension) {
         println("${android.androidProject.path}: Configure ${this.name}")
 
-        val productFlavor = android.productFlavors.maybeCreate(this.name)
-        productFlavor.dimension = dimensionName
-        productFlavor.applicationId = id
+        val productFlavor: ProductFlavor? = singleAppMode.takeIf { it }?.let {
+            android.productFlavors.maybeCreate(this.name).apply {
+                dimension = dimensionName
+                applicationId = id
+            }
+        }
 
         _localNativeConfigurator.configure(android, productFlavor)
         _localDependencies.configure(this.name, android)
 
         if (_proguardFile.exists()) {
             println("${android.androidProject.path}: Configure proguard: ${_proguardFile}")
-            productFlavor.setProguardFiles(listOf(_proguardFile))
+            productFlavor?.setProguardFiles(listOf(_proguardFile))
             doOnce(android, "ProguardConfig") {
-                android.buildTypes.maybeCreate("release").setMinifyEnabled(true)
+                android.buildTypes.maybeCreate("release").apply {
+                    setMinifyEnabled(true)
+                    if (singleAppMode) {
+                        setProguardFiles(listOf(_proguardFile))
+                    }
+                }
             }
         } else {
             println("${android.androidProject.path}: No proguard configuration available")
         }
 
-        _debugSigningConfigurator.defineSigningConfig(android as AppExtension)
-        _releaseSigningConfigurator.defineSigningConfig(android, productFlavor)
+        DebugSigningConfiguratorKt(config.debugSigningConfig).defineSigningConfig(android)
+
+        if (productFlavor == null) {
+            ReleaseSigningConfiguratorKt(config.releaseSigningConfig).defineSigningConfig(android)
+        } else {
+            ReleaseAppFlavorSigningConfiguratorKt(name, config.releaseSigningConfig).defineSigningConfig(android, productFlavor)
+        }
+
         _localNativeConfigurator.configure(android, productFlavor)
 
         doOnce(android, "ApplicationVersionConfigurator") {
             android.addPostConfigurator {
-                updateApplicationVersion(android, it as ApkVariant)
+                if (singleAppMode) {
+                    updateSingleApplicationVersion(android, this, it as ApkVariant)
+                } else {
+                    updateMultiApplicationVersion(android, it as ApkVariant)
+                }
             }
         }
 
@@ -183,7 +196,7 @@ class AppFlavorConfiguratorImpl(
 
     companion object {
 
-        fun updateApplicationVersion(android: BaseExtension, v: ApkVariant) {
+        fun updateMultiApplicationVersion(android: BaseExtension, v: ApkVariant) {
             val variantConfigs = android.getVariantConfigs();
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
@@ -191,13 +204,26 @@ class AppFlavorConfiguratorImpl(
             val appFlavor = variant.appFlavor
             require(appFlavor != null) { "Application flavor missed for ${v.name}" }
 
+            updateApplicationVersion(android, appFlavor, variant, v)
+        }
+
+        fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApkVariant) {
+            val variantConfigs = android.getVariantConfigs();
+            val variant = variantConfigs[v.name]
+            require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
+
+            updateApplicationVersion(android, appFlavor, variant, v)
+        }
+
+        fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant : VariantConfig, v: ApkVariant) {
+
             val appFlavorName = appFlavor.name
             val buildTypeName = variant.buildType
 
             val suffix = sequenceOf(variant.androidFlavor, variant.nativeFlavor)
-                    .filterNotNull()
-                    .map { it.name.toLowerCase() }
-                    .joinToString(separator = "-")
+                .filterNotNull()
+                .map { it.name.toLowerCase() }
+                .joinToString(separator = "-")
 
             val apkFolder = "../../$buildTypeName/$appFlavorName"
 
@@ -257,7 +283,7 @@ class AppFlavorConfiguratorImpl(
     }
 }
 
-fun loadFromFile(propertyFile: File): Properties {
+private fun loadFromFile(propertyFile: File): Properties {
     require(propertyFile.exists()) { "Properties file not found: ${propertyFile.absolutePath}" }
 
     val p = Properties()

@@ -16,14 +16,14 @@
 
 package org.ak2.android.build.signing
 
-import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.configurators.androidProject
 import org.ak2.android.build.extras.doOnce
 import java.io.File
 
 open class BaseSigningConfiguratorKt(val buildType: String, val configName: String = "${buildType}SigningConfig", var params: SigningConfigParams? = null) {
 
-    fun defineSigningConfig(android: AppExtension) {
+    fun defineSigningConfig(android: BaseExtension) {
         defineSigningConfig(android) { resolvedKeystoreFile, params ->
             buildTypes.maybeCreate(buildType).signingConfig = signingConfigs.maybeCreate(configName).apply {
                 storeFile = resolvedKeystoreFile
@@ -36,7 +36,7 @@ open class BaseSigningConfiguratorKt(val buildType: String, val configName: Stri
         }
     }
 
-    protected fun defineSigningConfig(android: AppExtension, block: AppExtension.(File, SigningConfigParams) -> Unit) {
+    protected fun defineSigningConfig(android: BaseExtension, block: BaseExtension.(File, SigningConfigParams) -> Unit) {
         val actualParams = params
         if (actualParams == null) {
             println("${android.androidProject.path}: keystore file not defined for $buildType")

@@ -16,13 +16,13 @@
 
 package org.ak2.android.build.signing
 
-import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.configurators.androidProject
 
 class ReleaseAppFlavorSigningConfiguratorKt(appName: String, params: SigningConfigParams? = null) : BaseSigningConfiguratorKt("release", "${appName}ReleaseSigningConfig", params) {
 
-    fun defineSigningConfig(android: AppExtension, appFlavor: ProductFlavor) {
+    fun defineSigningConfig(android: BaseExtension, appFlavor: ProductFlavor) {
         defineSigningConfig(android) { resolvedKeystoreFile, params ->
             appFlavor.signingConfig = signingConfigs.maybeCreate(configName).apply {
                 storeFile = resolvedKeystoreFile
