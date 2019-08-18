@@ -144,11 +144,16 @@ class AppFlavorConfiguratorImpl(
         if (_stringCheckOptions.languagesToCheck.isNotEmpty()) {
             val appName = this.name
             android.androidProject.run {
-                val organizeTask = rootProject.tasks.maybeCreate("${appName}OrganizeStrings")
+                val organizeTaskName = "${appName}OrganizeStrings"
+                val checkTaskName = "${appName}CheckStrings"
+
+                println("${path}: Configure string check tasks: ${organizeTaskName} ${checkTaskName}")
+
+                val organizeTask = tasks.maybeCreate(organizeTaskName)
                 organizeTask.doLast { updateLocalization(android, appName, _stringCheckOptions) }
                 organizeTask.group = "ak2"
 
-                val checkTask = rootProject.tasks.create("${appName}CheckStrings")
+                val checkTask = tasks.maybeCreate(checkTaskName)
                 checkTask.doLast { checkLocalization(android, appName, _stringCheckOptions) }
                 checkTask.group = "ak2"
             }
