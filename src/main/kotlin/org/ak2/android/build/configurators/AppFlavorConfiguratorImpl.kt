@@ -109,6 +109,8 @@ class AppFlavorConfiguratorImpl(
     }
 
     override fun configure(android: BaseExtension) {
+        println("${android.androidProject.path}: Configure ${this.name}")
+
         val productFlavor = android.productFlavors.maybeCreate(this.name)
         productFlavor.dimension = dimensionName
         productFlavor.applicationId = id
@@ -117,10 +119,13 @@ class AppFlavorConfiguratorImpl(
         _localDependencies.configure(this.name, android)
 
         if (_proguardFile.exists()) {
+            println("${android.androidProject.path}: Configure proguard: ${_proguardFile}")
             productFlavor.setProguardFiles(listOf(_proguardFile))
             doOnce(android, "ProguardConfig") {
                 android.buildTypes.maybeCreate("release").setMinifyEnabled(true)
             }
+        } else {
+            println("${android.androidProject.path}: No proguard configuration available")
         }
 
         _debugSigningConfigurator.defineSigningConfig(android as AppExtension)

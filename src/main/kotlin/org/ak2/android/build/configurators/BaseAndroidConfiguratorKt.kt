@@ -152,7 +152,7 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
 
     protected abstract fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>);
 
-    protected fun configureFlavors() {
+    protected open fun configureFlavors() {
         println("${project.path}: Configure flavors...")
         project.androidExtension.addVariantConfigurator { variant ->
             val dependencyName = getDependencyName(variant.name)

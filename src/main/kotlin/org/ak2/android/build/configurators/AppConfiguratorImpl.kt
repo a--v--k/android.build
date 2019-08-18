@@ -41,4 +41,10 @@ class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorK
     override fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>) {
         appFlavor.buildVariants(variantConfigs)
     }
+
+    override fun configureFlavors() {
+        super.configureFlavors();
+        appFlavor.configure(project.androidExtension)
+    }
+
 }
