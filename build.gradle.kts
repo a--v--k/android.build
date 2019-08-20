@@ -14,8 +14,8 @@ buildscript {
 
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "1.3.41"
-    id("com.gradle.plugin-publish") version "0.10.1"
+    kotlin("jvm")
+    id("com.gradle.plugin-publish")
 }
 
 repositories {
@@ -25,14 +25,17 @@ repositories {
     gradlePluginPortal()
 }
 
+val kotlinVersion             : String by project
+val androidBuildPluginVersion : String by project
+
 dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
-    implementation( "com.android.tools.build:gradle:3.5.0")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.41")
+    implementation( "com.android.tools.build:gradle:$androidBuildPluginVersion")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     implementation("org.jacoco:org.jacoco.core:0.7.9")
     implementation("org.languagetool:languagetool-core:4.2")
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib-jdk8", kotlinVersion))
 }
 
 tasks.withType<KotlinCompile> {
