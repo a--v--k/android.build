@@ -12,15 +12,6 @@ gradle.publish.secret
 
 loadProperties("local.properties").forEach { key, value -> project.ext.set(key.toString(), value) }
 
-buildscript {
-    repositories {
-        google()
-        jcenter()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
 plugins {
     `kotlin-dsl`
     kotlin("jvm")
