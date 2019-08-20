@@ -1,7 +1,16 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.konan.properties.loadProperties
 
 group = "org.ak2"
 version = "3.5.0-rc-02"
+
+require(File("local.properties").exists()) { """
+The following properties must be stored in local.properties:
+gradle.publish.key
+gradle.publish.secret
+""".trimIndent() }
+
+loadProperties("local.properties").forEach { key, value -> project.ext.set(key.toString(), value) }
 
 buildscript {
     repositories {
