@@ -10,16 +10,11 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
     }
-
-    dependencies {
-        classpath( "com.android.tools.build:gradle:3.4.1")
-        classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.31")
-    }
 }
 
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.41"
     id("com.gradle.plugin-publish") version "0.10.1"
 }
 
@@ -33,8 +28,8 @@ repositories {
 dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
-    implementation( "com.android.tools.build:gradle:3.4.1")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.31")
+    implementation( "com.android.tools.build:gradle:3.5.0")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.41")
     implementation("org.jacoco:org.jacoco.core:0.7.9")
     implementation("org.languagetool:languagetool-core:4.2")
     implementation(kotlin("stdlib-jdk8"))
