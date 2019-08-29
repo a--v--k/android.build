@@ -23,6 +23,7 @@ import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.NativeAbiType
 import org.ak2.android.build.flavors.NativePlatforms
 import org.ak2.android.build.release.ReleaseCallback
+import org.ak2.android.build.signing.ProguardConfig
 
 interface LibraryConfigurator : BuildConfigurator, DependenciesConfigurator, NativeConfigurator {
 
@@ -41,6 +42,8 @@ interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
     interface AppReleaseConfigurator : BuildConfigurator {
 
         fun onRelease(releaseCallback: ReleaseCallback)
+
+        fun proguard(block: ProguardConfig.() -> Unit)
     }
 
     interface AppDebugConfigurator : BuildConfigurator {

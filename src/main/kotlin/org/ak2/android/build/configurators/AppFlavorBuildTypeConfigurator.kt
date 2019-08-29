@@ -23,6 +23,7 @@ import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.release.addReleaseCallback
+import org.ak2.android.build.signing.ProguardConfig
 
 sealed class AppFlavorBuildTypeConfigurator(val buildType: String, val appFlavor: AppFlavorConfiguratorImpl, val localFlavors : FlavorConfigs = FlavorConfigs()) : BuildConfigurator by localFlavors {
 
@@ -46,6 +47,9 @@ sealed class AppFlavorBuildTypeConfigurator(val buildType: String, val appFlavor
     }
 
     class AppReleaseConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator("release", appFlavor), AppReleaseConfigurator {
+        override fun proguard(block: ProguardConfig.() -> Unit) {
+            appFlavor.config.proguardConfig = ProguardConfig().apply { this.block() }
+        }
 
         override fun onRelease(releaseCallback: ReleaseCallback) {
             appFlavor.parent.project.addReleaseCallback(appFlavor.name, releaseCallback)

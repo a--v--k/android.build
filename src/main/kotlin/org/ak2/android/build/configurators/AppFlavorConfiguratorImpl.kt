@@ -122,9 +122,13 @@ class AppFlavorConfiguratorImpl(
         if (_proguardFile.exists()) {
             println("${android.androidProject.path}: Configure proguard: ${_proguardFile}")
             productFlavor?.setProguardFiles(listOf(_proguardFile))
+
             doOnce(android, "ProguardConfig") {
                 android.buildTypes.maybeCreate("release").apply {
-                    setMinifyEnabled(true)
+
+                    setMinifyEnabled(config.proguardConfig.minifyEnabled)
+                    setShrinkResources(config.proguardConfig.shrinkResources)
+
                     if (singleAppMode) {
                         setProguardFiles(listOf(_proguardFile))
                     }

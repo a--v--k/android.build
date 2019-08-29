@@ -17,6 +17,7 @@
 package org.ak2.android.build.configurators
 
 import org.ak2.android.build.AndroidVersion.*
+import org.ak2.android.build.signing.ProguardConfig
 import org.ak2.android.build.signing.SigningConfigParams
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -42,6 +43,8 @@ interface ProjectConfiguration {
     val debugSigningConfig      : SigningConfigParams?
     val releaseSigningConfig    : SigningConfigParams?
 
+    var proguardConfig          : ProguardConfig
+
     var debugVersion            : AppVersionKt?
 }
 
@@ -62,6 +65,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 
     override val debugSigningConfig      : SigningConfigParams? = SigningConfigParams.fromProperties("debug", project.projectDir)
     override val releaseSigningConfig    : SigningConfigParams? = SigningConfigParams.fromProperties("release", project.projectDir)
+
+    override var proguardConfig          : ProguardConfig = ProguardConfig()
 
     override var debugVersion            : AppVersionKt? = AppVersionKt(versionName="debug", majorVersionCode=999, minorVersionCode=999)
 }
@@ -111,6 +116,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
 
     override val releaseSigningConfig: SigningConfigParams?
         get()      = getSigningConfig("release") { releaseSigningConfig }
+
+    override var proguardConfig: ProguardConfig
+        get()      = getProperty("proguardConfig") { proguardConfig }
+        set(value) = setProperty("proguardConfig", value)
 
     override var debugVersion: AppVersionKt?
         get()      = getProperty("debugVersion") { debugVersion }
