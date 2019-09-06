@@ -34,6 +34,10 @@ interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
 
     val config : ProjectConfiguration
 
+    val languages : MutableSet<String>
+
+    val densities : MutableSet<String>
+
     fun version(block: AppVersionKt.() -> Unit)
 
     fun release(block : AppReleaseConfigurator.()-> Unit)

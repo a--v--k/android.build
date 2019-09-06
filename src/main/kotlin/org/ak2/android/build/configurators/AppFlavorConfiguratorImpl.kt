@@ -42,6 +42,7 @@ import org.gradle.api.GradleException
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 
 class AppFlavorConfiguratorImpl(
@@ -59,6 +60,10 @@ class AppFlavorConfiguratorImpl(
     override val dimensionName = "App"
 
     override val config = if (singleAppMode) parent.config else InnerProjectConfiguration(parent.project, appFolder, parent.config)
+
+    override val languages : MutableSet<String> = LinkedHashSet()
+
+    override val densities : MutableSet<String> = LinkedHashSet()
 
     private val _appVersion = AppVersionKt()
 
@@ -136,6 +141,26 @@ class AppFlavorConfiguratorImpl(
             }
         } else {
             println("${android.androidProject.path}: No proguard configuration available")
+        }
+
+        if (singleAppMode) {
+            android.defaultConfig {
+                if (languages.isNotEmpty()) {
+                    resConfigs(languages)
+                }
+                if (densities.isNotEmpty()) {
+                    resConfigs(densities)
+                }
+            }
+        } else {
+            productFlavor?.run {
+                if (languages.isNotEmpty()) {
+                    resConfigs(languages)
+                }
+                if (densities.isNotEmpty()) {
+                    resConfigs(densities)
+                }
+            }
         }
 
         DebugSigningConfiguratorKt(config.debugSigningConfig).defineSigningConfig(android)

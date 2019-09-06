@@ -29,6 +29,12 @@ class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorK
 
     private val appFlavor = AppFlavorConfiguratorImpl(this, project.name).apply { enabled = true }
 
+    override val languages : MutableSet<String>
+        get() = appFlavor.languages
+
+    override val densities : MutableSet<String>
+        get() = appFlavor.languages
+
     override fun       version(block: AppVersionKt.()           -> Unit) = appFlavor.version(block)
     override fun     dependsOn(block: DependencyBuilder.()      -> Unit) = knownDependencies.block()
     override fun       release(block: AppReleaseConfigurator.() -> Unit) = appFlavor.release(block)
