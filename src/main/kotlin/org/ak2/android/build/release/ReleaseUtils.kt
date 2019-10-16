@@ -38,7 +38,7 @@ fun getReleaseCallbacks(project: Project, appName: String) = putExtraIfAbsent(pr
 
 fun createZip(project: Project, appName: String, archName: String, appVersion: String, destDir: String, zipConfigurator: Zip.() -> Unit) {
     val zipTaskName = "zip${appName.capitalize()}${archName.capitalize()}"
-    val path = "build/outputs/apk/release/$appName/$appVersion/$destDir"
+    val path = "build/outputs/packages/release/$appName/$appVersion/$destDir"
 
     project.run {
         val zipTask = tasks.create(zipTaskName, Zip::class.java)
