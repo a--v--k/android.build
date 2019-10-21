@@ -58,7 +58,7 @@ interface AppConfigurator : BaseAppConfigurator, ResourceCheckConfigurator
 
 interface AppSetConfigurator : DependenciesConfigurator, NativeConfigurator {
 
-    fun app(appName : String, id : String? = null, block: AppFlavorConfigurator.() -> Unit)
+    fun app(appName : String, id : String? = null, enabled: Boolean = true, block: AppFlavorConfigurator.() -> Unit)
 
     interface AppFlavorConfigurator : BaseAppConfigurator, ResourceCheckConfigurator {
 
