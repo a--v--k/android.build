@@ -99,7 +99,6 @@ class AppFlavorConfiguratorImpl(
     override fun checkStrings(block: StringCheckOptions.() -> Unit)     = _stringCheckOptions.block()
 
     fun configure(block: AppFlavorConfiguratorImpl.() -> Unit) = apply {
-        enabled = true
         this.block()
     }
 

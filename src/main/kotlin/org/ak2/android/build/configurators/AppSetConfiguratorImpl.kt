@@ -32,10 +32,11 @@ class AppSetConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfigurat
             .onEach { println("${project.path}: application flavor found: ${it.name}") }
             .associateTo(LinkedHashMap()) { it.name to it }
 
-    override fun app(appName: String, id: String?, block: AppFlavorConfigurator.() -> Unit) {
+    override fun app(appName: String, id: String?, enabled : Boolean, block: AppFlavorConfigurator.() -> Unit) {
         require(knownApplications.containsKey(appName)) { GradleException("Unknown application name ${project.path}/$appName") }
         knownApplications[appName]?.apply {
             this.id = id
+            this.enabled = enabled
             configure(block)
         }
     }

@@ -22,6 +22,7 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
 import org.ak2.android.build.extras.*
 import org.ak2.android.build.flavors.*
+import org.ak2.android.build.properties.LocalProperties
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.util.stream.Collectors
@@ -50,6 +51,9 @@ fun Project.link(android: BaseExtension) {
     this.androidExtension = android
     android.androidProject = this
 }
+
+val Project.local
+    get() = putExtraIfAbsent(this, "localProperties") { LocalProperties(this) }
 
 fun BaseExtension.getVariantConfigs(): LinkedHashMap<String, VariantConfig> {
     return putExtraIfAbsent(this, "Variants") { LinkedHashMap() }
