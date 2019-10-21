@@ -145,9 +145,11 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
         if (variantFilter.flavors.isEmpty()) {
             return true
         }
+
         val variantConfigs = android.getVariantConfigs();
         val variant = variantConfigs[variantFilter.name]
-        return variant != null
+
+        return variant?.enabled ?: false
     }
 
     protected abstract fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>);

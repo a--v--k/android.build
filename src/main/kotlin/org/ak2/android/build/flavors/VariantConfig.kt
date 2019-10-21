@@ -40,6 +40,9 @@ data class VariantConfig(val buildType: String? = null, val appFlavor: AppFlavor
         toFlavors().map(Flavor::dimensionName).toList()
     }
 
+    val enabled : Boolean
+        get() = appFlavor?.enabled ?: true
+
     fun hasFlavors() = toFlavors().any()
 
     fun toFlavors() = sequenceOf(appFlavor, androidFlavor, nativeFlavor).filterNotNull()
