@@ -59,6 +59,8 @@ class AppFlavorConfiguratorImpl(
 
     override val dimensionName = "App"
 
+    override val project = parent.project
+
     override val config = if (singleAppMode) parent.config else InnerProjectConfiguration(parent.project, appFolder, parent.config)
 
     override val languages : MutableSet<String> = LinkedHashSet()
@@ -85,7 +87,6 @@ class AppFlavorConfiguratorImpl(
 
         _appProperties = loadFromFile(buildProperties)
 
-        _localNativeConfigurator.load(parent.project, _appProperties, config.releaseSigningConfig)
         _appVersion.fromProperties(_appProperties)
 
         _proguardFile = File(appFolder, "proguard.cfg")

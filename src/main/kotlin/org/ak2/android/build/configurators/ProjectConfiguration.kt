@@ -17,6 +17,7 @@
 package org.ak2.android.build.configurators
 
 import org.ak2.android.build.AndroidVersion.*
+import org.ak2.android.build.properties.BuildProperties
 import org.ak2.android.build.signing.ProguardConfig
 import org.ak2.android.build.signing.SigningConfigParams
 import org.gradle.api.JavaVersion
@@ -26,6 +27,8 @@ import java.util.*
 
 
 interface ProjectConfiguration {
+
+    val buildProperties         : BuildProperties
 
     var javaVersion             : JavaVersion
 
@@ -50,6 +53,8 @@ interface ProjectConfiguration {
 
 class RootConfiguration(val project: Project) : ProjectConfiguration {
 
+    override val buildProperties         : BuildProperties = BuildProperties(project.projectDir)
+
     override var javaVersion             : JavaVersion   = JavaVersion.VERSION_1_8
 
     override var kotlinVersion           : String        = "1.3.41"
@@ -63,8 +68,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion = ANDROID_4_1
     override var compileSdkVersion       : org.ak2.android.build.AndroidVersion = ANDROID_9_0
 
-    override val debugSigningConfig      : SigningConfigParams? = SigningConfigParams.fromProperties("debug", project.projectDir)
-    override val releaseSigningConfig    : SigningConfigParams? = SigningConfigParams.fromProperties("release", project.projectDir)
+    override val debugSigningConfig      : SigningConfigParams? = loadSigningConfig("debug", buildProperties)
+    override val releaseSigningConfig    : SigningConfigParams? = loadSigningConfig("release", buildProperties)
 
     override var proguardConfig          : ProguardConfig = ProguardConfig()
 
@@ -74,6 +79,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 class InnerProjectConfiguration(val project: Project, val appFolder : File, val parentConfig: ProjectConfiguration) : ProjectConfiguration {
 
     private val properties = LinkedHashMap<String, Any?>()
+
+    override val buildProperties: BuildProperties = BuildProperties(appFolder, parentConfig.buildProperties)
 
     override var javaVersion             : JavaVersion
         get()      = getProperty("javaVersion") { javaVersion }
@@ -125,8 +132,6 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
         get()      = getProperty("debugVersion") { debugVersion }
         set(value) = setProperty("debugVersion", value)
 
-
-
     private inline fun <reified T> getProperty(name: String, getter : ProjectConfiguration.() -> T): T {
         val result : T? = properties[name] as T?
         if (result != null) {
@@ -142,7 +147,7 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
             return result
         }
 
-        result = SigningConfigParams.fromProperties(buildType, appFolder)
+        result = loadSigningConfig(buildType, buildProperties)
 
         if (result != null) {
             properties[name] = result
@@ -155,5 +160,24 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     private inline fun <reified T> setProperty(name: String, value : T){
         properties[name] = value
     }
+}
+
+private fun loadSigningConfig(buildType: String, p: BuildProperties): SigningConfigParams? {
+    val keystoreFileKey = "$buildType.keystore.file"
+    val keystorePasswordKey = "$buildType.keystore.password"
+    val keyAliasKey = "$buildType.key.alias"
+    val keyPasswordKey = "$buildType.key.password"
+
+    val storeFile = p.opt<String>(keystoreFileKey)
+
+    if (!storeFile.isNullOrEmpty()) {
+        val storePassword = p.get<String>(keystorePasswordKey)
+        val keyAlias = p.get<String>(keyAliasKey)
+        val keyPassword = p.get<String>(keyPasswordKey)
+
+        return SigningConfigParams(storeFile, storePassword, keyAlias, keyPassword)
+    }
+
+    return null
 }
 

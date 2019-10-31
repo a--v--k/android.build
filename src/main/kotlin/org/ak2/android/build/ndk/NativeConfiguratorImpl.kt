@@ -43,20 +43,6 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
     override fun   libraries(vararg args : String)  { targets += args  }
     override fun executables(vararg args : String)  { targets += args ; executablePlugins += args }
 
-    fun load(project : Project, p : Properties, signingConfigParams: SigningConfigParams? = null) {
-        if (p.getProperty("ndk.properties.mode", "") == "secured") {
-            requireNotNull(signingConfigParams)
-            c_flags("-DLIB_SECURED=secured")
-
-            val certificateThumbprint = project.getCertificateThumbprint(signingConfigParams).toHexString()
-            c_flags("-DS00=$certificateThumbprint")
-
-            c_flags("-DS28=${p.getProperty("ndk.properties.S28").trim().toHexString()}")
-            c_flags("-DS29=${p.getProperty("ndk.properties.S29").trim().toHexString()}")
-            c_flags("-DS30=${p.getProperty("ndk.properties.S30").trim().toHexString()}")
-        }
-    }
-
     fun configure(android: BaseExtension, flavor: ProductFlavor? = null) {
         val ndkBuildRequired = putExtraIfAbsent(android, "setupNdkBuild") { android.setupNdkBuild() }
         if (!ndkBuildRequired) {
@@ -99,8 +85,6 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
         val moveTaskName = "movePlugins$variantName"
         val packageTaskName = "package$variantName"
         val mergeAssetsTaskName = "merge${variantName}Assets"
-
-        val buildType = variant.buildType.name
 
         val iter = variant.productFlavors.iterator()
         var flavors = iter.next().name
@@ -160,62 +144,4 @@ fun BaseExtension.setupNdkBuild() : Boolean {
     }
 
     return true
-}
-
-fun Project.getCertificateThumbprint(signingParams :SigningConfigParams): String {
-    val fileName = signingParams.storeFile
-    val file = rootProject.file(fileName)
-    require(file.exists()) { "$this.path: Keystore file not found: $fileName" }
-
-    FileInputStream(file).use {
-        val ks = KeyStore.getInstance("JKS");
-        ks.load(it, signingParams.storePassword.toCharArray());
-
-        val certificate = ks.getCertificate(signingParams.keyAlias) as X509Certificate
-        val publicKey = certificate.publicKey as RSAPublicKey
-        val modulus = publicKey.modulus.toString(16)
-        val encripted = encrypt(modulus)
-        return encripted
-    }
-}
-
-fun encrypt(str : String) : String
-{
-    val len = str.length
-    val input = str.toByteArray(Charsets.UTF_8)
-    val out = ByteArray(len)
-
-    val idx = intArrayOf(2, 0, 3, 1, 4)
-    val n = (len / 5) + ( if (len % 5 != 0) 1 else 0);
-
-    var ii = 0
-    var i = 0
-    while (i < 5)
-    {
-        var j = 0
-        while (j < n)
-        {
-            val iii = idx[i] + j * 5;
-            if (iii < len)
-            {
-                out[ii++] = input[iii];
-            }
-            j++
-        }
-        i++
-    }
-
-    return String(out)
-}
-
-fun String?.toHexString() : String {
-    val buf = StringBuilder()
-    buf.append("\"")
-    if (this != null && this.isNotEmpty()) {
-        for (bb in this.toByteArray()) {
-            buf.append(String.format("%02x", bb.toInt() and 0xFF))
-        }
-    }
-    buf.append("\"")
-    return buf.toString()
 }

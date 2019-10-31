@@ -16,44 +16,40 @@
 
 package org.ak2.android.build.properties
 
-import com.google.common.base.Charsets
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 import org.gradle.kotlin.dsl.PropertyDelegate
-import java.io.FileInputStream
-import java.io.InputStreamReader
 import java.util.*
 import kotlin.reflect.KClass
+import kotlin.reflect.KClassifier
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class LocalProperties(val project: Project) : PropertyDelegate {
+open class PropertyDelegateImpl : PropertyDelegate {
 
-    private val properties = Properties()
+    protected val properties = Properties()
 
-    init {
-        project.file("local.properties")
-            .takeIf { it.isFile }
-            ?.let { InputStreamReader(FileInputStream(it), Charsets.UTF_8) }
-            ?.use { properties.load(it) }
+    inline fun <reified T> get(name: String): T {
+        return getValue(name, T::class, false)
     }
 
-    override fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
-        val value = properties.getProperty(property.name)
+    inline fun <reified T> opt(name: String): T? {
+        return getValue(name, T::class, true)
+    }
 
-        if (!property.returnType.isMarkedNullable && value == null) {
-            throw GradleException("${project.path}: Property [${property.name}] missed")
+    fun <T> getValue(name: String, classifier: KClassifier?, nullable: Boolean): T {
+        val value = properties.getProperty(name)
+
+        if (!nullable && value == null) {
+            throw GradleException("Property [${name}] missed")
         }
 
         if (value == null) {
             return null as T
         }
 
-        if (property.returnType.classifier is KClass<*>) {
-            val clazz = property.returnType.classifier as KClass<*>
-
+        if (classifier is KClass<*>) {
             try {
-                return when (clazz.java) {
+                return when (classifier.java) {
                     String::class.java -> value as T
                     Boolean::class.java -> value.toBoolean() as T
                     Byte::class.java -> value.toByte() as T
@@ -63,15 +59,19 @@ class LocalProperties(val project: Project) : PropertyDelegate {
                     Float::class.java -> value.toFloat() as T
                     Double::class.java -> value.toDouble() as T
                     else -> {
-                        val c = clazz.java.getConstructor(String::class.java)
+                        val c = classifier.java.getConstructor(String::class.java)
                         c.newInstance(value) as T
                     }
                 }
             } catch (ex: Exception) {
-                throw GradleException("${project.path}: Cannot convert property [${property.name}] to ${property.returnType.classifier}", ex)
+                throw GradleException("Cannot convert property [${name}] to ${classifier}", ex)
             }
         }
 
-        throw GradleException("${project.path}: Cannot convert property [${property.name}] to ${property.returnType.classifier}")
+        throw GradleException("Cannot convert property [${name}] to ${classifier}")
+    }
+
+    override fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
+        return getValue(property.name, property.returnType.classifier, property.returnType.isMarkedNullable);
     }
 }

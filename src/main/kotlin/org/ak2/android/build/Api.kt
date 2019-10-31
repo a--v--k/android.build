@@ -24,13 +24,18 @@ import org.ak2.android.build.flavors.NativeAbiType
 import org.ak2.android.build.flavors.NativePlatforms
 import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
+import org.gradle.api.Project
 
 interface LibraryConfigurator : BuildConfigurator, DependenciesConfigurator, NativeConfigurator {
+
+    val project : Project
 
     val config : ProjectConfiguration
 }
 
 interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
+
+    val project : Project
 
     val config : ProjectConfiguration
 
