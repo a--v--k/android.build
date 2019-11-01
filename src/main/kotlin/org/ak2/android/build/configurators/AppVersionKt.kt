@@ -16,7 +16,7 @@
 
 package org.ak2.android.build.configurators
 
-import java.util.*
+import org.ak2.android.build.properties.BuildProperties
 
 class AppVersionKt(
         var versionName: String? = null,
@@ -27,9 +27,9 @@ class AppVersionKt(
     val versionCode: Int
         get() = majorVersionCode * 1000 + minorVersionCode
 
-    fun fromProperties(p: Properties) = apply {
-        versionName      = p.getProperty("package.version.name")
-        majorVersionCode = Integer.parseInt(p.getProperty("package.version.code.major"))
-        minorVersionCode = Integer.parseInt(p.getProperty("package.version.code.minor"))
+    fun fromProperties(p: BuildProperties) = apply {
+        versionName      = p.opt("package.version.name")
+        majorVersionCode = p.get("package.version.code.major")
+        minorVersionCode = p.get("package.version.code.minor")
     }
 }

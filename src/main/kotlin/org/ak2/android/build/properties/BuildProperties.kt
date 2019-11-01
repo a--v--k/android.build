@@ -21,7 +21,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
 
-class BuildProperties(appFolder: File, parent: BuildProperties? = null) : PropertyDelegateImpl() {
+class BuildProperties(val appFolder: File, parent: BuildProperties? = null) : PropertyDelegateImpl() {
+
+    val buildPropertiesExist: Boolean;
+    val localPropertiesExist: Boolean;
 
     init {
         if (parent == null) {
@@ -31,10 +34,26 @@ class BuildProperties(appFolder: File, parent: BuildProperties? = null) : Proper
             properties.putAll(parent.properties)
         }
 
-        listOf("build.properties", "local.properties")
-            .map { fileName -> File(appFolder, fileName) }
+        val buildProperties = File(appFolder, "build.properties")
+        val localProperties = File(appFolder, "local.properties")
+
+        buildPropertiesExist = buildProperties.isFile
+        localPropertiesExist = localProperties.isFile
+
+        listOf(buildProperties, localProperties)
             .filter { file -> file.isFile }
             .map { file -> InputStreamReader(FileInputStream(file), Charsets.UTF_8) }
             .forEach { reader -> reader.use { properties.load(it) } }
+    }
+
+    override fun toString(): String {
+        return properties.entries.joinToString("\n") {
+            val value = if (it.key.toString().contains("password")) {
+                "******"
+            } else {
+                it.value
+            }
+            "${it.key}=${value}"
+        }
     }
 }

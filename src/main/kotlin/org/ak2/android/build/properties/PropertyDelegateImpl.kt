@@ -28,15 +28,23 @@ open class PropertyDelegateImpl : PropertyDelegate {
 
     protected val properties = Properties()
 
+    override fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
+        return getValue(property.name, property.returnType.classifier, property.returnType.isMarkedNullable);
+    }
+
     inline fun <reified T> get(name: String): T {
         return getValue(name, T::class, false)
+    }
+
+    inline fun <reified T> get(name: String, defValue : T): T {
+        return getValue(name, T::class, true, defValue)
     }
 
     inline fun <reified T> opt(name: String): T? {
         return getValue(name, T::class, true)
     }
 
-    fun <T> getValue(name: String, classifier: KClassifier?, nullable: Boolean): T {
+    fun <T> getValue(name: String, classifier: KClassifier?, nullable: Boolean, defValue : T? = null): T {
         val value = properties.getProperty(name)
 
         if (!nullable && value == null) {
@@ -44,7 +52,7 @@ open class PropertyDelegateImpl : PropertyDelegate {
         }
 
         if (value == null) {
-            return null as T
+            return defValue as T
         }
 
         if (classifier is KClass<*>) {
@@ -69,9 +77,5 @@ open class PropertyDelegateImpl : PropertyDelegate {
         }
 
         throw GradleException("Cannot convert property [${name}] to ${classifier}")
-    }
-
-    override fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
-        return getValue(property.name, property.returnType.classifier, property.returnType.isMarkedNullable);
     }
 }

@@ -69,7 +69,6 @@ class AppFlavorConfiguratorImpl(
 
     private val _appVersion = AppVersionKt()
 
-    private var _appProperties: Properties
     private var _proguardFile: File
 
     private val _localDependencies = KnownDependencies()
@@ -82,12 +81,11 @@ class AppFlavorConfiguratorImpl(
     init {
         println("${parent.project.path}: App ${name}:${appFolder} init...")
 
-        val buildProperties = File(appFolder, "build.properties")
-        require(buildProperties.exists()) { "Application properties missed: ${buildProperties.absolutePath}" }
+        require(config.buildProperties.buildPropertiesExist) { "Application properties missed: ${File(appFolder, "build.properties").absolutePath}" }
 
-        _appProperties = loadFromFile(buildProperties)
+        println("${parent.project.path}: App build properties:\n${config.buildProperties}")
 
-        _appVersion.fromProperties(_appProperties)
+        _appVersion.fromProperties(config.buildProperties)
 
         _proguardFile = File(appFolder, "proguard.cfg")
     }
@@ -291,7 +289,7 @@ class AppFlavorConfiguratorImpl(
 
                 versionName = appFlavor._appVersion.versionName
 
-                val packageName = appFlavor._appProperties.getProperty("package.name", appFlavor.name)
+                val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
                 val apkName = listOf(packageName, versionName, versionCode.toString(), variant.suffix.value)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
@@ -303,7 +301,7 @@ class AppFlavorConfiguratorImpl(
 
         class Debug(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
             init {
-                val packageName = appFlavor._appProperties.getProperty("package.name", appFlavor.name)
+                val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
                 val apkName = listOf(packageName, variant.suffix.value, variant.buildType)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
@@ -319,18 +317,3 @@ class AppFlavorConfiguratorImpl(
         }
     }
 }
-
-private fun loadFromFile(propertyFile: File): Properties {
-    require(propertyFile.exists()) { "Properties file not found: ${propertyFile.absolutePath}" }
-
-    val p = Properties()
-    try {
-        FileInputStream(propertyFile).use { fis -> p.load(fis) }
-    } catch (ex: Exception) {
-        ex.printStackTrace();
-    }
-    return p
-}
-
-
-
