@@ -51,6 +51,11 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
 
         val ndkBuildOptions = resolveNdkBuildOptions(android, flavor)
 
+        println("${android.androidProject.path}: Confgure native options for ${flavor?.getName() ?: android.androidProject.name}:")
+        println("${android.androidProject.path}:      args=${args}")
+        println("${android.androidProject.path}:   c_flags=${c_flags}")
+        println("${android.androidProject.path}: cpp_flags=${cpp_flags}")
+
         super.configure(ndkBuildOptions)
 
         ndkBuildOptions.targets.clear()
