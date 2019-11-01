@@ -20,6 +20,7 @@ import com.google.common.base.Charsets
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
+import java.util.*
 
 class BuildProperties(val appFolder: File, parent: BuildProperties? = null) : PropertyDelegateImpl() {
 
@@ -28,7 +29,6 @@ class BuildProperties(val appFolder: File, parent: BuildProperties? = null) : Pr
 
     init {
         if (parent == null) {
-            System.getenv()?.also { properties.putAll(it) }
             System.getProperties()?.also { properties.putAll(it) }
         } else {
             properties.putAll(parent.properties)
@@ -44,16 +44,5 @@ class BuildProperties(val appFolder: File, parent: BuildProperties? = null) : Pr
             .filter { file -> file.isFile }
             .map { file -> InputStreamReader(FileInputStream(file), Charsets.UTF_8) }
             .forEach { reader -> reader.use { properties.load(it) } }
-    }
-
-    override fun toString(): String {
-        return properties.entries.joinToString("\n") {
-            val value = if (it.key.toString().contains("password")) {
-                "******"
-            } else {
-                it.value
-            }
-            "${it.key}=${value}"
-        }
     }
 }
