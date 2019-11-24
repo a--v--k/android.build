@@ -18,9 +18,20 @@ package org.ak2.android.build
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.util.GradleVersion
+import java.io.IOException
+
 
 class BuildPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        val gradleVersionMinimum = GradleVersion.version("5.6.0")
+        val gradleVersionCurrent = GradleVersion.current()
+        if (gradleVersionCurrent < gradleVersionMinimum) {
+            throw IOException(
+                "Execution on older Gradle version (" + gradleVersionCurrent.getVersion() +
+                        ") than is defined as the minimum (" + gradleVersionMinimum.getVersion() + ")"
+            )
+        }
     }
 }
