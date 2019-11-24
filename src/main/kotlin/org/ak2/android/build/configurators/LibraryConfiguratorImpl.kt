@@ -16,6 +16,7 @@
 
 package org.ak2.android.build.configurators
 
+import com.android.build.gradle.LibraryExtension
 import org.ak2.android.build.BuildConfigurator.VariantBuilder
 import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.LibraryConfigurator
@@ -28,6 +29,8 @@ import org.gradle.kotlin.dsl.KotlinBuildScript
 class LibraryConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.library"), LibraryConfigurator {
 
     private val flavors = FlavorConfigs()
+
+    private val lowLevelHooks = LowLevelConfiguratorImpl<LibraryExtension>();
 
     override fun buildFor(flavor: AndroidPlatforms, innerBuilder: VariantBuilder.() -> Unit) { flavors.buildFor(flavor, innerBuilder) }
 
@@ -46,5 +49,21 @@ class LibraryConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfigura
                 .forEach {
                     variantConfigs.put(it.name.value, it)
                 }
+    }
+
+    override fun before(block: LibraryExtension.() -> Unit) {
+        lowLevelHooks.before(block);
+    }
+
+    override fun after(block: LibraryExtension.() -> Unit) {
+        lowLevelHooks.after(block);
+    }
+
+    override fun beforeConfiguration() {
+        lowLevelHooks.beforeConfiguration(project.androidExtension as LibraryExtension)
+    }
+
+    override fun afterConfiguration() {
+        lowLevelHooks.afterConfiguration(project.androidExtension as LibraryExtension)
     }
 }

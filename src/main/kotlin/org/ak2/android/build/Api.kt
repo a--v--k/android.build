@@ -16,6 +16,8 @@
 
 package org.ak2.android.build
 
+import com.android.build.gradle.AppExtension
+import com.android.build.gradle.LibraryExtension
 import org.ak2.android.build.configurators.AppVersionKt
 import org.ak2.android.build.configurators.ProjectConfiguration
 import org.ak2.android.build.dependencies.base.*
@@ -26,7 +28,21 @@ import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
 import org.gradle.api.Project
 
-interface LibraryConfigurator : BuildConfigurator, DependenciesConfigurator, NativeConfigurator {
+interface LowLevelLibraryConfigurator {
+
+    fun before(block : LibraryExtension.() -> Unit);
+
+    fun after(block : LibraryExtension.() -> Unit);
+}
+
+interface LowLevelAppConfigurator {
+
+    fun before(block : AppExtension.() -> Unit);
+
+    fun after(block : AppExtension.() -> Unit);
+}
+
+interface LibraryConfigurator : BuildConfigurator, DependenciesConfigurator, NativeConfigurator, LowLevelLibraryConfigurator {
 
     val project : Project
 
@@ -59,9 +75,9 @@ interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
     }
 }
 
-interface AppConfigurator : BaseAppConfigurator, ResourceCheckConfigurator
+interface AppConfigurator : BaseAppConfigurator, ResourceCheckConfigurator, LowLevelAppConfigurator
 
-interface AppSetConfigurator : DependenciesConfigurator, NativeConfigurator {
+interface AppSetConfigurator : DependenciesConfigurator, NativeConfigurator, LowLevelAppConfigurator {
 
     fun app(appName : String, id : String? = null, enabled: Boolean? = true, block: AppFlavorConfigurator.() -> Unit)
 

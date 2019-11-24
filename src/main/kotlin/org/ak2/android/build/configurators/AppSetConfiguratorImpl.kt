@@ -16,6 +16,7 @@
 
 package org.ak2.android.build.configurators
 
+import com.android.build.gradle.AppExtension
 import org.ak2.android.build.AppSetConfigurator
 import org.ak2.android.build.AppSetConfigurator.AppFlavorConfigurator
 import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
@@ -26,6 +27,8 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.KotlinBuildScript
 
 class AppSetConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
+
+    private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
 
     private val knownApplications = project.applicationFolders()
             .map { AppFlavorConfiguratorImpl(this, it.name, it) }
@@ -54,6 +57,22 @@ class AppSetConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfigurat
 
     override fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>) {
         knownApplications.values.forEach { it.buildVariants(variantConfigs) }
+    }
+
+    override fun before(block: AppExtension.() -> Unit) {
+        lowLevelHooks.before(block);
+    }
+
+    override fun after(block: AppExtension.() -> Unit) {
+        lowLevelHooks.after(block);
+    }
+
+    override fun beforeConfiguration() {
+        lowLevelHooks.beforeConfiguration(project.androidExtension as AppExtension)
+    }
+
+    override fun afterConfiguration() {
+        lowLevelHooks.afterConfiguration(project.androidExtension as AppExtension)
     }
 }
 

@@ -53,16 +53,26 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
 
                     project.link(this)
 
+                    beforeConfiguration();
+
                     configureBaseProperties()
                     configureNative()
                     configureVariants()
                     configureFlavors()
                     configureDependencies()
+
+                    afterConfiguration();
                 }
             }
 
             println("${project.path}: Finish project configuration")
         }
+    }
+
+    protected open fun beforeConfiguration() {
+    }
+
+    protected open fun afterConfiguration() {
     }
 
     protected fun KotlinBuildScript.configureKotlin() {

@@ -16,6 +16,7 @@
 
 package org.ak2.android.build.configurators
 
+import com.android.build.gradle.AppExtension
 import org.ak2.android.build.AppConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppDebugConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppReleaseConfigurator
@@ -28,6 +29,8 @@ import org.gradle.kotlin.dsl.KotlinBuildScript
 class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppConfigurator {
 
     private val appFlavor = AppFlavorConfiguratorImpl(this, project.name).apply { enabled = true }
+
+    private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
 
     override val languages : MutableSet<String>
         get() = appFlavor.languages
@@ -53,4 +56,19 @@ class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorK
         appFlavor.configure(project.androidExtension)
     }
 
+    override fun before(block: AppExtension.() -> Unit) {
+        lowLevelHooks.before(block);
+    }
+
+    override fun after(block: AppExtension.() -> Unit) {
+        lowLevelHooks.after(block);
+    }
+
+    override fun beforeConfiguration() {
+        lowLevelHooks.beforeConfiguration(project.androidExtension as AppExtension)
+    }
+
+    override fun afterConfiguration() {
+        lowLevelHooks.afterConfiguration(project.androidExtension as AppExtension)
+    }
 }
