@@ -36,6 +36,7 @@ enum class AndroidPlatforms (
     android7x    (minSdkVersion = N,                        maxSdkVersion = N_MR1                   ),
     android8x    (minSdkVersion = O,                        maxSdkVersion = O                       ),
     android9x    (minSdkVersion = P,                        maxSdkVersion = P                       ),
+    android10x   (minSdkVersion = Q,                        maxSdkVersion = Q                       ),
 
     android2x3x  (minSdkVersion = android2x.minSdkVersion,  maxSdkVersion = android3x.maxSdkVersion ),
     android2x3x4x(minSdkVersion = android2x.minSdkVersion,  maxSdkVersion = android4x.maxSdkVersion ),
@@ -46,6 +47,7 @@ enum class AndroidPlatforms (
     android7xx   (minSdkVersion = android7x.minSdkVersion                                           ),
     android8xx   (minSdkVersion = android8x.minSdkVersion                                           ),
     android9xx   (minSdkVersion = android9x.minSdkVersion                                           ),
+    android10xx  (minSdkVersion = android10x.minSdkVersion                                          ),
 
     all          (minSdkVersion = android2x.minSdkVersion                                           );
 
