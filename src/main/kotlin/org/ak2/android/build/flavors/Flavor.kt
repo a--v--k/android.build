@@ -17,6 +17,7 @@
 package org.ak2.android.build.flavors
 
 import com.android.build.gradle.BaseExtension
+import org.ak2.android.build.configurators.ProjectConfiguration
 
 interface Flavor {
 
@@ -24,7 +25,7 @@ interface Flavor {
 
     val dimensionName: String
 
-    fun configure(android: BaseExtension)
+    fun configure(android: BaseExtension, projectConfig: ProjectConfiguration)
 
     fun canUseAsDependency(that: Flavor): Boolean
 }

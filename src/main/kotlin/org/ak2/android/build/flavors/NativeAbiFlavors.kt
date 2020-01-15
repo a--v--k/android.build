@@ -56,7 +56,7 @@ enum class NativePlatforms (
 
     override val dimensionName = "NativeAbi"
 
-    override fun configure(android: BaseExtension) {
+    override fun configure(android: BaseExtension, projectConfig: ProjectConfiguration) {
         require(getExtraOrDefault(android, "setupNdkBuild", false)) { "NDK build has not been supported"}
 
         val productFlavor = android.productFlavors.create(name)

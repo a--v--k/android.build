@@ -53,7 +53,7 @@ class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorK
 
     override fun configureFlavors() {
         super.configureFlavors();
-        appFlavor.configure(project.androidExtension)
+        appFlavor.configure(project.androidExtension, appFlavor.config)
     }
 
     override fun before(block: AppExtension.() -> Unit) {

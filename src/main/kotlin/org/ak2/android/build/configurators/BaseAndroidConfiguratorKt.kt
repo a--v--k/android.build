@@ -179,7 +179,7 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
 
         project.androidExtension.flavorDimensions(* dimensionsNames.toTypedArray())
 
-        variantConfigs.values.toFlavors().forEach { it.configure(project.androidExtension) }
+        variantConfigs.values.toFlavors().forEach { it.configure(project.androidExtension, config) }
     }
 
     protected fun configureDependencies(appName: String? = null) {
