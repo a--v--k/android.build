@@ -1,9 +1,9 @@
 rootProject.name = "android.build"
 
-val kotlinVersion        : String by settings
-val publishPluginVersion : String by settings
-
 pluginManagement {
+
+    val kotlinVersion        : String by settings
+    val publishPluginVersion : String by settings
 
     repositories {
         gradlePluginPortal()
