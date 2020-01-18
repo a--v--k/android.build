@@ -100,7 +100,7 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
         android.androidProject.run {
             tasks.register(moveTaskName, Copy::class.java) {
                 val fromDir = android.androidProject.file("build/intermediates/ndkBuild/${variant.name}/obj/local/$arch")
-                val toDir = android.androidProject.file("build/intermediates/merged_assets/${variant.name}/out/$executablePluginsAssetPath")
+                val toDir = android.androidProject.file("build/intermediates/merged_native_libs/${variant.name}/out/lib/$arch")
                 from(fromDir) {
                     include(executablePlugins)
                 }
