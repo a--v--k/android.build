@@ -64,7 +64,7 @@ fun createZip(project: Project, appName: String, archName: String, appVersion: S
     }
 }
 
-fun createI18nArchives(project: Project, appName: String, appVersion: String) {
+fun createI18nArchives(project: Project, appName: String, appVersion: String, languagesToPack : Set<String>? = null) {
     getLocales(project, appName).forEach { locale ->
         createZip(project, appName, "i18n-$locale", appVersion, "i18n") {
             getLocaleFolders(project, appName, locale).forEach { folder ->
@@ -76,7 +76,7 @@ fun createI18nArchives(project: Project, appName: String, appVersion: String) {
     }
 }
 
-fun getLocales(project: Project, appName: String): Set<String> {
+fun getLocales(project: Project, appName: String, languagesToPack : Set<String>? = null): Set<String> {
     val sourceSets = setOf("main", appName)
 
     return project.fileTree("src").apply { include("*/res/values*/strings_*.xml") }.files.stream()
@@ -85,6 +85,7 @@ fun getLocales(project: Project, appName: String): Set<String> {
             .filter { sourceSets.contains(it.parentFile.parentFile.name) }
             .map { getLocale(it.name) }
             .filter { it != null }
+            .filter { languagesToPack?.contains(it) ?: true}
             .collect(Collectors.toCollection { TreeSet() })
 }
 
