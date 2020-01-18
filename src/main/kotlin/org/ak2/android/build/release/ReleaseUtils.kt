@@ -65,7 +65,7 @@ fun createZip(project: Project, appName: String, archName: String, appVersion: S
 }
 
 fun createI18nArchives(project: Project, appName: String, appVersion: String, languagesToPack : Set<String>? = null) {
-    getLocales(project, appName).forEach { locale ->
+    getLocales(project, appName, languagesToPack).forEach { locale ->
         createZip(project, appName, "i18n-$locale", appVersion, "i18n") {
             getLocaleFolders(project, appName, locale).forEach { folder ->
                 from(folder) {
