@@ -24,9 +24,9 @@ import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
 import org.ak2.android.build.flavors.VariantConfig
-import org.gradle.kotlin.dsl.support.delegates.ProjectDelegate
+import org.gradle.api.Project
 
-class AppConfiguratorImpl(project: ProjectDelegate) : BaseAndroidConfiguratorKt(project, "com.android.application"),
+class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.application"),
     AppConfigurator {
 
     private val appFlavor = AppFlavorConfiguratorImpl(this, project.name).apply { enabled = true }

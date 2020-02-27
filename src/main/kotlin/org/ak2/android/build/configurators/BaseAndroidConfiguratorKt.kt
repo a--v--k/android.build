@@ -25,10 +25,10 @@ import org.ak2.android.build.flavors.getDimensions
 import org.ak2.android.build.flavors.toFlavors
 import org.ak2.android.build.ndk.NativeConfiguratorImpl
 import org.gradle.api.JavaVersion
-import org.gradle.kotlin.dsl.support.delegates.ProjectDelegate
+import org.gradle.api.Project
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class BaseAndroidConfiguratorKt(val project: ProjectDelegate, val androidPluginId: String) {
+abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) {
 
     val config = project.config
 
@@ -75,7 +75,7 @@ abstract class BaseAndroidConfiguratorKt(val project: ProjectDelegate, val andro
     protected open fun afterConfiguration() {
     }
 
-    protected fun ProjectDelegate.configureKotlin() {
+    protected fun Project.configureKotlin() {
         if (config.useKotlinInProd || config.useKotlinInTest) {
             println("${this.path}: Configure Kotlin ${config.kotlinVersion} ...")
 
