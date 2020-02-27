@@ -24,9 +24,9 @@ import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
-import org.gradle.kotlin.dsl.KotlinBuildScript
+import org.gradle.kotlin.dsl.support.delegates.ProjectDelegate
 
-class LibraryConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.library"), LibraryConfigurator {
+class LibraryConfiguratorImpl(project: ProjectDelegate) : BaseAndroidConfiguratorKt(project, "com.android.library"), LibraryConfigurator {
 
     private val flavors = FlavorConfigs()
 

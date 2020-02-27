@@ -20,17 +20,17 @@ import org.ak2.android.build.LibraryConfigurator
 import org.ak2.android.build.configurators.AppConfiguratorImpl
 import org.ak2.android.build.configurators.AppSetConfiguratorImpl
 import org.ak2.android.build.configurators.LibraryConfiguratorImpl
-import org.gradle.kotlin.dsl.KotlinBuildScript
+import org.gradle.kotlin.dsl.support.delegates.ProjectDelegate
 
-fun KotlinBuildScript.androidLibrary(block : LibraryConfigurator.() -> Unit) {
+fun ProjectDelegate.androidLibrary(block : LibraryConfigurator.() -> Unit) {
     LibraryConfiguratorImpl(this).configure(block)
 }
 
-fun KotlinBuildScript.androidApp(block : AppConfigurator.() -> Unit) {
+fun ProjectDelegate.androidApp(block : AppConfigurator.() -> Unit) {
     AppConfiguratorImpl(this).configure(block)
 }
 
-fun KotlinBuildScript.androidAppSet(block : AppSetConfigurator.() -> Unit) {
+fun ProjectDelegate.androidAppSet(block : AppSetConfigurator.() -> Unit) {
     AppSetConfiguratorImpl(this).configure(block)
 }
 
