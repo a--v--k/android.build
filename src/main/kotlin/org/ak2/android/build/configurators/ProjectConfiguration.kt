@@ -36,6 +36,8 @@ interface ProjectConfiguration {
     var useKotlinInProd         : Boolean
     var useKotlinInTest         : Boolean
 
+    var useViewBindings         : Boolean
+
     var buildToolsVersion       : String
     var supportLibraryVersion   : String
     var constraintLayoutVersion : String
@@ -60,6 +62,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var kotlinVersion           : String        = "1.3.61"
     override var useKotlinInProd         : Boolean       = false
     override var useKotlinInTest         : Boolean       = false
+
+    override var useViewBindings         : Boolean       = false
 
     override var buildToolsVersion       : String        = "29.0.3"
     override var supportLibraryVersion   : String        = "28.0.0"
@@ -97,6 +101,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     override var useKotlinInTest         : Boolean
         get()      = getProperty("useKotlinInTest") { useKotlinInTest }
         set(value) = setProperty("useKotlinInTest", value)
+
+    override var useViewBindings: Boolean
+        get()      = getProperty("useViewBindings") { useViewBindings }
+        set(value) = setProperty("useViewBindings", value)
 
     override var buildToolsVersion       : String
         get()      = getProperty("buildToolsVersion") { buildToolsVersion }

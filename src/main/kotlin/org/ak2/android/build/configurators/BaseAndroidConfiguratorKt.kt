@@ -123,6 +123,10 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                 setTargetCompatibility(javaVersion)
             }
 
+            viewBinding {
+                isEnabled = config.useViewBindings
+            }
+
             lintOptions {
                 setAbortOnError(false)
             }
