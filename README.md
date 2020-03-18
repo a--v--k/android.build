@@ -296,6 +296,16 @@ app/
                         - my-app1-apk-name-2.7.0-rc2-android41x-x86-263111.apk
                         - my-app1-apk-name-2.7.0-rc2-android5xx-arm8-263112.apk
                         - my-app1-apk-name-2.7.0-rc2-android5xx-x64-263113.apk
+                        + i18n/
+                            - my-app1-apk-name-i18n-bg-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-de-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-en-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-es-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-it-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-ko-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-pl-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-ru-2.7.0-rc2.zip
+                            - my-app1-apk-name-i18n-sk-2.7.0-rc2.zip
                   + app2/
                       + app2-version2/
                         - my-app2-apk-name-1.0.0-android41x-arm7-100000.apk
