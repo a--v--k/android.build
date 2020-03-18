@@ -105,7 +105,7 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
                     include(executablePlugins)
                 }
                 into(toDir)
-                rename("(.+)", "$1.so")
+                rename("(.+)", "lib$1.so")
             }
 
             tasks.findByName(packageTaskName)?.dependsOn?.add(moveTaskName)
