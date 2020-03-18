@@ -82,6 +82,8 @@ androidLibrary {
     }
 }
 ```
+### Android application DSL ###
+
 #### Simple application ####
 > build.gradle.kts
 ```
