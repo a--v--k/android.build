@@ -110,8 +110,8 @@ fun getLocale(folderName: String): String? {
         return "en"
     }
     if (folderName.startsWith("values-")) {
-        val candidate = folderName.substring("values-".length)
-        if (knownLocales.contains(candidate)) {
+        val candidate = folderName.substring("values-".length).split("-")[0]
+        if (candidate.isNotBlank() && Locale.forLanguageTag(candidate)!= null) {
             return candidate
         }
     }
