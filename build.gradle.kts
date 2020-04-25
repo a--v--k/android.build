@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.properties.loadProperties
 
 group = "org.ak2"
-version = "3.6.0-beta-05"
+version = "3.6.0-beta-06"
 
 require(File("local.properties").exists()) { """
 The following properties must be stored in local.properties:
