@@ -89,7 +89,7 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
         val buildTaskName = "externalNativeBuild$variantName"
         val moveTaskName = "movePlugins$variantName"
         val packageTaskName = "package$variantName"
-        val mergeAssetsTaskName = "merge${variantName}Assets"
+        val mergeNativeLibsTaskName = "merge${variantName}NativeLibs"
 
         val iter = variant.productFlavors.iterator()
         var flavors = iter.next().name
@@ -100,17 +100,18 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
         android.androidProject.run {
             tasks.register(moveTaskName, Copy::class.java) {
                 val fromDir = android.androidProject.file("build/intermediates/ndkBuild/${variant.name}/obj/local/$arch")
-                val toDir = android.androidProject.file("build/intermediates/merged_assets/${variant.name}/out/$executablePluginsAssetPath")
+                val toDir = android.androidProject.file("build/intermediates/merged_native_libs/${variant.name}/out/lib/$arch")
                 from(fromDir) {
                     include(executablePlugins)
                 }
                 into(toDir)
+                rename("(.+)", "lib$1.so")
             }
 
             tasks.findByName(packageTaskName)?.dependsOn?.add(moveTaskName)
             tasks.findByName(moveTaskName)?.dependsOn?.apply {
                 add(buildTaskName)
-                add(mergeAssetsTaskName)
+                add(mergeNativeLibsTaskName)
             }
         }
     }

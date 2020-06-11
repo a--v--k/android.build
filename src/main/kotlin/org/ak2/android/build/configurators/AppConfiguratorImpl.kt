@@ -24,28 +24,29 @@ import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
 import org.ak2.android.build.flavors.VariantConfig
-import org.gradle.kotlin.dsl.KotlinBuildScript
+import org.gradle.api.Project
 
-class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppConfigurator {
+class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.application"),
+    AppConfigurator {
 
     private val appFlavor = AppFlavorConfiguratorImpl(this, project.name).apply { enabled = true }
 
     private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
 
-    override val languages : MutableSet<String>
+    override val languages: MutableSet<String>
         get() = appFlavor.languages
 
-    override val densities : MutableSet<String>
+    override val densities: MutableSet<String>
         get() = appFlavor.languages
 
-    override fun       version(block: AppVersionKt.()           -> Unit) = appFlavor.version(block)
-    override fun     dependsOn(block: DependencyBuilder.()      -> Unit) = knownDependencies.block()
-    override fun       release(block: AppReleaseConfigurator.() -> Unit) = appFlavor.release(block)
-    override fun         debug(block: AppDebugConfigurator.()   -> Unit) = appFlavor.debug(block)
-    override fun nativeOptions(block: NativeOptionsBuilder.()   -> Unit) = appFlavor.nativeOptions(block)
-    override fun checkStrings(block:  StringCheckOptions.()     -> Unit) = appFlavor.checkStrings(block)
+    override fun version(block: AppVersionKt.() -> Unit) = appFlavor.version(block)
+    override fun dependsOn(block: DependencyBuilder.() -> Unit) = knownDependencies.block()
+    override fun release(block: AppReleaseConfigurator.() -> Unit) = appFlavor.release(block)
+    override fun debug(block: AppDebugConfigurator.() -> Unit) = appFlavor.debug(block)
+    override fun nativeOptions(block: NativeOptionsBuilder.() -> Unit) = appFlavor.nativeOptions(block)
+    override fun checkStrings(block: StringCheckOptions.() -> Unit) = appFlavor.checkStrings(block)
 
-    fun configure(block: AppConfiguratorImpl.() -> Unit)     = configureProject { this.block()  }
+    fun configure(block: AppConfiguratorImpl.() -> Unit) = configureProject { this.block() }
 
     override fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>) {
         appFlavor.buildVariants(variantConfigs)
@@ -53,7 +54,7 @@ class AppConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorK
 
     override fun configureFlavors() {
         super.configureFlavors();
-        appFlavor.configure(project.androidExtension)
+        appFlavor.configure(project.androidExtension, appFlavor.config)
     }
 
     override fun before(block: AppExtension.() -> Unit) {

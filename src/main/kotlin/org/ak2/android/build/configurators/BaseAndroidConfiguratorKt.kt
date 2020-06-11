@@ -25,10 +25,10 @@ import org.ak2.android.build.flavors.getDimensions
 import org.ak2.android.build.flavors.toFlavors
 import org.ak2.android.build.ndk.NativeConfiguratorImpl
 import org.gradle.api.JavaVersion
-import org.gradle.kotlin.dsl.KotlinBuildScript
+import org.gradle.api.Project
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val androidPluginId: String) {
+abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) {
 
     val config = project.config
 
@@ -75,7 +75,7 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
     protected open fun afterConfiguration() {
     }
 
-    protected fun KotlinBuildScript.configureKotlin() {
+    protected fun Project.configureKotlin() {
         if (config.useKotlinInProd || config.useKotlinInTest) {
             println("${this.path}: Configure Kotlin ${config.kotlinVersion} ...")
 
@@ -121,6 +121,10 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
             compileOptions {
                 sourceCompatibility = javaVersion
                 setTargetCompatibility(javaVersion)
+            }
+
+            viewBinding {
+                isEnabled = config.useViewBindings
             }
 
             lintOptions {
@@ -179,7 +183,7 @@ abstract class BaseAndroidConfiguratorKt(val project: KotlinBuildScript, val and
 
         project.androidExtension.flavorDimensions(* dimensionsNames.toTypedArray())
 
-        variantConfigs.values.toFlavors().forEach { it.configure(project.androidExtension) }
+        variantConfigs.values.toFlavors().forEach { it.configure(project.androidExtension, config) }
     }
 
     protected fun configureDependencies(appName: String? = null) {

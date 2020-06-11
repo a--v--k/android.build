@@ -19,12 +19,10 @@ package org.ak2.android.build.flavors
 import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.AndroidVersion
 import org.ak2.android.build.AndroidVersion.*
-
-private val TARGET_SDK_VERSION = ANDROID_9_0
+import org.ak2.android.build.configurators.ProjectConfiguration
 
 enum class AndroidPlatforms (
     val minSdkVersion : org.ak2.android.build.AndroidVersion,
-    val targetSdkVersion : org.ak2.android.build.AndroidVersion = TARGET_SDK_VERSION,
     val maxSdkVersion : org.ak2.android.build.AndroidVersion? = null
 ) : Flavor {
 
@@ -36,6 +34,7 @@ enum class AndroidPlatforms (
     android7x    (minSdkVersion = N,                        maxSdkVersion = N_MR1                   ),
     android8x    (minSdkVersion = O,                        maxSdkVersion = O                       ),
     android9x    (minSdkVersion = P,                        maxSdkVersion = P                       ),
+    android10x   (minSdkVersion = Q,                        maxSdkVersion = Q                       ),
 
     android2x3x  (minSdkVersion = android2x.minSdkVersion,  maxSdkVersion = android3x.maxSdkVersion ),
     android2x3x4x(minSdkVersion = android2x.minSdkVersion,  maxSdkVersion = android4x.maxSdkVersion ),
@@ -46,19 +45,21 @@ enum class AndroidPlatforms (
     android7xx   (minSdkVersion = android7x.minSdkVersion                                           ),
     android8xx   (minSdkVersion = android8x.minSdkVersion                                           ),
     android9xx   (minSdkVersion = android9x.minSdkVersion                                           ),
+    android10xx  (minSdkVersion = android10x.minSdkVersion                                          ),
 
     all          (minSdkVersion = android2x.minSdkVersion                                           );
 
     override val dimensionName = "AndroidPlatform"
 
-    override fun configure(android: BaseExtension) {
+    override fun configure(android: BaseExtension, projectConfig: ProjectConfiguration) {
         val productFlavor = android.productFlavors.create(name)
         productFlavor.dimension = dimensionName
 
-        this.minSdkVersion.let(org.ak2.android.build.AndroidVersion::code).let(productFlavor::setMinSdkVersion)
-        this.targetSdkVersion.let(org.ak2.android.build.AndroidVersion::code).let(productFlavor::setTargetSdkVersion)
-        this.maxSdkVersion?.let(org.ak2.android.build.AndroidVersion::code)?.let(productFlavor::setMaxSdkVersion)
+        this.minSdkVersion.let(AndroidVersion::code).let(productFlavor::setMinSdkVersion)
+        this.maxSdkVersion?.let(AndroidVersion::code)?.let(productFlavor::setMaxSdkVersion)
 
+        val targetSdkVersion = Math.min(this.maxSdkVersion?.code ?: Integer.MAX_VALUE, projectConfig.compileSdkVersion.code)
+        productFlavor.setTargetSdkVersion(targetSdkVersion)
     }
 
     override fun canUseAsDependency(that: Flavor): Boolean {

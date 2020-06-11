@@ -106,7 +106,7 @@ class AppFlavorConfiguratorImpl(
         _debugConfigurator.buildVariants(variantConfigs)
     }
 
-    override fun configure(android: BaseExtension) {
+    override fun configure(android: BaseExtension, projectConfig: ProjectConfiguration) {
         println("${android.androidProject.path}: Configure ${this.name}")
 
         val productFlavor: ProductFlavor? = singleAppMode.takeIf { !it }?.let {

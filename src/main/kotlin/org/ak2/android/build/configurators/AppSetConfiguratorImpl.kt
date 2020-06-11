@@ -24,9 +24,8 @@ import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.flavors.VariantConfig
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.KotlinBuildScript
 
-class AppSetConfiguratorImpl(project: KotlinBuildScript) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
+class AppSetConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
 
     private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
 

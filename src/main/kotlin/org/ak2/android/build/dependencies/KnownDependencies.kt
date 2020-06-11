@@ -28,10 +28,6 @@ class KnownDependencies : DependencyBuilder {
 
     private val _modules = TreeMap<String, ModuleDependencyKt>()
 
-    init {
-        compileOnly += GoogleSupport.Support.Annotations
-    }
-
     override val api             : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.API, ::ScopedDependenciesImpl)
     override val implementation  : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.IMPLEMENTATION, ::ScopedDependenciesImpl)
     override val compileOnly     : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.COMPILE_ONLY, ::ScopedDependenciesImpl)
