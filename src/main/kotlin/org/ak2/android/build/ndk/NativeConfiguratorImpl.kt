@@ -20,61 +20,62 @@ import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.NativeConfigurator
-import org.ak2.android.build.extras.*
-import org.ak2.android.build.configurators.*
+import org.ak2.android.build.configurators.addPostConfigurator
+import org.ak2.android.build.configurators.androidProject
+import org.ak2.android.build.configurators.getVariantConfigs
+import org.ak2.android.build.extras.doOnce
+import org.ak2.android.build.extras.putExtraIfAbsent
 import org.ak2.android.build.flavors.ANDROID_MK
-import org.ak2.android.build.signing.SigningConfigParams
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
-import java.io.FileInputStream
-import java.security.KeyStore
-import java.security.cert.X509Certificate
-import java.security.interfaces.RSAPublicKey
-import java.util.*
-
-const val executablePluginsAssetPath = "plugins/"
 
 class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptionsBuilder {
 
     private val targets = mutableListOf<String>()
-    private val executablePlugins  = mutableListOf<String>()
+    private val executablePlugins = mutableListOf<String>()
 
-    override fun   libraries(vararg args : String)  { targets += args  }
-    override fun executables(vararg args : String)  { targets += args ; executablePlugins += args }
+    override fun libraries(vararg args: String) {
+        targets += args
+    }
+
+    override fun executables(vararg args: String) {
+        targets += args; executablePlugins += args
+    }
 
     fun configure(android: BaseExtension, flavor: ProductFlavor? = null) {
-        val ndkBuildRequired = putExtraIfAbsent(android, "setupNdkBuild") { android.setupNdkBuild() }
+        val ndkBuildRequired =
+            putExtraIfAbsent(android, "setupNdkBuild") { android.setupNdkBuild() }
         if (!ndkBuildRequired) {
             return
         }
 
         val ndkBuildOptions = resolveNdkBuildOptions(android, flavor)
+        if (ndkBuildOptions != null) {
+            println("${android.androidProject.path}: Confgure native options for ${flavor?.getName() ?: android.androidProject.name}:")
+            println("${android.androidProject.path}:      args=${args}")
+            println("${android.androidProject.path}:   c_flags=${c_flags}")
+            println("${android.androidProject.path}: cpp_flags=${cpp_flags}")
 
-        println("${android.androidProject.path}: Confgure native options for ${flavor?.getName() ?: android.androidProject.name}:")
-        println("${android.androidProject.path}:      args=${args}")
-        println("${android.androidProject.path}:   c_flags=${c_flags}")
-        println("${android.androidProject.path}: cpp_flags=${cpp_flags}")
+            super.configure(ndkBuildOptions)
 
-        super.configure(ndkBuildOptions)
+            ndkBuildOptions.targets.clear()
+            ndkBuildOptions.targets.addAll(targets)
 
-        ndkBuildOptions.targets.clear()
-        ndkBuildOptions.targets.addAll(targets)
-
-        if (executablePlugins.isNotEmpty()) {
-            doOnce(android, "NativePluginsConfiguration") {
-                android.addPostConfigurator {
-                    addPluginTasks(android, it)
+            if (executablePlugins.isNotEmpty()) {
+                doOnce(android, "NativePluginsConfiguration") {
+                    android.addPostConfigurator {
+                        addPluginTasks(android, it)
+                    }
                 }
             }
         }
 
     }
 
-    private fun addPluginTasks(android : BaseExtension, variant : BaseVariant) {
+    private fun addPluginTasks(android: BaseExtension, variant: BaseVariant) {
         val variants = android.getVariantConfigs()
         val variantConfig = variants[variant.name]
-        require(variantConfig != null) { GradleException("Add native build tasks: variant config missed for ${variant.name}: ${variants.keys}")}
+        require(variantConfig != null) { GradleException("Add native build tasks: variant config missed for ${variant.name}: ${variants.keys}") }
 
         val abiFlavor = variantConfig.nativeFlavor
 
@@ -139,7 +140,7 @@ fun BaseExtension.setupNdkBuild() : Boolean {
 
     buildTypes.maybeCreate("release").externalNativeBuild {
         ndkBuild {
-            this.getcFlags().add("-DANDROID_APP_RELEASE")
+            this.cFlags +="-DANDROID_APP_RELEASE"
         }
     }
 

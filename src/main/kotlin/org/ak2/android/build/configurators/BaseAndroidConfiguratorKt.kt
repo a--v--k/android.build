@@ -123,12 +123,10 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                 setTargetCompatibility(javaVersion)
             }
 
-            viewBinding {
-                isEnabled = config.useViewBindings
-            }
+            buildFeatures.viewBinding = config.useViewBindings
 
             lintOptions {
-                setAbortOnError(false)
+                isAbortOnError = false
             }
 
             defaultConfig {
@@ -136,7 +134,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                 targetSdkVersion(targetSdkVersion)
                 javaCompileOptions {
                     annotationProcessorOptions {
-                        arguments = arguments + hashMapOf("androidManifestFile" to "${project.projectDir}/src/main/AndroidManifest.xml")
+                        arguments += hashMapOf("androidManifestFile" to "${project.projectDir}/src/main/AndroidManifest.xml")
                     }
                 }
             }

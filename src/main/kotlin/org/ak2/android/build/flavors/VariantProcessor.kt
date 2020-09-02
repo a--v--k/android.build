@@ -63,7 +63,7 @@ class VariantProcessor(val project: Project) {
             variantConfigurators.forEach { it(variant) }
         } else {
             println("${project.path}: Disable variant ${variant.name}")
-            variant.setIgnore(true)
+            variant.ignore = true
         }
     }
 

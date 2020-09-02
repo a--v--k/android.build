@@ -128,9 +128,8 @@ class AppFlavorConfiguratorImpl(
 
             doOnce(android, "ProguardConfig") {
                 android.buildTypes.maybeCreate("release").apply {
-
-                    setMinifyEnabled(config.proguardConfig.minifyEnabled)
-                    setShrinkResources(config.proguardConfig.shrinkResources)
+                    isMinifyEnabled   = config.proguardConfig.minifyEnabled
+                    isShrinkResources = config.proguardConfig.shrinkResources
 
                     if (singleAppMode) {
                         setProguardFiles(listOf(_proguardFile))
