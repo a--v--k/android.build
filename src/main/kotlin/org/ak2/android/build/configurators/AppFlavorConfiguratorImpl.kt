@@ -17,9 +17,9 @@
 package org.ak2.android.build.configurators
 
 import com.android.build.api.variant.ApplicationVariantProperties
+import com.android.build.api.variant.VariantOutput
 import com.android.build.api.variant.VariantOutputConfiguration
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.AppSetConfigurator.AppFlavorConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppDebugConfigurator
@@ -258,22 +258,24 @@ class AppFlavorConfiguratorImpl(
             }
 
             val mainOutput = v.outputs.single { it.outputType == VariantOutputConfiguration.OutputType.SINGLE }
-            setAppProperties(v, mainOutput as ApkVariantOutput, apkConfig)
+            setAppProperties(v, mainOutput, apkConfig)
         }
 
-        private fun setAppProperties(v: ApplicationVariantProperties, output: ApkVariantOutput, apkConfig : ApkConfig) {
+        private fun setAppProperties(v: ApplicationVariantProperties, output: VariantOutput, apkConfig: ApkConfig) {
             // TODO should be replaced later
             // val originFolder = output.outputFile.parentFile.canonicalFile
             // val target = File(originFolder, apkConfig.apkName).canonicalPath
 
-            apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let { versionName -> output.versionNameOverride = versionName }
-            apkConfig.versionCode.takeIf  { it != 0         }?.let { versionCode -> output.versionCodeOverride = versionCode }
-
-            output.outputFileName = apkConfig.apkPath
+            apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let(output.versionName::set)
+            apkConfig.versionCode.takeIf  { it != 0         }?.let(output.versionCode::set)
+            //output.outputFileName = apkConfig.apkPath
         }
     }
 
-    sealed class ApkConfig(var apkPath: String? = null, var versionName : String? = null, var versionCode : Int = 0) {
+    sealed class ApkConfig(var apkPath: String? = null,
+                           var apkName: String? = null,
+                           var versionName : String? = null,
+                           var versionCode : Int = 0) {
 
         class Release(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
             init {
@@ -288,7 +290,8 @@ class AppFlavorConfiguratorImpl(
                 versionName = appFlavor._appVersion.versionName
 
                 val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
-                val apkName = listOf(packageName, versionName, versionCode.toString(), variant.suffix.value)
+
+                apkName = listOf(packageName, versionName, versionCode.toString(), variant.suffix.value)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
                     .joinToString(separator = "-")
@@ -300,7 +303,8 @@ class AppFlavorConfiguratorImpl(
         class Debug(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
             init {
                 val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
-                val apkName = listOf(packageName, variant.suffix.value, variant.buildType)
+
+                apkName = listOf(packageName, variant.suffix.value, variant.buildType)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
                     .joinToString(separator = "-")
