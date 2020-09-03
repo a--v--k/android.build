@@ -16,8 +16,8 @@
 
 package org.ak2.android.build.ndk
 
+import com.android.build.api.variant.VariantProperties
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.NativeConfigurator
 import org.ak2.android.build.configurators.addPostConfigurator
@@ -72,36 +72,32 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
 
     }
 
-    private fun addPluginTasks(android: BaseExtension, variant: BaseVariant) {
+    private fun addPluginTasks(android: BaseExtension, variantProperties: VariantProperties) {
+        val variantName = variantProperties.name
         val variants = android.getVariantConfigs()
-        val variantConfig = variants[variant.name]
-        require(variantConfig != null) { GradleException("Add native build tasks: variant config missed for ${variant.name}: ${variants.keys}") }
+        val variantConfig = variants[variantName]
+
+        require(variantConfig != null) { GradleException("Add native build tasks: variant config missed for ${variantName}: ${variants.keys}") }
 
         val abiFlavor = variantConfig.nativeFlavor
 
         if (abiFlavor == null) {
-            println("${android.androidProject.path}: cannot find NativeAbiFlavors for ${variant.name}")
+            println("${android.androidProject.path}: cannot find NativeAbiFlavors for ${variantName}")
             return
         }
 
         val arch = abiFlavor.abi
 
-        val variantName = variant.name.capitalize()
-        val buildTaskName = "externalNativeBuild$variantName"
-        val moveTaskName = "movePlugins$variantName"
-        val packageTaskName = "package$variantName"
-        val mergeNativeLibsTaskName = "merge${variantName}NativeLibs"
-
-        val iter = variant.productFlavors.iterator()
-        var flavors = iter.next().name
-        while (iter.hasNext()) {
-            flavors += iter.next().name.capitalize()
-        }
+        val capitalizedVariantName = variantName.capitalize()
+        val buildTaskName = "externalNativeBuild$capitalizedVariantName"
+        val moveTaskName = "movePlugins$capitalizedVariantName"
+        val packageTaskName = "package$capitalizedVariantName"
+        val mergeNativeLibsTaskName = "merge${capitalizedVariantName}NativeLibs"
 
         android.androidProject.run {
             tasks.register(moveTaskName, Copy::class.java) {
-                val fromDir = android.androidProject.file("build/intermediates/ndkBuild/${variant.name}/obj/local/$arch")
-                val toDir = android.androidProject.file("build/intermediates/merged_native_libs/${variant.name}/out/lib/$arch")
+                val fromDir = android.androidProject.file("build/intermediates/ndkBuild/${variantName}/obj/local/$arch")
+                val toDir = android.androidProject.file("build/intermediates/merged_native_libs/${variantName}/out/lib/$arch")
                 from(fromDir) {
                     include(executablePlugins)
                 }

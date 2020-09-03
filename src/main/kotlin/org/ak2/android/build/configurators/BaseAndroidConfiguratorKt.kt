@@ -16,14 +16,17 @@
 
 package org.ak2.android.build.configurators
 
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.VariantFilter
 import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.dependencies.KnownDependencies
 import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.flavors.getDimensions
 import org.ak2.android.build.flavors.toFlavors
 import org.ak2.android.build.ndk.NativeConfiguratorImpl
+import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import java.util.concurrent.atomic.AtomicBoolean
@@ -144,12 +147,32 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
     protected fun configureVariants() {
         println("${project.path}: Configure variants...")
-        val variantConfigs = project.androidExtension.getVariantConfigs()
+        val androidExtension = project.androidExtension
+
+        val variantProcessor = androidExtension.getVariantProcessor()
+        val variantConfigs = androidExtension.getVariantConfigs()
+
         buildVariants(variantConfigs)
         println("${project.path}: available variants: ${variantConfigs.keys}")
 
-        project.androidExtension.addVariantValidator {
-            checkApplicationFlavors(project.androidExtension, it)
+        androidExtension.addVariantValidator {
+            checkApplicationFlavors(androidExtension, it)
+        }
+
+        androidExtension.variantFilter {
+            variantProcessor.doFilter(this)
+        }
+
+        if (androidExtension is ApplicationExtension<*, *, *, *, *>) {
+            androidExtension.onVariantProperties {
+                variantProcessor.onVariantProperties(this)
+            }
+        } else if (androidExtension is LibraryExtension) {
+            androidExtension.onVariantProperties {
+                variantProcessor.onVariantProperties(this)
+            }
+        } else {
+            throw  GradleException("Unknown type of android extension")
         }
     }
 
