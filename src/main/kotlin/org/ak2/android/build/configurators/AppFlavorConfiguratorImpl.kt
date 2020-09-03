@@ -16,8 +16,9 @@
 
 package org.ak2.android.build.configurators
 
+import com.android.build.api.variant.ApplicationVariantProperties
+import com.android.build.api.variant.VariantOutputConfiguration
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.ApkVariant
 import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.AppSetConfigurator.AppFlavorConfigurator
@@ -40,7 +41,6 @@ import org.ak2.android.build.signing.ReleaseAppFlavorSigningConfiguratorKt
 import org.ak2.android.build.signing.ReleaseSigningConfiguratorKt
 import org.gradle.api.GradleException
 import java.io.File
-import java.io.FileInputStream
 import java.util.*
 import kotlin.collections.LinkedHashSet
 
@@ -171,9 +171,9 @@ class AppFlavorConfiguratorImpl(
         doOnce(android, "ApplicationVersionConfigurator") {
             android.addPostConfigurator {
                 if (singleAppMode) {
-                    updateSingleApplicationVersion(android, this, it as ApkVariant)
+                    updateSingleApplicationVersion(android, this, it as ApplicationVariantProperties)
                 } else {
-                    updateMultiApplicationVersion(android, it as ApkVariant)
+                    updateMultiApplicationVersion(android, it as ApplicationVariantProperties)
                 }
             }
         }
@@ -223,7 +223,7 @@ class AppFlavorConfiguratorImpl(
 
     companion object {
 
-        fun updateMultiApplicationVersion(android: BaseExtension, v: ApkVariant) {
+        fun updateMultiApplicationVersion(android: BaseExtension, v: ApplicationVariantProperties) {
             val variantConfigs = android.getVariantConfigs();
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
@@ -234,7 +234,7 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApkVariant) {
+        fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApplicationVariantProperties) {
             val variantConfigs = android.getVariantConfigs();
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
@@ -242,7 +242,7 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant : VariantConfig, v: ApkVariant) {
+        fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant : VariantConfig, v: ApplicationVariantProperties) {
 
             val appFlavorName = appFlavor.name
             val buildTypeName = variant.buildType
@@ -257,12 +257,11 @@ class AppFlavorConfiguratorImpl(
                 ApkConfig.Debug(android, appFlavor, variant, apkFolder)
             }
 
-            v.outputs.forEach {
-                setAppProperties(v, it as ApkVariantOutput, apkConfig)
-            }
+            val mainOutput = v.outputs.single { it.outputType == VariantOutputConfiguration.OutputType.SINGLE }
+            setAppProperties(v, mainOutput as ApkVariantOutput, apkConfig)
         }
 
-        private fun setAppProperties(v: ApkVariant, output: ApkVariantOutput, apkConfig : ApkConfig) {
+        private fun setAppProperties(v: ApplicationVariantProperties, output: ApkVariantOutput, apkConfig : ApkConfig) {
             // TODO should be replaced later
             // val originFolder = output.outputFile.parentFile.canonicalFile
             // val target = File(originFolder, apkConfig.apkName).canonicalPath
