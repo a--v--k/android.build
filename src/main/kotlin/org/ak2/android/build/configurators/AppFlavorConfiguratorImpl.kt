@@ -17,7 +17,6 @@
 package org.ak2.android.build.configurators
 
 import com.android.build.api.variant.ApplicationVariantProperties
-import com.android.build.api.variant.VariantOutput
 import com.android.build.api.variant.VariantOutputConfiguration
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
@@ -43,7 +42,6 @@ import org.gradle.api.GradleException
 import java.io.File
 import java.util.*
 import kotlin.collections.LinkedHashSet
-
 
 class AppFlavorConfiguratorImpl(
     val parent: BaseAndroidConfiguratorKt,
@@ -258,18 +256,12 @@ class AppFlavorConfiguratorImpl(
             }
 
             val mainOutput = v.outputs.single { it.outputType == VariantOutputConfiguration.OutputType.SINGLE }
-            setAppProperties(v, mainOutput, apkConfig)
+            apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let(mainOutput.versionName::set)
+            apkConfig.versionCode.takeIf { it != 0         }?.let(mainOutput.versionCode::set)
+
+            // val sourceApkFolder = v.artifacts.get(ArtifactType.APK)
         }
 
-        private fun setAppProperties(v: ApplicationVariantProperties, output: VariantOutput, apkConfig: ApkConfig) {
-            // TODO should be replaced later
-            // val originFolder = output.outputFile.parentFile.canonicalFile
-            // val target = File(originFolder, apkConfig.apkName).canonicalPath
-
-            apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let(output.versionName::set)
-            apkConfig.versionCode.takeIf  { it != 0         }?.let(output.versionCode::set)
-            //output.outputFileName = apkConfig.apkPath
-        }
     }
 
     sealed class ApkConfig(var apkPath: String? = null,
