@@ -139,6 +139,8 @@ interface NativeConfigurator {
 
     interface NativeOptionsBuilder {
 
+        fun   prefab(name : String, headersDir : String?)
+
         fun   libraries(vararg args : String)
         fun executables(vararg args : String)
 
