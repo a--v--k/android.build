@@ -20,6 +20,7 @@ import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.configurators.addVariantConfigurator
 import org.ak2.android.build.configurators.androidProject
 import org.ak2.android.build.configurators.getVariantConfigs
+import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.flavors.VariantNameBuilder
 import org.gradle.api.GradleException
 
@@ -27,6 +28,11 @@ class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
 
     override fun configure(appName: String?, scope: DependencyScope, android: BaseExtension) {
         val project = android.androidProject
+
+        doOnce(android, "prefabFeature") {
+            android.buildFeatures.prefab = true
+            true
+        }
 
         android.addVariantConfigurator { variant ->
             val variantConfigs = android.getVariantConfigs();
