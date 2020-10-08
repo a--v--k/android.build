@@ -27,6 +27,7 @@ class KnownDependencies : DependencyBuilder {
     private val _dependencies = TreeMap<DependencyScope, ScopedDependenciesImpl>()
 
     private val _modules = TreeMap<String, ModuleDependencyKt>()
+    private val _prefabs = TreeMap<String, PrefabModuleDependencyKt>()
 
     override val api             : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.API, ::ScopedDependenciesImpl)
     override val implementation  : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.IMPLEMENTATION, ::ScopedDependenciesImpl)
@@ -41,6 +42,10 @@ class KnownDependencies : DependencyBuilder {
     override fun library(dependency: String) = LibraryDependencyKt(dependency)
 
     override fun local(localPath: String) = LocalJarDependencyKt(localPath)
+
+    override fun prefab(path: String) = _prefabs.computeIfAbsent(path) { PrefabModuleDependencyKt(dependencyPath = it) }
+
+    override fun prefabs(vararg aliases: String)= aliases.map(this::prefab)
 
     fun configure(appName: String? = null, android: BaseExtension) {
         _dependencies.values.forEach { it.configure(appName, android) }

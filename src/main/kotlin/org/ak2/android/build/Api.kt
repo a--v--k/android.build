@@ -121,6 +121,9 @@ interface DependenciesConfigurator {
         fun modules(vararg aliases: String) : List<ModuleDependencyKt>
         fun library(dependency: String)     : LibraryDependencyKt
         fun local(localPath: String)        : LocalJarDependencyKt
+
+        fun prefab(path: String)           : PrefabModuleDependencyKt
+        fun prefabs(vararg aliases: String) : List<PrefabModuleDependencyKt>
     }
 
     interface ScopedDependencies {
