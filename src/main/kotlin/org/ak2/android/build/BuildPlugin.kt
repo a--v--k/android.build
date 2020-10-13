@@ -25,7 +25,7 @@ import java.io.IOException
 class BuildPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val gradleVersionMinimum = GradleVersion.version("5.6.0")
+        val gradleVersionMinimum = GradleVersion.version("6.6")
         val gradleVersionCurrent = GradleVersion.current()
         if (gradleVersionCurrent < gradleVersionMinimum) {
             throw IOException(
