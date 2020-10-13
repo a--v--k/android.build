@@ -59,7 +59,7 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 
     override var javaVersion             : JavaVersion   = JavaVersion.VERSION_1_8
 
-    override var kotlinVersion           : String        = "1.3.61"
+    override var kotlinVersion           : String        = "1.4.0"
     override var useKotlinInProd         : Boolean       = false
     override var useKotlinInTest         : Boolean       = false
 
