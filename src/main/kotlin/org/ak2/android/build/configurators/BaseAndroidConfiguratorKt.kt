@@ -33,7 +33,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) {
 
-    val config = project.config
+    val config: ProjectConfiguration
+        get() = project.config
 
     protected val knownDependencies = KnownDependencies()
     protected val configured = AtomicBoolean()
@@ -117,6 +118,8 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
         project.androidExtension.apply {
 
+            println("${project.path}: set compileSdkVersion to ${compileSdkVersion}")
+
             compileSdkVersion(compileSdkVersion)
 
             buildToolsVersion(buildTools)
@@ -176,7 +179,10 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         }
     }
 
-    protected fun checkApplicationFlavors(android: BaseExtension, variantFilter: VariantFilter): Boolean {
+    protected fun checkApplicationFlavors(
+        android: BaseExtension,
+        variantFilter: VariantFilter
+    ): Boolean {
         if (variantFilter.flavors.isEmpty()) {
             return true
         }
