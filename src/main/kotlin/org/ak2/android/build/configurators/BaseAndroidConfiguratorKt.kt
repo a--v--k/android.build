@@ -64,6 +64,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                     configureVariants()
                     configureFlavors()
                     configureDependencies()
+                    configureManifests()
 
                     afterConfiguration();
                 }
