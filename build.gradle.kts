@@ -36,6 +36,7 @@ dependencies {
     implementation("org.jacoco:org.jacoco.core:0.7.9")
     implementation("org.languagetool:languagetool-core:4.2")
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
+    implementation(kotlin("reflect", kotlinVersion))
 }
 
 tasks.withType<KotlinCompile> {
