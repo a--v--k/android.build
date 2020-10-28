@@ -216,4 +216,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         println("${project.path}: Configure native properties...")
         native.configure(project.androidExtension, flavor)
     }
+
+    open protected fun configureManifests() {
+    }
 }
