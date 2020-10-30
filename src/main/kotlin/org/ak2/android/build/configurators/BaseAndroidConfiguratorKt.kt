@@ -21,6 +21,7 @@ import com.android.build.api.variant.VariantFilter
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
+import org.ak2.android.build.RepositoryConfigurator
 import org.ak2.android.build.dependencies.KnownDependencies
 import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.flavors.getDimensions
@@ -29,9 +30,10 @@ import org.ak2.android.build.ndk.NativeConfiguratorImpl
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) {
+abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) : RepositoryConfigurator {
 
     val config: ProjectConfiguration
         get() = project.config
@@ -39,6 +41,10 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
     protected val knownDependencies = KnownDependencies()
     protected val configured = AtomicBoolean()
     protected val native = NativeConfiguratorImpl()
+
+    override fun repositories(block: RepositoryHandler.() -> Unit) {
+        config.repositories = block
+    }
 
     protected fun configureProject(block: () -> Unit) {
         if (configured.compareAndSet(false, true)) {
@@ -50,6 +56,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
             project.run {
                 plugins.apply(androidPluginId)
 
+                configureRespositories();
                 configureKotlin()
 
                 project.extensions.configure<BaseExtension>("android") {
@@ -78,6 +85,10 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
     }
 
     protected open fun afterConfiguration() {
+    }
+
+    protected fun Project.configureRespositories() {
+        config.repositories(repositories)
     }
 
     protected fun Project.configureKotlin() {

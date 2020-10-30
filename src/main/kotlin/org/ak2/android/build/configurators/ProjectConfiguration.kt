@@ -17,11 +17,13 @@
 package org.ak2.android.build.configurators
 
 import org.ak2.android.build.AndroidVersion.*
+import org.ak2.android.build.RepositoryConfigurator
 import org.ak2.android.build.properties.BuildProperties
 import org.ak2.android.build.signing.ProguardConfig
 import org.ak2.android.build.signing.SigningConfigParams
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import java.io.File
 import java.util.*
 
@@ -52,6 +54,8 @@ interface ProjectConfiguration {
     var proguardConfig          : ProguardConfig
 
     var debugVersion            : AppVersionKt?
+
+    var repositories            : RepositoryHandler.() -> Unit
 }
 
 val ProjectConfiguration.effectiveTargetSdkVersionCode : Int
@@ -84,6 +88,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var proguardConfig          : ProguardConfig = ProguardConfig()
 
     override var debugVersion            : AppVersionKt? = AppVersionKt(versionName="debug", majorVersionCode=999, minorVersionCode=999)
+
+    override var repositories            : RepositoryHandler.() -> Unit = {}
 }
 
 class InnerProjectConfiguration(val project: Project, val appFolder : File, val parentConfig: ProjectConfiguration) : ProjectConfiguration {
@@ -149,6 +155,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     override var debugVersion: AppVersionKt?
         get()      = getProperty("debugVersion") { debugVersion }
         set(value) = setProperty("debugVersion", value)
+
+    override var repositories : RepositoryHandler.() -> Unit
+        get()      = getProperty("repositories") { repositories }
+        set(value) = setProperty("repositories", value)
 
     private inline fun <reified T> getProperty(name: String, getter : ProjectConfiguration.() -> T): T {
         val result : T? = properties[name] as T?

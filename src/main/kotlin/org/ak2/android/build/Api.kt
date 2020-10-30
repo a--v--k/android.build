@@ -27,6 +27,7 @@ import org.ak2.android.build.flavors.NativePlatforms
 import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.file.FileCollection
 
 interface LowLevelLibraryConfigurator {
@@ -43,7 +44,9 @@ interface LowLevelAppConfigurator {
     fun after(block : AppExtension.() -> Unit);
 }
 
-interface LibraryConfigurator : BuildConfigurator, DependenciesConfigurator, NativeConfigurator, LowLevelLibraryConfigurator {
+interface RootConfigurator : RepositoryConfigurator
+
+interface LibraryConfigurator : BuildConfigurator, RepositoryConfigurator, DependenciesConfigurator, NativeConfigurator, LowLevelLibraryConfigurator {
 
     val project : Project
 
@@ -76,9 +79,9 @@ interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
     }
 }
 
-interface AppConfigurator : BaseAppConfigurator, ResourceCheckConfigurator, ManifestConfigurator, LowLevelAppConfigurator
+interface AppConfigurator : BaseAppConfigurator, RepositoryConfigurator, ResourceCheckConfigurator, ManifestConfigurator, LowLevelAppConfigurator
 
-interface AppSetConfigurator : DependenciesConfigurator, NativeConfigurator, ManifestConfigurator, LowLevelAppConfigurator {
+interface AppSetConfigurator : RepositoryConfigurator, DependenciesConfigurator, NativeConfigurator, ManifestConfigurator, LowLevelAppConfigurator {
 
     fun app(appName : String, id : String? = null, enabled: Boolean? = true, block: AppFlavorConfigurator.() -> Unit)
 
@@ -168,3 +171,9 @@ interface ManifestConfigurator {
 
     var additionalManifests : FileCollection?
 }
+
+interface RepositoryConfigurator {
+
+    fun repositories(block: RepositoryHandler.() -> Unit)
+}
+
