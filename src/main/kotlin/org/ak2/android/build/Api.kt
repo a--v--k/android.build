@@ -44,7 +44,12 @@ interface LowLevelAppConfigurator {
     fun after(block : AppExtension.() -> Unit);
 }
 
-interface RootConfigurator : RepositoryConfigurator
+interface RootConfigurator : RepositoryConfigurator {
+
+    val project : Project
+
+    val config : ProjectConfiguration
+}
 
 interface LibraryConfigurator : BuildConfigurator, RepositoryConfigurator, DependenciesConfigurator, NativeConfigurator, LowLevelLibraryConfigurator {
 
@@ -174,6 +179,6 @@ interface ManifestConfigurator {
 
 interface RepositoryConfigurator {
 
-    fun repositories(block: RepositoryHandler.() -> Unit)
+    fun addRepositories(block: RepositoryHandler.() -> Unit)
 }
 

@@ -43,7 +43,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
     protected val configured = AtomicBoolean()
     protected val native = NativeConfiguratorImpl()
 
-    override fun repositories(block: RepositoryHandler.() -> Unit) {
+    override fun addRepositories(block: RepositoryHandler.() -> Unit) {
         config.repositories = block
     }
 
