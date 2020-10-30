@@ -36,6 +36,6 @@ fun Project.androidAppSet(block : AppSetConfigurator.() -> Unit) {
     AppSetConfiguratorImpl(this).configure(block)
 }
 
-fun Project.rootProject(block: RootConfigurator.() -> Unit) {
+fun Project.root(block: RootConfigurator.() -> Unit) {
     RootConfiguratorImpl(this).configure(block)
 }

@@ -44,6 +44,8 @@ interface ProjectConfiguration {
     var supportLibraryVersion   : String
     var constraintLayoutVersion : String
 
+    var dropSupportLibrary      : Boolean
+
     var minSdkVersion           : org.ak2.android.build.AndroidVersion
     var compileSdkVersion       : org.ak2.android.build.AndroidVersion
     var targetSdkVersion        : org.ak2.android.build.AndroidVersion?
@@ -77,6 +79,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var buildToolsVersion       : String        = "29.0.3"
     override var supportLibraryVersion   : String        = "28.0.0"
     override var constraintLayoutVersion : String        = "1.1.3"
+
+    override var dropSupportLibrary      : Boolean       = false
 
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion = ANDROID_4_1
     override var compileSdkVersion       : org.ak2.android.build.AndroidVersion = ANDROID_9_0
@@ -129,6 +133,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     override var constraintLayoutVersion : String
         get()      = getProperty("constraintLayoutVersion") { constraintLayoutVersion }
         set(value) = setProperty("constraintLayoutVersion", value)
+
+    override var dropSupportLibrary      : Boolean
+        get()      = getProperty("dropSupportLibrary") { dropSupportLibrary }
+        set(value) = setProperty("dropSupportLibrary", value)
 
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion
         get()      = getProperty("minSdkVersion") { minSdkVersion }

@@ -6,6 +6,9 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 
 class RootConfiguratorImpl(private val project: Project) : RootConfigurator {
 
+    val config : ProjectConfiguration
+        get() = project.config
+
     override fun repositories(block: RepositoryHandler.() -> Unit) {
         project.config.repositories = block
     }

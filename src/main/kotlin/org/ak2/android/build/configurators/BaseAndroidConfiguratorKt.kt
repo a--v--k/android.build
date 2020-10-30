@@ -31,6 +31,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.kotlin.dsl.exclude
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) : RepositoryConfigurator {
@@ -89,6 +90,11 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
     protected fun Project.configureRespositories() {
         config.repositories(repositories)
+        if (config.dropSupportLibrary) {
+            configurations.all {
+                exclude("com.android.support")
+            }
+        }
     }
 
     protected fun Project.configureKotlin() {
