@@ -119,7 +119,13 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
         val capitalizedVariantName = variantName.capitalize()
         val buildTaskName = "externalNativeBuild$capitalizedVariantName"
         val moveTaskName = "movePlugins$capitalizedVariantName"
-        val packageTaskName = "package$capitalizedVariantName"
+
+        val packageTaskName = if (android is LibraryExtension) {
+            "copy${capitalizedVariantName}JniLibsProjectOnly"
+        } else {
+            "package$capitalizedVariantName"
+        }
+
         val mergeNativeLibsTaskName = "merge${capitalizedVariantName}NativeLibs"
 
         // externalNativeBuildEbookdroid-ngAndroid41xArm7Debug
