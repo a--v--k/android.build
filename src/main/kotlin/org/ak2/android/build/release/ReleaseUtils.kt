@@ -23,7 +23,9 @@ import java.util.*
 import java.util.stream.Collectors
 
 import org.ak2.android.build.extras.*
+import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.GradleException
+import org.gradle.api.Task
 import org.gradle.api.tasks.bundling.Zip
 
 typealias ReleaseCallback = (appName: String, appVersion: String) -> Unit
@@ -53,12 +55,9 @@ fun createZip(project: Project, appName: String, archName: String, appVersion: S
 
         project.androidExtension.getVariantNames().stream().filter { it.startsWith(appName) && it.endsWith("Release") }.forEach {
             val buildTaskName = "assemble${it.capitalize()}"
-            val buildTask = tasks.findByName(buildTaskName)
-            if (buildTask != null) {
-                buildTask.dependsOn(zipTask)
-                println("${project.path}: add $zipTask to $buildTask")
-            } else {
-                throw GradleException("Cannot find $buildTaskName task")
+            tasks.findByNameAndConfigure<Task>(buildTaskName) {
+                dependsOn += zipTask
+                println("${project.path}: add $zipTask to $this")
             }
         }
     }

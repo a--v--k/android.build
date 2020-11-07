@@ -26,7 +26,9 @@ import org.ak2.android.build.configurators.androidProject
 import org.ak2.android.build.configurators.getVariantConfigs
 import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.extras.putExtraIfAbsent
+import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.GradleException
+import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 
 const val JNI_ANDROID_MK = "src/main/jni/Android.mk"
@@ -131,15 +133,8 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
         // externalNativeBuildEbookdroid-ngAndroid41xArm7Debug
         android.androidProject.run {
 
-            val packageTask = tasks.findByName(packageTaskName)
-            if (packageTask != null) {
-                packageTask.dependsOn.add(moveTaskName)
-            } else {
-                tasks.whenTaskAdded {
-                    if (name == packageTaskName) {
-                        dependsOn.add(moveTaskName)
-                    }
-                }
+            tasks.findByNameAndConfigure<Task>(packageTaskName) {
+                dependsOn += moveTaskName
             }
 
             tasks.register(moveTaskName, Copy::class.java) {

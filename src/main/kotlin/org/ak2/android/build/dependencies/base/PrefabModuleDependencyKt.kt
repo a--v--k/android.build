@@ -22,7 +22,9 @@ import org.ak2.android.build.configurators.androidProject
 import org.ak2.android.build.configurators.getVariantConfigs
 import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.flavors.VariantNameBuilder
+import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.GradleException
+import org.gradle.api.Task
 
 class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
 
@@ -55,10 +57,8 @@ class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
                 project.run {
                     dependencies.add(scope.scope, project(dependencyPath))
 
-                    tasks.whenTaskAdded {
-                        if (name == ownTask) {
-                            dependsOn += prefabTask
-                        }
+                    tasks.findByNameAndConfigure<Task>(ownTask) {
+                        dependsOn += prefabTask
                     }
                 }
             } else {
