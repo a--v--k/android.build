@@ -16,21 +16,15 @@
 
 package org.ak2.android.build.release
 
-import org.ak2.android.build.configurators.androidExtension
-import org.ak2.android.build.configurators.getVariantNames
+import org.ak2.android.build.extras.putExtraIfAbsent
+import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.bundling.Zip
 import java.util.*
 import java.util.stream.Collectors
 
-import org.ak2.android.build.extras.*
-import org.ak2.android.build.utils.findByNameAndConfigure
-import org.gradle.api.GradleException
-import org.gradle.api.Task
-import org.gradle.api.tasks.bundling.Zip
-
 typealias ReleaseCallback = (appName: String, appVersion: String) -> Unit
-
-val knownLocales : Set<String> = Arrays.stream(Locale.getAvailableLocales()).map(Locale::toString).collect(Collectors.toSet())
 
 fun Project.addReleaseCallback(appName: String, callback: ReleaseCallback) {
     getReleaseCallbacks(project, appName).add(callback)
@@ -53,12 +47,15 @@ fun createZip(project: Project, appName: String, archName: String, appVersion: S
 
         zipTask.zipConfigurator()
 
-        project.androidExtension.getVariantNames().stream().filter { it.startsWith(appName) && it.endsWith("Release") }.forEach {
-            val buildTaskName = "assemble${it.capitalize()}"
-            tasks.findByNameAndConfigure<Task>(buildTaskName) {
-                dependsOn += zipTask
-                println("${project.path}: add $zipTask to $this")
-            }
+        val buildTaskName = if (appName.isNullOrBlank()) {
+            "assemble"
+        } else {
+            "assemble${appName.capitalize()}"
+        }
+
+        tasks.findByNameAndConfigure<Task>(buildTaskName) {
+            dependsOn += zipTask
+            println("${project.path}: add $zipTask to $this")
         }
     }
 }
