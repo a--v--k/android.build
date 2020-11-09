@@ -25,7 +25,7 @@ import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
 import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.manifests.applyAdditionalManifests
-import org.ak2.android.build.tasks.addHardCleanTask
+import org.ak2.android.build.tasks.HardCleanTask.Companion.addHardCleanTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 

@@ -24,7 +24,7 @@ import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
-import org.ak2.android.build.tasks.addHardCleanTask
+import org.ak2.android.build.tasks.HardCleanTask.Companion.addHardCleanTask
 import org.gradle.api.Project
 
 class LibraryConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.library"), LibraryConfigurator {

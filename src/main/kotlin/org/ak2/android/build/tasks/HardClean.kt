@@ -12,15 +12,10 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
-import java.util.logging.Logger
 import javax.inject.Inject
-
-fun Project?.addHardCleanTask(): HardCleanTask? = takeIf { this != null }?.run {
-    tasks.maybeCreate("hardClean", HardCleanTask::class.java).apply {
-        parent.addHardCleanTask()?.dependsOn(this)
-    }
-}
 
 abstract class HardCleanTask @Inject constructor(private val workerExecutor: WorkerExecutor) :
     DefaultTask() {
@@ -40,27 +35,45 @@ abstract class HardCleanTask @Inject constructor(private val workerExecutor: Wor
         val workQueue = workerExecutor.noIsolation()
         toClean.orNull?.files?.forEach { inputToClean ->
             workQueue.submit(DeleteFileOrDirectory::class.java) {
+                affectedProject.set(project)
                 toClean.set(inputToClean)
+            }
+        }
+    }
+
+    companion object {
+        const val DEFAULT_TASK_NAME = "hardClean"
+
+        fun Project?.addHardCleanTask(): HardCleanTask? = takeIf { this != null }?.run {
+            tasks.maybeCreate(DEFAULT_TASK_NAME, HardCleanTask::class.java).apply {
+                parent.addHardCleanTask()?.dependsOn(this)
             }
         }
     }
 }
 
 interface HardCleanParameters : WorkParameters {
+    val affectedProject: Property<Project>
     val toClean: Property<File>
 }
 
 abstract class DeleteFileOrDirectory @Inject constructor(
-    private val fileSystemOperations: FileSystemOperations,
-    private val logger: Logger,
-    private val project: Project
+    private val fileSystemOperations: FileSystemOperations
 ) : WorkAction<HardCleanParameters> {
 
     override fun execute() {
-        logger.info("${project.path} remove ${parameters.toClean}...")
-        fileSystemOperations.delete {
-            this.delete(parameters.toClean)
+        with(parameters) {
+            toClean.orNull?.takeIf { it.exists() }?.let { dirToClean ->
+                logger.info("${affectedProject.get().path} remove ${dirToClean}...")
+                fileSystemOperations.delete {
+                    this.delete(dirToClean)
+                }
+            }
         }
+    }
+
+    companion object {
+        val logger : Logger  = LoggerFactory.getLogger(DeleteFileOrDirectory::class.java)
     }
 }
 

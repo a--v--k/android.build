@@ -23,7 +23,7 @@ import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.manifests.applyAdditionalManifests
-import org.ak2.android.build.tasks.addHardCleanTask
+import org.ak2.android.build.tasks.HardCleanTask.Companion.addHardCleanTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
