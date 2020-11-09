@@ -1,8 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.properties.loadProperties
 
+val ak2AndroidBuildPluginVersion    : String by project
+val kotlinVersion                   : String by project
+val androidBuildPluginVersion       : String by project
+
 group = "org.ak2"
-version = "4.1.0-beta-21"
+version = ak2AndroidBuildPluginVersion
 
 require(File("local.properties").exists()) { """
 The following properties must be stored in local.properties:
@@ -24,9 +28,6 @@ repositories {
     jcenter()
     gradlePluginPortal()
 }
-
-val kotlinVersion             : String by project
-val androidBuildPluginVersion : String by project
 
 dependencies {
     implementation(gradleApi())
