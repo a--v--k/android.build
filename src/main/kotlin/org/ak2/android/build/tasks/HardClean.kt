@@ -35,7 +35,7 @@ abstract class HardCleanTask @Inject constructor(private val workerExecutor: Wor
         val workQueue = workerExecutor.noIsolation()
         toClean.orNull?.files?.forEach { inputToClean ->
             workQueue.submit(DeleteFileOrDirectory::class.java) {
-                affectedProject.set(project)
+                affectedProject.set(project.path)
                 toClean.set(inputToClean)
             }
         }
@@ -53,7 +53,7 @@ abstract class HardCleanTask @Inject constructor(private val workerExecutor: Wor
 }
 
 interface HardCleanParameters : WorkParameters {
-    val affectedProject: Property<Project>
+    val affectedProject: Property<String>
     val toClean: Property<File>
 }
 
@@ -64,7 +64,7 @@ abstract class DeleteFileOrDirectory @Inject constructor(
     override fun execute() {
         with(parameters) {
             toClean.orNull?.takeIf { it.exists() }?.let { dirToClean ->
-                logger.info("${affectedProject.get().path} remove ${dirToClean}...")
+                logger.info("${affectedProject.get()}: remove ${dirToClean}...")
                 fileSystemOperations.delete {
                     this.delete(dirToClean)
                 }
