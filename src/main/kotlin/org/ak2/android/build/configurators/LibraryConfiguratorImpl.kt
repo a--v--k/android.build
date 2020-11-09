@@ -24,6 +24,7 @@ import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
+import org.ak2.android.build.tasks.addHardCleanTask
 import org.gradle.api.Project
 
 class LibraryConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.library"), LibraryConfigurator {
@@ -61,6 +62,8 @@ class LibraryConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proj
 
     override fun beforeConfiguration() {
         lowLevelHooks.beforeConfiguration(project.androidExtension as LibraryExtension)
+
+        project.addHardCleanTask()
     }
 
     override fun afterConfiguration() {
