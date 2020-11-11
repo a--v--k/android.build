@@ -278,7 +278,7 @@ package.version.code.minor=000
 ```
 ...
 ```
-After assembling, APK files are moved into the following locations:
+After assembling, APK files are moved into the following locations (it was true for 3.5.3 - 3.6.0, in 4.1.0 apks are placed in standard output location) :
 ```
 app/
   + build/
