@@ -22,6 +22,10 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
+kotlinDslPluginOptions {
+    experimentalWarning.set(false)
+}
+
 repositories {
     google()
     mavenCentral()
