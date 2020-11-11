@@ -16,7 +16,7 @@
 
 package org.ak2.android.build.ndk
 
-import com.android.build.gradle.internal.dsl.CoreExternalNativeNdkBuildOptions
+import com.android.build.api.dsl.ExternalNativeNdkBuildOptions
 
 
 open class NativeOptions {
@@ -39,9 +39,9 @@ open class NativeOptions {
     fun     c_flags(vararg flags : String) { this._c_flags   += flags }
     fun   cpp_flags(vararg flags : String) { this._cpp_flags += flags }
 
-    fun configure(ndkBuild : CoreExternalNativeNdkBuildOptions) {
+    fun configure(ndkBuild : ExternalNativeNdkBuildOptions) {
         ndkBuild.arguments.addAll(args)
-        ndkBuild.getcFlags().addAll(c_flags)
+        ndkBuild.cFlags.addAll(c_flags)
         ndkBuild.cppFlags.addAll(cpp_flags)
     }
 }

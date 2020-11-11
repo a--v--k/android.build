@@ -17,9 +17,11 @@
 import org.ak2.android.build.AppConfigurator
 import org.ak2.android.build.AppSetConfigurator
 import org.ak2.android.build.LibraryConfigurator
+import org.ak2.android.build.RootConfigurator
 import org.ak2.android.build.configurators.AppConfiguratorImpl
 import org.ak2.android.build.configurators.AppSetConfiguratorImpl
 import org.ak2.android.build.configurators.LibraryConfiguratorImpl
+import org.ak2.android.build.configurators.RootConfiguratorImpl
 import org.gradle.api.Project
 
 fun Project.androidLibrary(block : LibraryConfigurator.() -> Unit) {
@@ -34,3 +36,6 @@ fun Project.androidAppSet(block : AppSetConfigurator.() -> Unit) {
     AppSetConfiguratorImpl(this).configure(block)
 }
 
+fun Project.androidRoot(block: RootConfigurator.() -> Unit) {
+    RootConfiguratorImpl(this).configure(block)
+}

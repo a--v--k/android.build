@@ -1,8 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.properties.loadProperties
 
+val ak2AndroidBuildPluginVersion    : String by project
+val kotlinVersion                   : String by project
+val androidBuildPluginVersion       : String by project
+
 group = "org.ak2"
-version = "3.6.0-ga-02"
+version = ak2AndroidBuildPluginVersion
 
 require(File("local.properties").exists()) { """
 The following properties must be stored in local.properties:
@@ -25,9 +29,6 @@ repositories {
     gradlePluginPortal()
 }
 
-val kotlinVersion             : String by project
-val androidBuildPluginVersion : String by project
-
 dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
@@ -36,6 +37,7 @@ dependencies {
     implementation("org.jacoco:org.jacoco.core:0.7.9")
     implementation("org.languagetool:languagetool-core:4.2")
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
+    implementation(kotlin("reflect", kotlinVersion))
 }
 
 tasks.withType<KotlinCompile> {

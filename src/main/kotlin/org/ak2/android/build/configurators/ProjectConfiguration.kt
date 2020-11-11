@@ -17,11 +17,13 @@
 package org.ak2.android.build.configurators
 
 import org.ak2.android.build.AndroidVersion.*
+import org.ak2.android.build.RepositoryConfigurator
 import org.ak2.android.build.properties.BuildProperties
 import org.ak2.android.build.signing.ProguardConfig
 import org.ak2.android.build.signing.SigningConfigParams
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import java.io.File
 import java.util.*
 
@@ -42,6 +44,8 @@ interface ProjectConfiguration {
     var supportLibraryVersion   : String
     var constraintLayoutVersion : String
 
+    var dropSupportLibrary      : Boolean
+
     var minSdkVersion           : org.ak2.android.build.AndroidVersion
     var compileSdkVersion       : org.ak2.android.build.AndroidVersion
     var targetSdkVersion        : org.ak2.android.build.AndroidVersion?
@@ -52,6 +56,8 @@ interface ProjectConfiguration {
     var proguardConfig          : ProguardConfig
 
     var debugVersion            : AppVersionKt?
+
+    var repositories            : RepositoryHandler.() -> Unit
 }
 
 val ProjectConfiguration.effectiveTargetSdkVersionCode : Int
@@ -64,7 +70,7 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 
     override var javaVersion             : JavaVersion   = JavaVersion.VERSION_1_8
 
-    override var kotlinVersion           : String        = "1.3.61"
+    override var kotlinVersion           : String        = "1.4.0"
     override var useKotlinInProd         : Boolean       = false
     override var useKotlinInTest         : Boolean       = false
 
@@ -73,6 +79,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var buildToolsVersion       : String        = "29.0.3"
     override var supportLibraryVersion   : String        = "28.0.0"
     override var constraintLayoutVersion : String        = "1.1.3"
+
+    override var dropSupportLibrary      : Boolean       = false
 
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion = ANDROID_4_1
     override var compileSdkVersion       : org.ak2.android.build.AndroidVersion = ANDROID_9_0
@@ -84,6 +92,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var proguardConfig          : ProguardConfig = ProguardConfig()
 
     override var debugVersion            : AppVersionKt? = AppVersionKt(versionName="debug", majorVersionCode=999, minorVersionCode=999)
+
+    override var repositories            : RepositoryHandler.() -> Unit = {}
 }
 
 class InnerProjectConfiguration(val project: Project, val appFolder : File, val parentConfig: ProjectConfiguration) : ProjectConfiguration {
@@ -124,6 +134,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
         get()      = getProperty("constraintLayoutVersion") { constraintLayoutVersion }
         set(value) = setProperty("constraintLayoutVersion", value)
 
+    override var dropSupportLibrary      : Boolean
+        get()      = getProperty("dropSupportLibrary") { dropSupportLibrary }
+        set(value) = setProperty("dropSupportLibrary", value)
+
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion
         get()      = getProperty("minSdkVersion") { minSdkVersion }
         set(value) = setProperty("minSdkVersion", value)
@@ -149,6 +163,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     override var debugVersion: AppVersionKt?
         get()      = getProperty("debugVersion") { debugVersion }
         set(value) = setProperty("debugVersion", value)
+
+    override var repositories : RepositoryHandler.() -> Unit
+        get()      = getProperty("repositories") { repositories }
+        set(value) = setProperty("repositories", value)
 
     private inline fun <reified T> getProperty(name: String, getter : ProjectConfiguration.() -> T): T {
         val result : T? = properties[name] as T?

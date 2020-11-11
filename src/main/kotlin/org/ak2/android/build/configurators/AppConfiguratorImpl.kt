@@ -24,7 +24,10 @@ import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
 import org.ak2.android.build.flavors.VariantConfig
+import org.ak2.android.build.manifests.applyAdditionalManifests
+import org.ak2.android.build.tasks.HardCleanTask.Companion.addHardCleanTask
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 
 class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.application"),
     AppConfigurator {
@@ -32,6 +35,8 @@ class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project,
     private val appFlavor = AppFlavorConfiguratorImpl(this, project.name).apply { enabled = true }
 
     private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
+
+    override var additionalManifests : FileCollection? = null
 
     override val languages: MutableSet<String>
         get() = appFlavor.languages
@@ -67,9 +72,15 @@ class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project,
 
     override fun beforeConfiguration() {
         lowLevelHooks.beforeConfiguration(project.androidExtension as AppExtension)
+
+        project.addHardCleanTask()
     }
 
     override fun afterConfiguration() {
         lowLevelHooks.afterConfiguration(project.androidExtension as AppExtension)
+    }
+
+    override fun configureManifests() {
+        project.applyAdditionalManifests(additionalManifests)
     }
 }

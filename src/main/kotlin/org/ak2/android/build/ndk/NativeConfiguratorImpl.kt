@@ -16,113 +16,151 @@
 
 package org.ak2.android.build.ndk
 
+import com.android.build.api.variant.VariantProperties
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.NativeConfigurator
-import org.ak2.android.build.extras.*
-import org.ak2.android.build.configurators.*
-import org.ak2.android.build.flavors.ANDROID_MK
-import org.ak2.android.build.signing.SigningConfigParams
+import org.ak2.android.build.configurators.addPostConfigurator
+import org.ak2.android.build.configurators.androidProject
+import org.ak2.android.build.configurators.getVariantConfigs
+import org.ak2.android.build.extras.doOnce
+import org.ak2.android.build.extras.putExtraIfAbsent
+import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.GradleException
-import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
-import java.io.FileInputStream
-import java.security.KeyStore
-import java.security.cert.X509Certificate
-import java.security.interfaces.RSAPublicKey
-import java.util.*
 
-const val executablePluginsAssetPath = "plugins/"
+const val JNI_ANDROID_MK = "src/main/jni/Android.mk"
 
 class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptionsBuilder {
 
-    private val targets = mutableListOf<String>()
-    private val executablePlugins  = mutableListOf<String>()
+    data class PrefabLibrary(val name: String, val headersDir: String?)
 
-    override fun   libraries(vararg args : String)  { targets += args  }
-    override fun executables(vararg args : String)  { targets += args ; executablePlugins += args }
+    private val prefabLibraries = mutableListOf<PrefabLibrary>()
+    private val targets = mutableListOf<String>()
+    private val executablePlugins = mutableListOf<String>()
+
+    override fun prefab(name: String, headersDir: String?) {
+        prefabLibraries += PrefabLibrary(name, headersDir)
+        // targets += name
+    }
+
+    override fun libraries(vararg args: String) {
+        targets += args
+    }
+
+    override fun executables(vararg args: String) {
+        targets += args; executablePlugins += args
+    }
 
     fun configure(android: BaseExtension, flavor: ProductFlavor? = null) {
-        val ndkBuildRequired = putExtraIfAbsent(android, "setupNdkBuild") { android.setupNdkBuild() }
+        val ndkBuildRequired =
+            putExtraIfAbsent(android, "setupNdkBuild") { android.setupNdkBuild() }
         if (!ndkBuildRequired) {
             return
         }
 
+        if (prefabLibraries.isNotEmpty()) {
+            require(android is LibraryExtension) { throw GradleException("Prefab publishing available only in Android Library modules")}
+
+            android.run {
+                buildFeatures {
+                    prefabPublishing = true
+                }
+
+                prefabLibraries.forEach { lib ->
+                    prefab.register(lib.name) {
+                        if (!lib.headersDir.isNullOrEmpty()) {
+                            this.headers = androidProject.file(lib.headersDir).absolutePath
+                        }
+                    }
+                }
+            }
+        }
+
         val ndkBuildOptions = resolveNdkBuildOptions(android, flavor)
+        if (ndkBuildOptions != null) {
+            println("${android.androidProject.path}: Confgure native options for ${flavor?.getName() ?: android.androidProject.name}:")
+            println("${android.androidProject.path}:      args=${args}")
+            println("${android.androidProject.path}:   c_flags=${c_flags}")
+            println("${android.androidProject.path}: cpp_flags=${cpp_flags}")
 
-        println("${android.androidProject.path}: Confgure native options for ${flavor?.getName() ?: android.androidProject.name}:")
-        println("${android.androidProject.path}:      args=${args}")
-        println("${android.androidProject.path}:   c_flags=${c_flags}")
-        println("${android.androidProject.path}: cpp_flags=${cpp_flags}")
+            super.configure(ndkBuildOptions)
 
-        super.configure(ndkBuildOptions)
+            ndkBuildOptions.targets.clear()
+            ndkBuildOptions.targets.addAll(targets)
 
-        ndkBuildOptions.targets.clear()
-        ndkBuildOptions.targets.addAll(targets)
-
-        if (executablePlugins.isNotEmpty()) {
-            doOnce(android, "NativePluginsConfiguration") {
-                android.addPostConfigurator {
-                    addPluginTasks(android, it)
+            if (executablePlugins.isNotEmpty()) {
+                doOnce(android, "NativePluginsConfiguration") {
+                    android.addPostConfigurator {
+                        addPluginTasks(android, it)
+                    }
                 }
             }
         }
 
     }
 
-    private fun addPluginTasks(android : BaseExtension, variant : BaseVariant) {
+    private fun addPluginTasks(android: BaseExtension, variantProperties: VariantProperties) {
+        val variantName = variantProperties.name
         val variants = android.getVariantConfigs()
-        val variantConfig = variants[variant.name]
-        require(variantConfig != null) { GradleException("Add native build tasks: variant config missed for ${variant.name}: ${variants.keys}")}
+        val variantConfig = variants[variantName]
+
+        require(variantConfig != null) { GradleException("Add native build tasks: variant config missed for ${variantName}: ${variants.keys}") }
 
         val abiFlavor = variantConfig.nativeFlavor
 
         if (abiFlavor == null) {
-            println("${android.androidProject.path}: cannot find NativeAbiFlavors for ${variant.name}")
+            println("${android.androidProject.path}: cannot find NativeAbiFlavors for ${variantName}")
             return
         }
 
         val arch = abiFlavor.abi
 
-        val variantName = variant.name.capitalize()
-        val buildTaskName = "externalNativeBuild$variantName"
-        val moveTaskName = "movePlugins$variantName"
-        val packageTaskName = "package$variantName"
-        val mergeNativeLibsTaskName = "merge${variantName}NativeLibs"
+        val capitalizedVariantName = variantName.capitalize()
+        val buildTaskName = "externalNativeBuild$capitalizedVariantName"
+        val moveTaskName = "movePlugins$capitalizedVariantName"
 
-        val iter = variant.productFlavors.iterator()
-        var flavors = iter.next().name
-        while (iter.hasNext()) {
-            flavors += iter.next().name.capitalize()
+        val packageTaskName = if (android is LibraryExtension) {
+            "copy${capitalizedVariantName}JniLibsProjectOnly"
+        } else {
+            "package$capitalizedVariantName"
         }
 
+        val mergeNativeLibsTaskName = "merge${capitalizedVariantName}NativeLibs"
+
+        // externalNativeBuildEbookdroid-ngAndroid41xArm7Debug
         android.androidProject.run {
+
+            tasks.findByNameAndConfigure<Task>(packageTaskName) {
+                dependsOn += moveTaskName
+            }
+
             tasks.register(moveTaskName, Copy::class.java) {
-                val fromDir = android.androidProject.file("build/intermediates/ndkBuild/${variant.name}/obj/local/$arch")
-                val toDir = android.androidProject.file("build/intermediates/merged_native_libs/${variant.name}/out/lib/$arch")
+                dependsOn += buildTaskName
+                dependsOn += mergeNativeLibsTaskName
+
+                val fromDir =
+                    android.androidProject.file("build/intermediates/ndkBuild/${variantName}/obj/local/$arch")
+                val toDir =
+                    android.androidProject.file("build/intermediates/merged_native_libs/${variantName}/out/lib/$arch")
                 from(fromDir) {
                     include(executablePlugins)
                 }
                 into(toDir)
                 rename("(.+)", "lib$1.so")
             }
-
-            tasks.findByName(packageTaskName)?.dependsOn?.add(moveTaskName)
-            tasks.findByName(moveTaskName)?.dependsOn?.apply {
-                add(buildTaskName)
-                add(mergeNativeLibsTaskName)
-            }
         }
     }
 
     private fun resolveNdkBuildOptions(android: BaseExtension, flavor: ProductFlavor? = null) =
-            flavor?.externalNativeBuild?.externalNativeNdkBuildOptions
+        flavor?.externalNativeBuild?.externalNativeNdkBuildOptions
             ?: android.defaultConfig.externalNativeBuild.externalNativeNdkBuildOptions
 }
 
-fun BaseExtension.setupNdkBuild() : Boolean {
-    val androidMkFile = androidProject.file(ANDROID_MK)
+fun BaseExtension.setupNdkBuild(): Boolean {
+    val androidMkFile = androidProject.file(JNI_ANDROID_MK)
     if (!androidMkFile.exists()) {
         return false
     }
@@ -139,7 +177,7 @@ fun BaseExtension.setupNdkBuild() : Boolean {
 
     buildTypes.maybeCreate("release").externalNativeBuild {
         ndkBuild {
-            this.getcFlags().add("-DANDROID_APP_RELEASE")
+            this.cFlags += "-DANDROID_APP_RELEASE"
         }
     }
 

@@ -27,6 +27,8 @@ import org.ak2.android.build.flavors.NativePlatforms
 import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.file.FileCollection
 
 interface LowLevelLibraryConfigurator {
 
@@ -42,7 +44,14 @@ interface LowLevelAppConfigurator {
     fun after(block : AppExtension.() -> Unit);
 }
 
-interface LibraryConfigurator : BuildConfigurator, DependenciesConfigurator, NativeConfigurator, LowLevelLibraryConfigurator {
+interface RootConfigurator : RepositoryConfigurator {
+
+    val project : Project
+
+    val config : ProjectConfiguration
+}
+
+interface LibraryConfigurator : BuildConfigurator, RepositoryConfigurator, DependenciesConfigurator, NativeConfigurator, LowLevelLibraryConfigurator {
 
     val project : Project
 
@@ -75,9 +84,9 @@ interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
     }
 }
 
-interface AppConfigurator : BaseAppConfigurator, ResourceCheckConfigurator, LowLevelAppConfigurator
+interface AppConfigurator : BaseAppConfigurator, RepositoryConfigurator, ResourceCheckConfigurator, ManifestConfigurator, LowLevelAppConfigurator
 
-interface AppSetConfigurator : DependenciesConfigurator, NativeConfigurator, LowLevelAppConfigurator {
+interface AppSetConfigurator : RepositoryConfigurator, DependenciesConfigurator, NativeConfigurator, ManifestConfigurator, LowLevelAppConfigurator {
 
     fun app(appName : String, id : String? = null, enabled: Boolean? = true, block: AppFlavorConfigurator.() -> Unit)
 
@@ -121,6 +130,9 @@ interface DependenciesConfigurator {
         fun modules(vararg aliases: String) : List<ModuleDependencyKt>
         fun library(dependency: String)     : LibraryDependencyKt
         fun local(localPath: String)        : LocalJarDependencyKt
+
+        fun prefab(path: String)           : PrefabModuleDependencyKt
+        fun prefabs(vararg aliases: String) : List<PrefabModuleDependencyKt>
     }
 
     interface ScopedDependencies {
@@ -139,12 +151,14 @@ interface NativeConfigurator {
 
     interface NativeOptionsBuilder {
 
-        fun   libraries(vararg args : String)
-        fun executables(vararg args : String)
+        fun prefab(name: String, headersDir: String?)
 
-        fun        args(vararg args  : String)
-        fun     c_flags(vararg flags : String)
-        fun   cpp_flags(vararg flags : String)
+        fun libraries(vararg args: String)
+        fun executables(vararg args: String)
+
+        fun args(vararg args: String)
+        fun c_flags(vararg flags: String)
+        fun cpp_flags(vararg flags: String)
     }
 }
 
@@ -157,3 +171,14 @@ interface ResourceCheckConfigurator {
         val languagesToCheck : MutableSet<String>
     }
 }
+
+interface ManifestConfigurator {
+
+    var additionalManifests : FileCollection?
+}
+
+interface RepositoryConfigurator {
+
+    fun addRepositories(block: RepositoryHandler.() -> Unit)
+}
+

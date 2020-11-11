@@ -17,14 +17,12 @@
 package org.ak2.android.build.flavors
 
 import com.android.build.api.variant.VariantFilter
-import com.android.build.gradle.api.BaseVariant
-import org.ak2.android.build.configurators.androidExtension
-import org.ak2.android.build.configurators.getVariants
+import com.android.build.api.variant.VariantProperties
 import org.gradle.api.Project
 
 typealias VariantValidator = (VariantFilter) -> Boolean
 typealias VariantConfigurator = (VariantFilter) -> Unit
-typealias VariantPostConfigurator = (BaseVariant) -> Unit
+typealias VariantPostConfigurator = (VariantProperties) -> Unit
 
 class VariantProcessor(val project: Project) {
 
@@ -32,28 +30,15 @@ class VariantProcessor(val project: Project) {
     val variantConfigurators = ArrayList<VariantConfigurator>();
     val variantPostConfigurators = ArrayList<VariantPostConfigurator>();
 
-    init {
-        project.androidExtension.variantFilter {
-            doFilter(this)
-        }
-
-        project.afterEvaluate {
-            doPostConfiguration()
-        }
-    }
-
-    @JvmName("addValidator")
-    operator fun plusAssign(validator: VariantValidator) {
+    fun addValidator(validator: VariantValidator) {
         variantValidators.add(validator);
     }
 
-    @JvmName("addConfigurator")
-    operator fun plusAssign(configurator: VariantConfigurator) {
+    fun addConfigurator(configurator: VariantConfigurator) {
         variantConfigurators.add(configurator);
     }
 
-    @JvmName("addPostConfigurator")
-    operator fun plusAssign(postConfigurator: VariantPostConfigurator) {
+    fun addPostConfigurator(postConfigurator: VariantPostConfigurator) {
         variantPostConfigurators.add(postConfigurator);
     }
 
@@ -63,16 +48,13 @@ class VariantProcessor(val project: Project) {
             variantConfigurators.forEach { it(variant) }
         } else {
             println("${project.path}: Disable variant ${variant.name}")
-            variant.setIgnore(true)
+            variant.ignore = true
         }
     }
 
-    fun doPostConfiguration() {
-        println("${project.path}: Configure variants...")
-        project.androidExtension.getVariants().forEach { variant ->
-            println("${project.path}: Configure variant ${variant.name}...")
+    fun onVariantProperties(variant: VariantProperties) {
+        println("${project.path}: Configure variant properties ${variant.name}...")
             variantPostConfigurators.forEach { it(variant) }
-        }
     }
 
     fun validate(variant: VariantFilter): Boolean {

@@ -56,15 +56,15 @@ fun BaseExtension.getVariantConfigs(): LinkedHashMap<String, VariantConfig> {
 }
 
 fun BaseExtension.addVariantValidator(validator: VariantValidator) {
-    getVariantProcessor() += validator
+    getVariantProcessor().addValidator(validator)
 }
 
 fun BaseExtension.addVariantConfigurator(configurator: VariantConfigurator) {
-    getVariantProcessor() += configurator
+    getVariantProcessor().addConfigurator(configurator)
 }
 
 fun BaseExtension.addPostConfigurator(configurator: VariantPostConfigurator) {
-    getVariantProcessor() += configurator
+    getVariantProcessor().addPostConfigurator(configurator)
 }
 
 fun BaseExtension.getVariantProcessor(): VariantProcessor = putExtraIfAbsent(this, "VariantProcessor") { VariantProcessor(this.androidProject) }

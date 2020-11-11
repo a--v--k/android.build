@@ -22,8 +22,11 @@ import org.ak2.android.build.AppSetConfigurator.AppFlavorConfigurator
 import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.flavors.VariantConfig
+import org.ak2.android.build.manifests.applyAdditionalManifests
+import org.ak2.android.build.tasks.HardCleanTask.Companion.addHardCleanTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 
 class AppSetConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
 
@@ -34,6 +37,8 @@ class AppSetConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proje
             .onEach { println("${project.path}: application flavor found: ${it.name}") }
             .associateTo(LinkedHashMap()) { it.name to it }
 
+    override var additionalManifests: FileCollection? = null
+
     override fun app(appName: String, id: String?, enabled : Boolean?, block: AppFlavorConfigurator.() -> Unit) {
         require(knownApplications.containsKey(appName)) { GradleException("Unknown application name ${project.path}/$appName") }
         knownApplications[appName]?.apply {
@@ -42,7 +47,6 @@ class AppSetConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proje
             configure(block)
         }
     }
-
 
     override fun dependsOn(block: DependencyBuilder.() -> Unit) {
         knownDependencies.block()
@@ -68,10 +72,16 @@ class AppSetConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proje
 
     override fun beforeConfiguration() {
         lowLevelHooks.beforeConfiguration(project.androidExtension as AppExtension)
+
+        project.addHardCleanTask()
     }
 
     override fun afterConfiguration() {
         lowLevelHooks.afterConfiguration(project.androidExtension as AppExtension)
+    }
+
+    override fun configureManifests() {
+        project.applyAdditionalManifests(additionalManifests)
     }
 }
 

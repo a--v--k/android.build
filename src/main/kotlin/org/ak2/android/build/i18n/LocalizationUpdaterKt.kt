@@ -54,7 +54,7 @@ fun doTask(android: BaseExtension, appName: String? = null, options : StringChec
     android.sourceSets.forEach { sourceSet ->
         val name = sourceSet.implementationConfigurationName
         if (name == "implementation" || appName != null && name.startsWith(appName)) {
-            sourceSet.res.sourceDirectoryTrees.forEach { tree ->
+            sourceSet.res.getSourceDirectoryTrees().forEach { tree ->
                 if (tree.dir.exists()) {
                     val appLocalization = loadAppLocalization(tree.dir.toPath(), options)
                     task.invoke(appLocalization)

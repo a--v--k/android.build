@@ -26,8 +26,6 @@ import org.ak2.android.build.flavors.NativeAbiType._32
 import org.ak2.android.build.flavors.NativeAbiType._64
 import org.ak2.android.build.ndk.NativeOptions
 
-const val ANDROID_MK = "src/main/jni/Android.mk"
-
 enum class NativeAbiType {
     _32,
     _64
