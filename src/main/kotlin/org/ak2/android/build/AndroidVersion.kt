@@ -633,4 +633,7 @@ enum class AndroidVersion(val code : Int) {
     P(28), ANDROID_9_0(org.ak2.android.build.AndroidVersion.P.code),
 
     Q(29), ANDROID_10_0(org.ak2.android.build.AndroidVersion.Q.code),
+
+    R(30), ANDROID_11_0(org.ak2.android.build.AndroidVersion.R.code),
+
 }

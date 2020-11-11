@@ -108,7 +108,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
         val minSdkVersion = config.minSdkVersion.code
         val compileSdkVersion = config.compileSdkVersion.code
-        val targetSdkVersion = Math.max(minSdkVersion, compileSdkVersion)
+        val targetSdkVersion = config.effectiveTargetSdkVersionCode
         val buildTools = config.buildToolsVersion
         val javaVersion = config.javaVersion
 

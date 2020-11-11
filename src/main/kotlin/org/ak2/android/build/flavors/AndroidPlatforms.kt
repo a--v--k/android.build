@@ -20,6 +20,7 @@ import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.AndroidVersion
 import org.ak2.android.build.AndroidVersion.*
 import org.ak2.android.build.configurators.ProjectConfiguration
+import org.ak2.android.build.configurators.effectiveTargetSdkVersionCode
 
 enum class AndroidPlatforms (
     val minSdkVersion : org.ak2.android.build.AndroidVersion,
@@ -58,7 +59,7 @@ enum class AndroidPlatforms (
         this.minSdkVersion.let(AndroidVersion::code).let(productFlavor::setMinSdkVersion)
         this.maxSdkVersion?.let(AndroidVersion::code)?.let(productFlavor::setMaxSdkVersion)
 
-        val targetSdkVersion = Math.min(this.maxSdkVersion?.code ?: Integer.MAX_VALUE, projectConfig.compileSdkVersion.code)
+        val targetSdkVersion = Math.min(this.maxSdkVersion?.code ?: Integer.MAX_VALUE, projectConfig.effectiveTargetSdkVersionCode)
         productFlavor.setTargetSdkVersion(targetSdkVersion)
     }
 

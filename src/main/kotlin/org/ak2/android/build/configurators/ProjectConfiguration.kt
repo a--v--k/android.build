@@ -44,6 +44,7 @@ interface ProjectConfiguration {
 
     var minSdkVersion           : org.ak2.android.build.AndroidVersion
     var compileSdkVersion       : org.ak2.android.build.AndroidVersion
+    var targetSdkVersion        : org.ak2.android.build.AndroidVersion?
 
     val debugSigningConfig      : SigningConfigParams?
     val releaseSigningConfig    : SigningConfigParams?
@@ -52,6 +53,10 @@ interface ProjectConfiguration {
 
     var debugVersion            : AppVersionKt?
 }
+
+val ProjectConfiguration.effectiveTargetSdkVersionCode : Int
+    get() = targetSdkVersion?.code ?: Math.max(minSdkVersion.code, compileSdkVersion.code)
+
 
 class RootConfiguration(val project: Project) : ProjectConfiguration {
 
@@ -71,6 +76,7 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion = ANDROID_4_1
     override var compileSdkVersion       : org.ak2.android.build.AndroidVersion = ANDROID_9_0
+    override var targetSdkVersion        : org.ak2.android.build.AndroidVersion? = null
 
     override val debugSigningConfig      : SigningConfigParams? = loadSigningConfig("debug", buildProperties)
     override val releaseSigningConfig    : SigningConfigParams? = loadSigningConfig("release", buildProperties)
@@ -125,6 +131,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     override var compileSdkVersion       : org.ak2.android.build.AndroidVersion
         get()      = getProperty("compileSdkVersion") { compileSdkVersion }
         set(value) = setProperty("compileSdkVersion", value)
+
+    override var targetSdkVersion       : org.ak2.android.build.AndroidVersion?
+        get()      = getProperty("targetSdkVersion") { targetSdkVersion }
+        set(value) = setProperty("targetSdkVersion", value)
 
     override val debugSigningConfig: SigningConfigParams?
         get()      = getSigningConfig("debug") { debugSigningConfig }
