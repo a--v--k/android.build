@@ -18,6 +18,7 @@ package org.ak2.android.build.configurators
 
 import com.android.build.api.variant.ApplicationVariantProperties
 import com.android.build.api.variant.VariantOutputConfiguration
+import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.AppSetConfigurator.AppFlavorConfigurator
@@ -259,9 +260,12 @@ class AppFlavorConfiguratorImpl(
             apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let(mainOutput.versionName::set)
             apkConfig.versionCode.takeIf { it != 0         }?.let(mainOutput.versionCode::set)
 
-            // val sourceApkFolder = v.artifacts.get(ArtifactType.APK)
+            v.outputs
+                .filterIsInstance<VariantOutputImpl>()
+                .forEach { output ->
+                    output.outputFileName.set(apkConfig.apkPath)
+                }
         }
-
     }
 
     sealed class ApkConfig(var apkPath: String? = null,
