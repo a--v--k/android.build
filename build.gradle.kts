@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.properties.loadProperties
 
@@ -17,6 +18,7 @@ gradle.publish.secret
 loadProperties("local.properties").forEach { key, value -> project.ext.set(key.toString(), value) }
 
 plugins {
+    `java-gradle-plugin`
     `kotlin-dsl`
     kotlin("jvm")
     id("com.gradle.plugin-publish")
@@ -36,12 +38,15 @@ repositories {
 dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
-    implementation( "com.android.tools.build:gradle:$androidBuildPluginVersion")
+    implementation("com.android.tools.build:gradle:$androidBuildPluginVersion")
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     implementation("org.jacoco:org.jacoco.core:0.7.9")
     implementation("org.languagetool:languagetool-core:4.2")
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
     implementation(kotlin("reflect", kotlinVersion))
+
+    testImplementation(gradleTestKit())
+    testImplementation("junit:junit:4.13.1")
 }
 
 tasks.withType<KotlinCompile> {
@@ -55,6 +60,8 @@ gradlePlugin {
             implementationClass = "org.ak2.android.build.BuildPlugin"
         }
     }
+
+    testSourceSets(sourceSets.test.get())
 }
 
 pluginBundle {
