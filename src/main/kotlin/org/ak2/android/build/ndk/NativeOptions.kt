@@ -18,6 +18,18 @@ package org.ak2.android.build.ndk
 
 import com.android.build.api.dsl.ExternalNativeNdkBuildOptions
 
+data class CommonNdkOptions (
+    val appType     : AppLevel  = AppLevel.RELEASE,
+    val debug       : Debug     = Debug.DISABLED,
+    val linkerFlags : String    = "APP_LDFLAGS+=-Wl,-s"
+)
+
+data class CppNdkOptions(
+    val stlLib      : StlType       = StlType.STATIC,
+    val cppStandard : CppStandard   = CppStandard.STD_17,
+    val rtti        : RTTI          = RTTI.ENABLED,
+    val exceptions  : Excepions     = Excepions.ENABLED
+)
 
 open class NativeOptions {
 
@@ -39,9 +51,26 @@ open class NativeOptions {
     fun     c_flags(vararg flags : String) { this._c_flags   += flags }
     fun   cpp_flags(vararg flags : String) { this._cpp_flags += flags }
 
+    fun        args(vararg args  : NativeFlag) { this._args      += args.map  { it.flag } }
+    fun     c_flags(vararg flags : NativeFlag) { this._c_flags   += flags.map { it.flag } }
+    fun   cpp_flags(vararg flags : NativeFlag) { this._cpp_flags += flags.map { it.flag } }
+
+    fun apply(options: NativeOptions) {
+        this._args      += options.args
+        this._c_flags   += options.c_flags
+        this._cpp_flags += options.cpp_flags
+    }
+
     fun configure(ndkBuild : ExternalNativeNdkBuildOptions) {
         ndkBuild.arguments.addAll(args)
         ndkBuild.cFlags.addAll(c_flags)
         ndkBuild.cppFlags.addAll(cpp_flags)
     }
 }
+
+data class NdkOptions (
+    val common: CommonNdkOptions = CommonNdkOptions(),
+    val optLevel: OptLevel = OptLevel.LEVEL_3,
+    val cpp: CppNdkOptions = CppNdkOptions(),
+    val other : NativeOptions = NativeOptions()
+)

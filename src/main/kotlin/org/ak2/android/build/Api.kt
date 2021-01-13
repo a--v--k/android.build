@@ -24,6 +24,7 @@ import org.ak2.android.build.dependencies.base.*
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.NativeAbiType
 import org.ak2.android.build.flavors.NativePlatforms
+import org.ak2.android.build.ndk.NdkOptions
 import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
 import org.gradle.api.Project
@@ -159,6 +160,8 @@ interface NativeConfigurator {
         fun args(vararg args: String)
         fun c_flags(vararg flags: String)
         fun cpp_flags(vararg flags: String)
+
+        fun apply(ndk : NdkOptions)
     }
 }
 

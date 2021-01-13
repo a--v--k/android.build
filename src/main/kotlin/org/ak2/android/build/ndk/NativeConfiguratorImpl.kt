@@ -23,6 +23,7 @@ import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.NativeConfigurator
 import org.ak2.android.build.configurators.addPostConfigurator
 import org.ak2.android.build.configurators.androidProject
+import org.ak2.android.build.configurators.config
 import org.ak2.android.build.configurators.getVariantConfigs
 import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.extras.putExtraIfAbsent
@@ -52,6 +53,30 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
 
     override fun executables(vararg args: String) {
         targets += args; executablePlugins += args
+    }
+
+    override fun apply(ndk: NdkOptions) {
+        args(
+            ndk.common.appType,
+            ndk.common.debug,
+            ndk.cpp.stlLib
+        )
+
+        args(
+            ndk.common.linkerFlags
+        )
+
+        c_flags(
+            ndk.optLevel
+        )
+
+        cpp_flags(
+            ndk.cpp.cppStandard,
+            ndk.cpp.rtti,
+            ndk.cpp.exceptions
+        )
+
+        apply(ndk.other)
     }
 
     fun configure(android: BaseExtension, flavor: ProductFlavor? = null) {
@@ -166,6 +191,11 @@ fun BaseExtension.setupNdkBuild(): Boolean {
     }
 
     println("${androidProject.path}: Configure native build...")
+
+    androidProject.config.ndkVersion?.let {
+        println("${androidProject.path}: Configure NDK version: ${it.version}")
+        ndkVersion = it.version
+    }
 
     defaultConfig {
         externalNativeBuild {

@@ -17,7 +17,7 @@
 package org.ak2.android.build.configurators
 
 import org.ak2.android.build.AndroidVersion.*
-import org.ak2.android.build.RepositoryConfigurator
+import org.ak2.android.build.ndk.NdkVersion
 import org.ak2.android.build.properties.BuildProperties
 import org.ak2.android.build.signing.ProguardConfig
 import org.ak2.android.build.signing.SigningConfigParams
@@ -40,6 +40,7 @@ interface ProjectConfiguration {
 
     var useViewBindings         : Boolean
 
+    var ndkVersion              : NdkVersion?
     var buildToolsVersion       : String
     var supportLibraryVersion   : String
     var constraintLayoutVersion : String
@@ -76,6 +77,7 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 
     override var useViewBindings         : Boolean       = false
 
+    override var ndkVersion              : NdkVersion?   = null
     override var buildToolsVersion       : String        = "29.0.3"
     override var supportLibraryVersion   : String        = "28.0.0"
     override var constraintLayoutVersion : String        = "1.1.3"
@@ -121,6 +123,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     override var useViewBindings: Boolean
         get()      = getProperty("useViewBindings") { useViewBindings }
         set(value) = setProperty("useViewBindings", value)
+
+    override var ndkVersion       : NdkVersion?
+        get()      = getProperty("ndkVersion") { ndkVersion }
+        set(value) = setProperty("ndkVersion", value)
 
     override var buildToolsVersion       : String
         get()      = getProperty("buildToolsVersion") { buildToolsVersion }
