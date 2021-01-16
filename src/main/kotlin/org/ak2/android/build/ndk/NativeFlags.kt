@@ -68,3 +68,14 @@ sealed class Excepions(override val flag: String) : NativeFlag {
     object DISABLED : Excepions("-fno-exceptions")
 }
 
+data class LinkedOptions(val flags : List<String> = emptyList()) : NativeFlag {
+
+    constructor(vararg flags : String) : this(listOf(*flags))
+
+    override val flag: String
+        get() = if (flags.isNotEmpty()) {
+            flags.joinToString(separator = ",", prefix = "APP_LDFLAGS+=")
+        } else {
+            ""
+        }
+}

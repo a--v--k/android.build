@@ -19,9 +19,9 @@ package org.ak2.android.build.ndk
 import com.android.build.api.dsl.ExternalNativeNdkBuildOptions
 
 data class CommonNdkOptions (
-    val appType     : AppLevel  = AppLevel.RELEASE,
-    val debug       : Debug     = Debug.DISABLED,
-    val linkerFlags : String    = "APP_LDFLAGS+=-Wl,-s"
+    val appType     : AppLevel      = AppLevel.RELEASE,
+    val debug       : Debug         = Debug.DISABLED,
+    val linkerFlags : LinkedOptions = LinkedOptions("-Wl","-s")
 )
 
 data class CppNdkOptions(
@@ -70,7 +70,7 @@ open class NativeOptions {
 
 data class NdkOptions (
     val common: CommonNdkOptions = CommonNdkOptions(),
-    val optLevel: OptLevel = OptLevel.LEVEL_3,
+    val optLevel: OptLevel = OptLevel.LEVEL_2,
     val cpp: CppNdkOptions = CppNdkOptions(),
     val other : NativeOptions = NativeOptions()
 )
