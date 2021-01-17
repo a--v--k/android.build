@@ -251,13 +251,13 @@ class AppFlavorConfiguratorImpl(
         fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant : VariantConfig, v: ApplicationVariantProperties) {
 
             val appFlavorName = appFlavor.name
-            val buildTypeName = variant.buildType
+            val buildType = variant.buildType
 
             val backToOutputs = if (variant.hasFlavors()) { "../../.." } else { "../.." }
 
-            val apkFolder = "$backToOutputs/packages/$buildTypeName/$appFlavorName"
+            val apkFolder = "$backToOutputs/packages/${buildType.id}/$appFlavorName"
 
-            val apkConfig = when(buildTypeName) {
+            val apkConfig = when(buildType) {
                 BuildTypeId.RELEASE -> ApkConfig.Release(android, appFlavor, variant, apkFolder)
                 BuildTypeId.DEBUG   -> ApkConfig.Debug(android, appFlavor, variant, apkFolder)
                 else                -> throw GradleException("Custom build type not yet supported")
@@ -307,7 +307,7 @@ class AppFlavorConfiguratorImpl(
             init {
                 val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
 
-                apkName = listOf(packageName, variant.suffix.value, variant.buildType?.id)
+                apkName = listOf(packageName, variant.suffix.value, variant.buildType.id)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
                     .joinToString(separator = "-")

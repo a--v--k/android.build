@@ -29,7 +29,7 @@ data class FlavorConfig(val androidFlavor: AndroidPlatforms?, val nativeFlavor: 
         sequenceOf<Flavor?>(androidFlavor, nativeFlavor).filterNotNull().map(Flavor::dimensionName).toSet()
     }
 
-    fun toVariantConfig(buildType: BuildTypeId? = null, appFlavor: AppFlavorConfiguratorImpl? = null) = VariantConfig(buildType, appFlavor, androidFlavor, nativeFlavor)
+    fun toVariantConfig(buildType: BuildTypeId, appFlavor: AppFlavorConfiguratorImpl? = null) = VariantConfig(buildType, appFlavor, androidFlavor, nativeFlavor)
 
     override fun toString(): String {
         return name.value;

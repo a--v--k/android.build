@@ -6,7 +6,7 @@ import com.android.build.gradle.internal.dsl.BuildType
 sealed class BuildTypeId(val id: String) {
     object RELEASE              : BuildTypeId("release")
     object DEBUG                : BuildTypeId("debug")
-    class CUSTOM(id: String)    : BuildTypeId(id)
+    class  CUSTOM(id: String)   : BuildTypeId(id)
 
     fun configure(android : BaseExtension, block :  BuildType.() -> Unit) {
         android.buildTypes.maybeCreate(id).block()

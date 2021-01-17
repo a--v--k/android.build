@@ -42,10 +42,14 @@ class LibraryConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proj
     fun configure(block: LibraryConfiguratorImpl.() -> Unit) = configureProject { this.block() }
 
     override fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>) {
-        val buildTypes = project.androidExtension.buildTypes.map { it.name }
+        val buildTypes : List<BuildTypeId> = project.androidExtension.buildTypes
+            .map { it.name }
+            .map { BuildTypeId.of(it)}
+            .filterNotNull()
+
         flavors.toFlavors()
                 .flatMap { flavor -> buildTypes.asSequence().map { buildType ->
-                    VariantConfig(buildType = BuildTypeId.of(buildType), androidFlavor = flavor.androidFlavor, nativeFlavor = flavor.nativeFlavor)
+                    VariantConfig(buildType = buildType, androidFlavor = flavor.androidFlavor, nativeFlavor = flavor.nativeFlavor)
                     }
                 }
                 .forEach {
