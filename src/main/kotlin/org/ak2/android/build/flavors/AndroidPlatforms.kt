@@ -82,4 +82,8 @@ enum class AndroidPlatforms (
 
         return false
     }
+
+    companion object {
+        fun of(name : String?) = values().find { it.name.equals(name, ignoreCase = true) }
+    }
 }

@@ -13,10 +13,11 @@ sealed class BuildTypeId(val id: String) {
     }
 
     companion object {
-        fun of(buildTypeId: String) = when (buildTypeId) {
-            RELEASE.id  -> RELEASE
-            DEBUG.id    -> DEBUG
-            else        -> CUSTOM(buildTypeId)
+        fun of(buildTypeId: String?) : BuildTypeId? = when {
+            buildTypeId.isNullOrBlank()                         -> null
+            buildTypeId.equals(RELEASE.id, ignoreCase = true)   -> RELEASE
+            buildTypeId.equals(  DEBUG.id, ignoreCase = true)   -> DEBUG
+            else                                                -> CUSTOM(buildTypeId)
         }
     }
 }

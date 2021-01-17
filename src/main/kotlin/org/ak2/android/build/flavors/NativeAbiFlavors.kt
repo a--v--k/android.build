@@ -79,8 +79,11 @@ enum class NativePlatforms (
     override fun canUseAsDependency(that: Flavor): Boolean {
         return this == that
     }
-}
 
+    companion object {
+        fun of(name : String?) = values().find { it.name.equals(name, ignoreCase = true) }
+    }
+}
 
 fun BaseExtension.checkSdkVersions(variant : VariantFilter) : Boolean {
     val variantConfig = this.getVariantConfigs()[variant.name];

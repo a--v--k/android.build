@@ -28,7 +28,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
-class AppSetConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
+class AppSetConfiguratorImpl(project: Project, private val defaultApp : String?) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
 
     private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
 
@@ -44,6 +44,7 @@ class AppSetConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proje
         knownApplications[appName]?.apply {
             this.id = id
             this.enabled = enabled ?: true
+            this.default = this.enabled && (defaultApp == id)
             configure(block)
         }
     }

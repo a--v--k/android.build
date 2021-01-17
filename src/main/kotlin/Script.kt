@@ -27,8 +27,8 @@ fun Project.androidApp(block : AppConfigurator.() -> Unit) {
     AppConfiguratorImpl(this).configure(block)
 }
 
-fun Project.androidAppSet(block : AppSetConfigurator.() -> Unit) {
-    AppSetConfiguratorImpl(this).configure(block)
+fun Project.androidAppSet(defaultApp : String? = null, block : AppSetConfigurator.() -> Unit) {
+    AppSetConfiguratorImpl(this, defaultApp).configure(block)
 }
 
 fun Project.androidRoot(block: RootConfigurator.() -> Unit) {
