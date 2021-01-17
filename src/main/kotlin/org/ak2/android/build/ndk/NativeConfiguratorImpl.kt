@@ -21,6 +21,7 @@ import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.NativeConfigurator
+import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.configurators.addPostConfigurator
 import org.ak2.android.build.configurators.androidProject
 import org.ak2.android.build.configurators.config
@@ -205,9 +206,11 @@ fun BaseExtension.setupNdkBuild(): Boolean {
         }
     }
 
-    buildTypes.maybeCreate("release").externalNativeBuild {
-        ndkBuild {
-            this.cFlags += "-DANDROID_APP_RELEASE"
+    BuildTypeId.RELEASE.configure(this) {
+        externalNativeBuild {
+            ndkBuild {
+                this.cFlags += "-DANDROID_APP_RELEASE"
+            }
         }
     }
 

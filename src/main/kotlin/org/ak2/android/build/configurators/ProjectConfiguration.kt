@@ -17,6 +17,7 @@
 package org.ak2.android.build.configurators
 
 import org.ak2.android.build.AndroidVersion.*
+import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.ndk.NdkVersion
 import org.ak2.android.build.properties.BuildProperties
 import org.ak2.android.build.signing.ProguardConfig
@@ -88,8 +89,8 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var compileSdkVersion       : org.ak2.android.build.AndroidVersion = ANDROID_9_0
     override var targetSdkVersion        : org.ak2.android.build.AndroidVersion? = null
 
-    override val debugSigningConfig      : SigningConfigParams? = loadSigningConfig("debug", buildProperties)
-    override val releaseSigningConfig    : SigningConfigParams? = loadSigningConfig("release", buildProperties)
+    override val debugSigningConfig      : SigningConfigParams? = loadSigningConfig(BuildTypeId.DEBUG, buildProperties)
+    override val releaseSigningConfig    : SigningConfigParams? = loadSigningConfig(BuildTypeId.RELEASE, buildProperties)
 
     override var proguardConfig          : ProguardConfig = ProguardConfig()
 
@@ -157,10 +158,10 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
         set(value) = setProperty("targetSdkVersion", value)
 
     override val debugSigningConfig: SigningConfigParams?
-        get()      = getSigningConfig("debug") { debugSigningConfig }
+        get()      = getSigningConfig(BuildTypeId.DEBUG) { debugSigningConfig }
 
     override val releaseSigningConfig: SigningConfigParams?
-        get()      = getSigningConfig("release") { releaseSigningConfig }
+        get()      = getSigningConfig(BuildTypeId.RELEASE) { releaseSigningConfig }
 
     override var proguardConfig: ProguardConfig
         get()      = getProperty("proguardConfig") { proguardConfig }
@@ -182,7 +183,7 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
         return parentConfig.getter()
     }
 
-    private inline fun getSigningConfig(buildType: String, getter: ProjectConfiguration.() -> SigningConfigParams?): SigningConfigParams? {
+    private inline fun getSigningConfig(buildType: BuildTypeId, getter: ProjectConfiguration.() -> SigningConfigParams?): SigningConfigParams? {
         val name = "${buildType}SigningConfig"
         var result: SigningConfigParams? = properties[name] as SigningConfigParams?
         if (result != null) {
@@ -204,11 +205,11 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     }
 }
 
-private fun loadSigningConfig(buildType: String, p: BuildProperties): SigningConfigParams? {
-    val keystoreFileKey = "$buildType.keystore.file"
-    val keystorePasswordKey = "$buildType.keystore.password"
-    val keyAliasKey = "$buildType.key.alias"
-    val keyPasswordKey = "$buildType.key.password"
+private fun loadSigningConfig(buildType: BuildTypeId, p: BuildProperties): SigningConfigParams? {
+    val keystoreFileKey = "${buildType.id}.keystore.file"
+    val keystorePasswordKey = "${buildType.id}.keystore.password"
+    val keyAliasKey = "${buildType.id}.key.alias"
+    val keyPasswordKey = "${buildType.id}.key.password"
 
     val storeFile = p.opt<String>(keystoreFileKey)
 

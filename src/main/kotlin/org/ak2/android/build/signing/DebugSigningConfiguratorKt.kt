@@ -16,4 +16,6 @@
 
 package org.ak2.android.build.signing
 
-class DebugSigningConfiguratorKt(params: SigningConfigParams? = null) : BaseSigningConfiguratorKt(buildType = "debug", params = params)
+import org.ak2.android.build.buildtype.BuildTypeId
+
+class DebugSigningConfiguratorKt(params: SigningConfigParams? = null) : BaseSigningConfiguratorKt(buildType = BuildTypeId.DEBUG, params = params)

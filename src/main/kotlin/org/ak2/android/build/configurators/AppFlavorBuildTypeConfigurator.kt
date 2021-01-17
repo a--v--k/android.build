@@ -19,13 +19,14 @@ package org.ak2.android.build.configurators
 import org.ak2.android.build.BaseAppConfigurator.AppDebugConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppReleaseConfigurator
 import org.ak2.android.build.BuildConfigurator
+import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.release.addReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
 
-sealed class AppFlavorBuildTypeConfigurator(val buildType: String, val appFlavor: AppFlavorConfiguratorImpl, val localFlavors : FlavorConfigs = FlavorConfigs()) : BuildConfigurator by localFlavors {
+sealed class AppFlavorBuildTypeConfigurator(val buildType: BuildTypeId, val appFlavor: AppFlavorConfiguratorImpl, val localFlavors : FlavorConfigs = FlavorConfigs()) : BuildConfigurator by localFlavors {
 
     fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>) {
         if (localFlavors.isEmpty()) {
@@ -46,7 +47,7 @@ sealed class AppFlavorBuildTypeConfigurator(val buildType: String, val appFlavor
         }
     }
 
-    class AppReleaseConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator("release", appFlavor), AppReleaseConfigurator {
+    class AppReleaseConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator(BuildTypeId.RELEASE, appFlavor), AppReleaseConfigurator {
         override fun proguard(block: ProguardConfig.() -> Unit) {
             appFlavor.config.proguardConfig = ProguardConfig().apply { this.block() }
         }
@@ -56,5 +57,5 @@ sealed class AppFlavorBuildTypeConfigurator(val buildType: String, val appFlavor
         }
     }
 
-    class AppDebugConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator("debug", appFlavor), AppDebugConfigurator
+    class AppDebugConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator(BuildTypeId.DEBUG, appFlavor), AppDebugConfigurator
 }

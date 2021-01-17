@@ -27,6 +27,7 @@ import org.ak2.android.build.BaseAppConfigurator.AppReleaseConfigurator
 import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
 import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
+import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.dependencies.KnownDependencies
 import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.flavors.Flavor
@@ -126,7 +127,7 @@ class AppFlavorConfiguratorImpl(
             productFlavor?.setProguardFiles(listOf(_proguardFile))
 
             doOnce(android, "ProguardConfig") {
-                android.buildTypes.maybeCreate("release").apply {
+                BuildTypeId.RELEASE.configure(android) {
                     isMinifyEnabled   = config.proguardConfig.minifyEnabled
                     isShrinkResources = config.proguardConfig.shrinkResources
 
@@ -250,10 +251,10 @@ class AppFlavorConfiguratorImpl(
 
             val apkFolder = "$backToOutputs/packages/$buildTypeName/$appFlavorName"
 
-            val apkConfig = if (buildTypeName == "release") {
-                ApkConfig.Release(android, appFlavor, variant, apkFolder)
-            } else {
-                ApkConfig.Debug(android, appFlavor, variant, apkFolder)
+            val apkConfig = when(buildTypeName) {
+                BuildTypeId.RELEASE -> ApkConfig.Release(android, appFlavor, variant, apkFolder)
+                BuildTypeId.DEBUG   -> ApkConfig.Debug(android, appFlavor, variant, apkFolder)
+                else                -> throw GradleException("Custom build type not yet supported")
             }
 
             val mainOutput = v.outputs.single { it.outputType == VariantOutputConfiguration.OutputType.SINGLE }
@@ -300,7 +301,7 @@ class AppFlavorConfiguratorImpl(
             init {
                 val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
 
-                apkName = listOf(packageName, variant.suffix.value, variant.buildType)
+                apkName = listOf(packageName, variant.suffix.value, variant.buildType?.id)
                     .filterNotNull()
                     .filter{ it.isNotEmpty() }
                     .joinToString(separator = "-")

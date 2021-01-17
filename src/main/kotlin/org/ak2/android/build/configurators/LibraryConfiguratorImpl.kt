@@ -21,6 +21,7 @@ import org.ak2.android.build.BuildConfigurator.VariantBuilder
 import org.ak2.android.build.DependenciesConfigurator.DependencyBuilder
 import org.ak2.android.build.LibraryConfigurator
 import org.ak2.android.build.NativeConfigurator.NativeOptionsBuilder
+import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
@@ -44,7 +45,7 @@ class LibraryConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proj
         val buildTypes = project.androidExtension.buildTypes.map { it.name }
         flavors.toFlavors()
                 .flatMap { flavor -> buildTypes.asSequence().map { buildType ->
-                    VariantConfig(buildType = buildType, androidFlavor = flavor.androidFlavor, nativeFlavor = flavor.nativeFlavor)
+                    VariantConfig(buildType = BuildTypeId.of(buildType), androidFlavor = flavor.androidFlavor, nativeFlavor = flavor.nativeFlavor)
                     }
                 }
                 .forEach {

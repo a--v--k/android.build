@@ -16,4 +16,6 @@
 
 package org.ak2.android.build.signing
 
-class ReleaseSigningConfiguratorKt(params: SigningConfigParams? = null) : BaseSigningConfiguratorKt(buildType = "release", params = params)
+import org.ak2.android.build.buildtype.BuildTypeId
+
+class ReleaseSigningConfiguratorKt(params: SigningConfigParams? = null) : BaseSigningConfiguratorKt(buildType = BuildTypeId.RELEASE, params = params)
