@@ -20,7 +20,9 @@ import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.AndroidVersion
 import org.ak2.android.build.AndroidVersion.*
 import org.ak2.android.build.configurators.ProjectConfiguration
+import org.ak2.android.build.configurators.androidProject
 import org.ak2.android.build.configurators.effectiveTargetSdkVersionCode
+import org.ak2.android.build.configurators.studioConfig
 
 enum class AndroidPlatforms (
     val minSdkVersion : org.ak2.android.build.AndroidVersion,
@@ -55,6 +57,10 @@ enum class AndroidPlatforms (
     override fun configure(android: BaseExtension, projectConfig: ProjectConfiguration) {
         val productFlavor = android.productFlavors.create(name)
         productFlavor.dimension = dimensionName
+
+        if (android.androidProject.studioConfig.defaultAndroidPlatform == this) {
+            productFlavor.isDefault = true
+        }
 
         this.minSdkVersion.let(AndroidVersion::code).let(productFlavor::setMinSdkVersion)
         this.maxSdkVersion?.let(AndroidVersion::code)?.let(productFlavor::setMaxSdkVersion)

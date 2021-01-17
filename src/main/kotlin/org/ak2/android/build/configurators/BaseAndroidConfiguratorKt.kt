@@ -69,6 +69,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
                     configureBaseProperties()
                     configureNative()
+                    configureDefaultBuildType()
                     configureVariants()
                     configureFlavors()
                     configureDependencies()
@@ -162,7 +163,12 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                     }
                 }
             }
+        }
+    }
 
+    protected fun configureDefaultBuildType() {
+        project.studioConfig.defaultBuildType?.configure(project.androidExtension) {
+                isDefault = true
         }
     }
 

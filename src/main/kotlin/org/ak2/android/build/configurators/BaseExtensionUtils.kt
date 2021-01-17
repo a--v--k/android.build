@@ -20,6 +20,7 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
+import org.ak2.android.build.AndroidStudioConfigurator
 import org.ak2.android.build.extras.*
 import org.ak2.android.build.flavors.*
 import org.gradle.api.GradleException
@@ -43,6 +44,13 @@ val Project.config: ProjectConfiguration
             } else {
                 InnerProjectConfiguration(this, this.projectDir, parent.config)
             }
+        }
+    }
+
+val Project.studioConfig : AndroidStudioConfigurator
+    get() {
+        return putExtraIfAbsent(rootProject, "studioConfig") {
+            AndroidStudioConfiguratorImpl()
         }
     }
 

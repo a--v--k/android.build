@@ -60,6 +60,10 @@ enum class NativePlatforms (
         val productFlavor = android.productFlavors.create(name)
         productFlavor.dimension = dimensionName
 
+        if (android.androidProject.studioConfig.defaultNativePlatform == this) {
+            productFlavor.isDefault = true
+        }
+
         productFlavor.externalNativeBuild {
             ndkBuild {
                 ndkBuild.abiFilters.add(abi)

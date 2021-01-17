@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-import org.ak2.android.build.AppConfigurator
-import org.ak2.android.build.AppSetConfigurator
-import org.ak2.android.build.LibraryConfigurator
-import org.ak2.android.build.RootConfigurator
-import org.ak2.android.build.configurators.AppConfiguratorImpl
-import org.ak2.android.build.configurators.AppSetConfiguratorImpl
-import org.ak2.android.build.configurators.LibraryConfiguratorImpl
-import org.ak2.android.build.configurators.RootConfiguratorImpl
+import org.ak2.android.build.*
+import org.ak2.android.build.configurators.*
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 fun Project.androidLibrary(block : LibraryConfigurator.() -> Unit) {
@@ -39,3 +34,9 @@ fun Project.androidAppSet(block : AppSetConfigurator.() -> Unit) {
 fun Project.androidRoot(block: RootConfigurator.() -> Unit) {
     RootConfiguratorImpl(this).configure(block)
 }
+
+fun Project.studio(block : AndroidStudioConfigurator.() -> Unit) {
+    require(this == rootProject) { throw GradleException("Android Studio can be configured only in root project") }
+    project.studioConfig.block()
+}
+

@@ -57,6 +57,8 @@ class AppFlavorConfiguratorImpl(
 
     override var enabled : Boolean = false
 
+    override var default : Boolean = false
+
     override val dimensionName = "App"
 
     override val project = parent.project
@@ -113,6 +115,10 @@ class AppFlavorConfiguratorImpl(
             android.productFlavors.maybeCreate(this.name).apply {
                 dimension = dimensionName
                 applicationId = id
+
+                if (default) {
+                    isDefault = true
+                }
             }
         }
 

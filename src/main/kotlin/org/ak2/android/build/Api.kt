@@ -18,6 +18,7 @@ package org.ak2.android.build
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
+import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.configurators.AppVersionKt
 import org.ak2.android.build.configurators.ProjectConfiguration
 import org.ak2.android.build.dependencies.base.*
@@ -50,6 +51,12 @@ interface RootConfigurator : RepositoryConfigurator {
     val project : Project
 
     val config : ProjectConfiguration
+}
+
+interface AndroidStudioConfigurator {
+    var defaultBuildType        : BuildTypeId?
+    var defaultAndroidPlatform  : AndroidPlatforms?
+    var defaultNativePlatform   : NativePlatforms?
 }
 
 interface LibraryConfigurator : BuildConfigurator, RepositoryConfigurator, DependenciesConfigurator, NativeConfigurator, LowLevelLibraryConfigurator {
@@ -98,6 +105,8 @@ interface AppSetConfigurator : RepositoryConfigurator, DependenciesConfigurator,
         var id : String?
 
         var enabled : Boolean
+
+        var default : Boolean
     }
 }
 
@@ -127,7 +136,7 @@ interface DependenciesConfigurator {
         val test            : ScopedDependencies
         val testRuntime     : ScopedDependencies
 
-        fun module(path: String)           : ModuleDependencyKt
+        fun module(path: String)            : ModuleDependencyKt
         fun modules(vararg aliases: String) : List<ModuleDependencyKt>
         fun library(dependency: String)     : LibraryDependencyKt
         fun local(localPath: String)        : LocalJarDependencyKt
