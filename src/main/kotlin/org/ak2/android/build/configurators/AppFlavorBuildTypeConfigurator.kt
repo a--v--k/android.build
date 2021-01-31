@@ -30,7 +30,11 @@ sealed class AppFlavorBuildTypeConfigurator(val buildType: BuildTypeId, val appF
 
     fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>) {
         if (localFlavors.isEmpty()) {
-            val buildTypeConfig = VariantConfig(buildType = buildType)
+            val buildTypeConfig = if (appFlavor.singleAppMode) {
+                VariantConfig(buildType = buildType)
+            } else {
+                VariantConfig(buildType = buildType, appFlavor = appFlavor)
+            }
             variantConfigs.put(buildTypeConfig.name.value, buildTypeConfig)
         } else {
             localFlavors.toFlavors()

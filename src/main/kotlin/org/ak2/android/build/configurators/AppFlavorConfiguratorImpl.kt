@@ -265,7 +265,9 @@ class AppFlavorConfiguratorImpl(
 
             val mainOutput = v.outputs.single { it.outputType == VariantOutputConfiguration.OutputType.SINGLE }
             apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let(mainOutput.versionName::set)
-            apkConfig.versionCode.takeIf { it != 0         }?.let(mainOutput.versionCode::set)
+            apkConfig.versionCode.takeIf  { it != 0         }?.let(mainOutput.versionCode::set)
+
+            println("${android.androidProject.path}: APK configured for ${variant.name}: ${apkConfig.apkPath} ${apkConfig.versionName}/${apkConfig.versionCode}")
 
             v.outputs
                 .filterIsInstance<VariantOutputImpl>()
@@ -285,9 +287,11 @@ class AppFlavorConfiguratorImpl(
                 versionCode = appFlavor._appVersion.versionCode
 
                 if (variant.hasFlavors()) {
-                    val index = appFlavor._releaseConfigurator.localFlavors.toFlavors().indexOf(variant.toFlavorConfig());
-                    require(index >= 0) { "Cannot find variant ${variant.name} in ${android.androidProject.path}" }
-                    versionCode += index
+                    if (!appFlavor._releaseConfigurator.localFlavors.isEmpty()) {
+                        val index = appFlavor._releaseConfigurator.localFlavors.toFlavors().indexOf(variant.toFlavorConfig());
+                        require(index >= 0) { "Cannot find variant ${variant.name} in ${android.androidProject.path}" }
+                        versionCode += index
+                    }
                 }
 
                 versionName = appFlavor._appVersion.versionName
