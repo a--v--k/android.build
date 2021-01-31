@@ -25,12 +25,14 @@ open class BaseTest(val projectRootDir: String) {
 
     @Before
     fun setup() {
+        var rootDir = testProjectDir.root
+
         val sdkDir = sdkDir()
 
         source = File(resources, projectRootDir)
         Assert.assertTrue("Not a directory: ${source.absolutePath}", source.isDirectory)
 
-        target = File(testProjectDir.root, source.name)
+        target = File(rootDir, source.name)
         source.copyRecursively(target = target, overwrite = true)
         Assert.assertTrue("Not a directory: ${target.absolutePath}", target.isDirectory)
 
@@ -40,6 +42,8 @@ open class BaseTest(val projectRootDir: String) {
 
         buildFolder = File(target, "build")
 
+        onSetup();
+
         // creates and configures gradle runner                         <-------- (3)
         gradleRunner = GradleRunner.create()
             .withDebug(true)
@@ -47,6 +51,9 @@ open class BaseTest(val projectRootDir: String) {
             .withProjectDir(target)
             .withTestKitDir(testProjectDir.newFolder())
     }
+
+    protected open fun onSetup() {}
+
 
     protected fun run(vararg tasks: String, checkAction: (BuildResult) -> Unit = {}) {
         val result = gradleRunner
