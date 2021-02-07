@@ -57,9 +57,11 @@ interface ProjectConfiguration {
 
     var proguardConfig          : ProguardConfig
 
-    var debugVersion            : AppVersionKt?
+    var debugVersion            : AppVersion?
 
     var repositories            : RepositoryHandler.() -> Unit
+
+    var distributionRootDir     : File?
 }
 
 val ProjectConfiguration.effectiveTargetSdkVersionCode : Int
@@ -94,9 +96,11 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 
     override var proguardConfig          : ProguardConfig = ProguardConfig()
 
-    override var debugVersion            : AppVersionKt? = AppVersionKt(versionName="debug", majorVersionCode=999, minorVersionCode=999)
+    override var debugVersion            : AppVersion? = AppVersion(versionName="debug", majorVersionCode=999, minorVersionCode=999)
 
     override var repositories            : RepositoryHandler.() -> Unit = {}
+
+    override var distributionRootDir     : File? = null
 }
 
 class InnerProjectConfiguration(val project: Project, val appFolder : File, val parentConfig: ProjectConfiguration) : ProjectConfiguration {
@@ -167,13 +171,17 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
         get()      = getProperty("proguardConfig") { proguardConfig }
         set(value) = setProperty("proguardConfig", value)
 
-    override var debugVersion: AppVersionKt?
+    override var debugVersion: AppVersion?
         get()      = getProperty("debugVersion") { debugVersion }
         set(value) = setProperty("debugVersion", value)
 
     override var repositories : RepositoryHandler.() -> Unit
         get()      = getProperty("repositories") { repositories }
         set(value) = setProperty("repositories", value)
+
+    override var distributionRootDir     : File?
+        get()      = getProperty("distributionRootDir") { distributionRootDir }
+        set(value) = setProperty("distributionRootDir", value)
 
     private inline fun <reified T> getProperty(name: String, getter : ProjectConfiguration.() -> T): T {
         val result : T? = properties[name] as T?

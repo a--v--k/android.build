@@ -18,7 +18,6 @@ package org.ak2.android.build.configurators
 
 import com.android.build.api.variant.ApplicationVariantProperties
 import com.android.build.api.variant.VariantOutputConfiguration
-import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.AppSetConfigurator.AppFlavorConfigurator
@@ -36,7 +35,8 @@ import org.ak2.android.build.i18n.StringCheckOptionsImpl
 import org.ak2.android.build.i18n.checkLocalization
 import org.ak2.android.build.i18n.updateLocalization
 import org.ak2.android.build.ndk.NativeConfiguratorImpl
-import org.ak2.android.build.release.getReleaseCallbacks
+import org.ak2.android.build.release.AppReleaseInfoImpl
+import org.ak2.android.build.release.DistributionTasks
 import org.ak2.android.build.signing.DebugSigningConfiguratorKt
 import org.ak2.android.build.signing.ReleaseAppFlavorSigningConfiguratorKt
 import org.ak2.android.build.signing.ReleaseSigningConfiguratorKt
@@ -53,23 +53,30 @@ class AppFlavorConfiguratorImpl(
 
     val singleAppMode = appFolder == parent.project.projectDir
 
+    override val packageName : String
+        get() = config.buildProperties.get("package.name", name)
+
     override var id: String? = null
 
-    override var enabled : Boolean = false
+    override var enabled: Boolean = false
 
-    override var default : Boolean = false
+    override var default: Boolean = false
 
     override val dimensionName = "App"
 
     override val project = parent.project
 
-    override val config = if (singleAppMode) parent.config else InnerProjectConfiguration(parent.project, appFolder, parent.config)
+    override val config = if (singleAppMode) parent.config else InnerProjectConfiguration(
+        parent.project,
+        appFolder,
+        parent.config
+    )
 
-    override val languages : MutableSet<String> = LinkedHashSet()
+    override val languages: MutableSet<String> = LinkedHashSet()
 
-    override val densities : MutableSet<String> = LinkedHashSet()
+    override val densities: MutableSet<String> = LinkedHashSet()
 
-    private val _appVersion = AppVersionKt()
+    private val _appVersion = AppVersion()
 
     private var _proguardFile: File
 
@@ -78,12 +85,19 @@ class AppFlavorConfiguratorImpl(
     private val _stringCheckOptions = StringCheckOptionsImpl()
 
     private val _releaseConfigurator = AppFlavorBuildTypeConfigurator.AppReleaseConfiguratorImpl(this)
-    private val _debugConfigurator = AppFlavorBuildTypeConfigurator.AppDebugConfiguratorImpl(this)
+    private val _debugConfigurator   = AppFlavorBuildTypeConfigurator.AppDebugConfiguratorImpl(this)
 
     init {
         println("${parent.project.path}: App ${name}:${appFolder} init...")
 
-        require(config.buildProperties.buildPropertiesExist) { "Application properties missed: ${File(appFolder, "build.properties").absolutePath}" }
+        require(config.buildProperties.buildPropertiesExist) {
+            "Application properties missed: ${
+                File(
+                    appFolder,
+                    "build.properties"
+                ).absolutePath
+            }"
+        }
 
         println("${parent.project.path}: App build properties:\n${config.buildProperties}")
 
@@ -92,12 +106,14 @@ class AppFlavorConfiguratorImpl(
         _proguardFile = File(appFolder, "proguard.cfg")
     }
 
-    override fun version(block: AppVersionKt.() -> Unit)                = _appVersion.block()
-    override fun dependsOn(block: DependencyBuilder.() -> Unit)         = _localDependencies.block()
-    override fun release(block: AppReleaseConfigurator.() -> Unit)      = _releaseConfigurator.block()
-    override fun debug(block: AppDebugConfigurator.() -> Unit)          = _debugConfigurator.block()
-    override fun nativeOptions(block: NativeOptionsBuilder.() -> Unit)  = _localNativeConfigurator.block()
-    override fun checkStrings(block: StringCheckOptions.() -> Unit)     = _stringCheckOptions.block()
+    override fun version(block: AppVersion.() -> Unit) = _appVersion.block()
+    override fun dependsOn(block: DependencyBuilder.() -> Unit) = _localDependencies.block()
+    override fun release(block: AppReleaseConfigurator.() -> Unit) = _releaseConfigurator.block()
+    override fun debug(block: AppDebugConfigurator.() -> Unit) = _debugConfigurator.block()
+    override fun nativeOptions(block: NativeOptionsBuilder.() -> Unit) =
+        _localNativeConfigurator.block()
+
+    override fun checkStrings(block: StringCheckOptions.() -> Unit) = _stringCheckOptions.block()
 
     fun configure(block: AppFlavorConfiguratorImpl.() -> Unit) = apply {
         this.block()
@@ -134,7 +150,7 @@ class AppFlavorConfiguratorImpl(
 
             doOnce(android, "ProguardConfig") {
                 BuildTypeId.RELEASE.configure(android) {
-                    isMinifyEnabled   = config.proguardConfig.minifyEnabled
+                    isMinifyEnabled = config.proguardConfig.minifyEnabled
                     isShrinkResources = config.proguardConfig.shrinkResources
 
                     if (singleAppMode) {
@@ -171,23 +187,26 @@ class AppFlavorConfiguratorImpl(
         if (productFlavor == null) {
             ReleaseSigningConfiguratorKt(config.releaseSigningConfig).defineSigningConfig(android)
         } else {
-            ReleaseAppFlavorSigningConfiguratorKt(name, config.releaseSigningConfig).defineSigningConfig(android, productFlavor)
+            ReleaseAppFlavorSigningConfiguratorKt(
+                name,
+                config.releaseSigningConfig
+            ).defineSigningConfig(android, productFlavor)
         }
 
         doOnce(android, "ApplicationVersionConfigurator") {
             android.addPostConfigurator {
                 if (singleAppMode) {
-                    updateSingleApplicationVersion(android, this, it as ApplicationVariantProperties)
+                    updateSingleApplicationVersion(android,this, it as ApplicationVariantProperties)
                 } else {
                     updateMultiApplicationVersion(android, it as ApplicationVariantProperties)
                 }
-            }
-        }
 
-        if (enabled) {
-            android.addPostConfigurator {
-                doOnce(android, "ApplicationReleaseConfigurator$name") {
-                    getReleaseCallbacks(parent.project, name).forEach { it(name, _appVersion.versionName.orEmpty()) }
+                if (enabled) {
+                    doOnce(android, "ApplicationReleaseConfigurator$name") {
+                        _releaseConfigurator.releaseCallbacks.forEach {
+                            it(AppReleaseInfoImpl(name, packageName, _appVersion))
+                        }
+                    }
                 }
             }
         }
@@ -240,7 +259,11 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApplicationVariantProperties) {
+        fun updateSingleApplicationVersion(
+            android: BaseExtension,
+            appFlavor: AppFlavorConfiguratorImpl,
+            v: ApplicationVariantProperties
+        ) {
             val variantConfigs = android.getVariantConfigs();
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
@@ -248,42 +271,53 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant : VariantConfig, v: ApplicationVariantProperties) {
+        fun updateApplicationVersion(
+            android: BaseExtension,
+            appFlavor: AppFlavorConfiguratorImpl,
+            variant: VariantConfig,
+            v: ApplicationVariantProperties
+        ) {
 
-            val appFlavorName = appFlavor.name
-            val buildType = variant.buildType
-
-            val backToOutputs = if (variant.hasFlavors()) { "../../.." } else { "../.." }
-
-            val apkFolder = "$backToOutputs/packages/${buildType.id}/$appFlavorName"
-
-            val apkConfig = when(buildType) {
-                BuildTypeId.RELEASE -> ApkConfig.Release(android, appFlavor, variant, apkFolder)
-                BuildTypeId.DEBUG   -> ApkConfig.Debug(android, appFlavor, variant, apkFolder)
-                else                -> throw GradleException("Custom build type not yet supported")
+            val apkConfig = when (variant.buildType) {
+                BuildTypeId.RELEASE -> ApkConfig.Release(android, appFlavor, variant)
+                BuildTypeId.DEBUG -> ApkConfig.Debug(android, appFlavor, variant)
+                else -> throw GradleException("Custom build type not yet supported")
             }
 
-            val mainOutput = v.outputs.single { it.outputType == VariantOutputConfiguration.OutputType.SINGLE }
+            val mainOutput =
+                v.outputs.single { it.outputType == VariantOutputConfiguration.OutputType.SINGLE }
+
             apkConfig.versionName?.takeIf { it.isNotEmpty() }?.let(mainOutput.versionName::set)
-            apkConfig.versionCode.takeIf  { it != 0         }?.let(mainOutput.versionCode::set)
+            apkConfig.versionCode.takeIf { it != 0 }?.let(mainOutput.versionCode::set)
 
-            println("${android.androidProject.path}: APK configured for ${variant.name}: ${apkConfig.apkPath} ${apkConfig.versionName}/${apkConfig.versionCode}")
+            if (variant.buildType == BuildTypeId.RELEASE) {
+                val rootDistTask = DistributionTasks.projectDistributionTask(android.androidProject)
+                val appDistTask = DistributionTasks.appDistributionTask(android.androidProject, appFlavor)
+                val apkDistTask = DistributionTasks.apkDistributionTask(android.androidProject, v)
+                val proguardDistTask = DistributionTasks.proGuardMappingDistributionTask(android.androidProject, v)
 
-            v.outputs
-                .filterIsInstance<VariantOutputImpl>()
-                .forEach { output ->
-                    output.outputFileName.set(apkConfig.apkPath)
-                }
+                appDistTask.init(rootDistTask, appFlavor)
+                apkDistTask.init(appDistTask, apkConfig, v)
+
+                proguardDistTask.init(appDistTask, apkConfig, v)
+                proguardDistTask.enabled = appFlavor._proguardFile.exists()
+            }
         }
     }
 
-    sealed class ApkConfig(var apkPath: String? = null,
-                           var apkName: String? = null,
-                           var versionName : String? = null,
-                           var versionCode : Int = 0) {
+    sealed class ApkConfig(
+        var apkName: String? = null,
+        var versionName: String? = null,
+        var versionCode: Int = 0
+    ) {
 
-        class Release(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
+        class Release(
+            android: BaseExtension,
+            appFlavor: AppFlavorConfiguratorImpl,
+            variant: VariantConfig
+        ) : ApkConfig() {
             init {
+
                 versionCode = appFlavor._appVersion.versionCode
 
                 if (variant.hasFlavors()) {
@@ -296,27 +330,23 @@ class AppFlavorConfiguratorImpl(
 
                 versionName = appFlavor._appVersion.versionName
 
-                val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
-
-                apkName = listOf(packageName, versionName, versionCode.toString(), variant.suffix.value)
-                    .filterNotNull()
-                    .filter{ it.isNotEmpty() }
-                    .joinToString(separator = "-")
-
-                apkPath = "$apkFolder/${versionName}/${apkName}.apk"
+                apkName = listOf(appFlavor.packageName, versionName, versionCode.toString(), variant.suffix.value)
+                        .filterNotNull()
+                        .filter { it.isNotEmpty() }
+                        .joinToString(separator = "-")
             }
         }
 
-        class Debug(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, apkFolder: String) : ApkConfig() {
+        class Debug(
+            android: BaseExtension,
+            appFlavor: AppFlavorConfiguratorImpl,
+            variant: VariantConfig
+        ) : ApkConfig() {
             init {
-                val packageName = appFlavor.config.buildProperties.get("package.name", appFlavor.name)
-
-                apkName = listOf(packageName, variant.suffix.value, variant.buildType.id)
+                apkName = listOf(appFlavor.packageName, variant.suffix.value, variant.buildType.id)
                     .filterNotNull()
-                    .filter{ it.isNotEmpty() }
+                    .filter { it.isNotEmpty() }
                     .joinToString(separator = "-")
-
-                apkPath ="$apkFolder/$apkName.apk"
 
                 android.androidProject.config.debugVersion?.let {
                     versionCode = it.versionCode

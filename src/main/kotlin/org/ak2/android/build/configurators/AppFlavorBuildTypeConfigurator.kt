@@ -19,11 +19,10 @@ package org.ak2.android.build.configurators
 import org.ak2.android.build.BaseAppConfigurator.AppDebugConfigurator
 import org.ak2.android.build.BaseAppConfigurator.AppReleaseConfigurator
 import org.ak2.android.build.BuildConfigurator
+import org.ak2.android.build.ReleaseCallback
 import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.flavors.FlavorConfigs
 import org.ak2.android.build.flavors.VariantConfig
-import org.ak2.android.build.release.ReleaseCallback
-import org.ak2.android.build.release.addReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
 
 sealed class AppFlavorBuildTypeConfigurator(val buildType: BuildTypeId, val appFlavor: AppFlavorConfiguratorImpl, val localFlavors : FlavorConfigs = FlavorConfigs()) : BuildConfigurator by localFlavors {
@@ -52,12 +51,15 @@ sealed class AppFlavorBuildTypeConfigurator(val buildType: BuildTypeId, val appF
     }
 
     class AppReleaseConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator(BuildTypeId.RELEASE, appFlavor), AppReleaseConfigurator {
+
+        val releaseCallbacks = ArrayList<ReleaseCallback>();
+
         override fun proguard(block: ProguardConfig.() -> Unit) {
             appFlavor.config.proguardConfig = ProguardConfig().apply { this.block() }
         }
 
         override fun onRelease(releaseCallback: ReleaseCallback) {
-            appFlavor.parent.project.addReleaseCallback(appFlavor.name, releaseCallback)
+            releaseCallbacks.add(releaseCallback)
         }
     }
 

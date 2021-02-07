@@ -19,14 +19,13 @@ package org.ak2.android.build
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
 import org.ak2.android.build.buildtype.BuildTypeId
-import org.ak2.android.build.configurators.AppVersionKt
+import org.ak2.android.build.configurators.AppVersion
 import org.ak2.android.build.configurators.ProjectConfiguration
 import org.ak2.android.build.dependencies.base.*
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.NativeAbiType
 import org.ak2.android.build.flavors.NativePlatforms
 import org.ak2.android.build.ndk.NdkOptions
-import org.ak2.android.build.release.ReleaseCallback
 import org.ak2.android.build.signing.ProguardConfig
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -66,6 +65,14 @@ interface LibraryConfigurator : BuildConfigurator, RepositoryConfigurator, Depen
     val config : ProjectConfiguration
 }
 
+interface AppReleaseInfo {
+    val name : String
+    val packageName : String
+    val version : AppVersion
+}
+
+typealias ReleaseCallback = (appInfo: AppReleaseInfo) -> Unit
+
 interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
 
     val project : Project
@@ -76,9 +83,10 @@ interface BaseAppConfigurator: DependenciesConfigurator, NativeConfigurator {
 
     val densities : MutableSet<String>
 
-    fun version(block: AppVersionKt.() -> Unit)
+    fun version(block: AppVersion.() -> Unit)
 
     fun release(block : AppReleaseConfigurator.()-> Unit)
+
     fun debug(block: AppDebugConfigurator.() -> Unit)
 
     interface AppReleaseConfigurator : BuildConfigurator {
@@ -101,6 +109,8 @@ interface AppSetConfigurator : RepositoryConfigurator, DependenciesConfigurator,
     interface AppFlavorConfigurator : BaseAppConfigurator, ResourceCheckConfigurator {
 
         val name : String
+
+        val packageName : String
 
         var id : String?
 

@@ -18,7 +18,7 @@ package org.ak2.android.build.configurators
 
 import org.ak2.android.build.properties.BuildProperties
 
-class AppVersionKt(
+class AppVersion(
         var versionName: String? = null,
         var majorVersionCode: Int = 0,
         var minorVersionCode: Int = 0

@@ -44,7 +44,7 @@ class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project,
     override val densities: MutableSet<String>
         get() = appFlavor.languages
 
-    override fun version(block: AppVersionKt.() -> Unit) = appFlavor.version(block)
+    override fun version(block: AppVersion.() -> Unit) = appFlavor.version(block)
     override fun dependsOn(block: DependencyBuilder.() -> Unit) = knownDependencies.block()
     override fun release(block: AppReleaseConfigurator.() -> Unit) = appFlavor.release(block)
     override fun debug(block: AppDebugConfigurator.() -> Unit) = appFlavor.debug(block)

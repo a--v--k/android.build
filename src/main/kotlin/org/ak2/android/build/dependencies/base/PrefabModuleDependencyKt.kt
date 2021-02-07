@@ -49,7 +49,7 @@ class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
                 val expectedPrefabVariantName = VariantNameBuilder()
                     .append(variantConfig.androidFlavor)
                     .append(variantConfig.nativeFlavor)
-                    .append(variantConfig.buildType?.id)
+                    .append(variantConfig.buildType.id)
                     .build()
 
                 val prefabTask = "${dependencyPath}:prefab${expectedPrefabVariantName.capitalize()}Package"

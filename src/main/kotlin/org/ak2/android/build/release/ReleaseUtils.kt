@@ -16,54 +16,45 @@
 
 package org.ak2.android.build.release
 
-import org.ak2.android.build.extras.putExtraIfAbsent
+import org.ak2.android.build.AppReleaseInfo
 import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.tasks.bundling.Zip
 import java.util.*
 import java.util.stream.Collectors
 
-typealias ReleaseCallback = (appName: String, appVersion: String) -> Unit
+fun Project.createZip(appInfo: AppReleaseInfo, archName: String, destDir: String, zipConfigurator: Zip.() -> Unit) {
+    val packageName = appInfo.packageName
+    val version = appInfo.version.versionName
 
-fun Project.addReleaseCallback(appName: String, callback: ReleaseCallback) {
-    getReleaseCallbacks(project, appName).add(callback)
-}
-
-fun getReleaseCallbacks(project: Project, appName: String) = putExtraIfAbsent(project, "releaseCallbacks$appName") { ArrayList<ReleaseCallback>() }
-
-fun createZip(project: Project, appName: String, archName: String, appVersion: String, destDir: String, zipConfigurator: Zip.() -> Unit) {
-    val zipTaskName = "zip${appName.capitalize()}${archName.capitalize()}"
-    val path = "build/outputs/packages/release/$appName/$appVersion/$destDir"
+    val zipTaskName = "zip${packageName.capitalize()}${archName.capitalize()}"
 
     project.run {
         val zipTask = tasks.create(zipTaskName, Zip::class.java)
 
-        zipTask.group = "ak2"
-        zipTask.archiveBaseName.set(appName)
+        zipTask.group = DistributionTasks.group
+        zipTask.archiveBaseName.set(packageName)
         zipTask.archiveAppendix.set(archName)
-        zipTask.archiveVersion.set(appVersion)
-        zipTask.destinationDirectory.set(file(path))
+        zipTask.archiveVersion.set(appInfo.version.versionName)
 
         zipTask.zipConfigurator()
 
-        val buildTaskName = if (appName.isNullOrBlank()) {
-            "assemble"
-        } else {
-            "assemble${appName.capitalize()}"
-        }
+        val distTaskName = "distribute${appInfo.packageName.capitalize()}"
 
-        tasks.findByNameAndConfigure<Task>(buildTaskName) {
+        tasks.findByNameAndConfigure<AppDistributionTask>(distTaskName) {
             dependsOn += zipTask
+            zipTask.destinationDirectory.value(this.distributionAppDir.map { dir -> dir.dir("$version/$destDir") })
             println("${project.path}: add $zipTask to $this")
         }
     }
 }
 
-fun createI18nArchives(project: Project, appName: String, appVersion: String, languagesToPack : Set<String>? = null) {
-    getLocales(project, appName, languagesToPack).forEach { locale ->
-        createZip(project, appName, "i18n-$locale", appVersion, "i18n") {
-            getLocaleFolders(project, appName, locale).forEach { folder ->
+fun Project.createI18nArchives(appInfo: AppReleaseInfo, languagesToPack: Set<String>? = null) {
+    val appName = appInfo.name
+
+    getLocales(appName, languagesToPack).forEach { locale ->
+        createZip(appInfo, "i18n-$locale", "i18n") {
+            getLocaleFolders(appName, locale).forEach { folder ->
                 from(folder) {
                     this.include("strings_*.xml")
                 }
@@ -72,20 +63,20 @@ fun createI18nArchives(project: Project, appName: String, appVersion: String, la
     }
 }
 
-fun getLocales(project: Project, appName: String, languagesToPack : Set<String>? = null): Set<String> {
+fun Project.getLocales(appName: String, languagesToPack: Set<String>? = null): Set<String> {
     val sourceSets = setOf("main", appName)
 
     return project.fileTree("src").apply { include("*/res/values*/strings_*.xml") }.files.stream()
-            .map { it.parentFile }
-            .distinct()
-            .filter { sourceSets.contains(it.parentFile.parentFile.name) }
-            .map { getLocale(it.name) }
-            .filter { it != null }
-            .filter { languagesToPack?.contains(it) ?: true}
-            .collect(Collectors.toCollection { TreeSet() })
+        .map { it.parentFile }
+        .distinct()
+        .filter { sourceSets.contains(it.parentFile.parentFile.name) }
+        .map { getLocale(it.name) }
+        .filter { it != null }
+        .filter { languagesToPack?.contains(it) ?: true }
+        .collect(Collectors.toCollection { TreeSet() })
 }
 
-fun getLocaleFolders(project: Project, appName: String, locale: String): List<String> {
+fun Project.getLocaleFolders(appName: String, locale: String): List<String> {
     val sourceSets = setOf("main", appName)
     val folders = ArrayList<String>()
 
@@ -107,7 +98,7 @@ fun getLocale(folderName: String): String? {
     }
     if (folderName.startsWith("values-")) {
         val candidate = folderName.substring("values-".length).split("-")[0]
-        if (candidate.isNotBlank() && Locale.forLanguageTag(candidate)!= null) {
+        if (candidate.isNotBlank() && Locale.forLanguageTag(candidate) != null) {
             return candidate
         }
     }
