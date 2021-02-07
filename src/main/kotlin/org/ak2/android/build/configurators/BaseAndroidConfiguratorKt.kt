@@ -242,6 +242,12 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         val multidexFile = project.file("multidex.cfg")
         if (multidexFile.isFile) {
             println("${project.path}: Configure multidex APK...")
+
+            project.androidExtension.defaultConfig {
+                multiDexEnabled = true
+                multiDexKeepProguard = multidexFile
+            }
+
             knownDependencies.implementation += knownDependencies.library("androidx.multidex:multidex:2.0.1")
         }
     }
