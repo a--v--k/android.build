@@ -200,13 +200,13 @@ class AppFlavorConfiguratorImpl(
                 } else {
                     updateMultiApplicationVersion(android, it as ApplicationVariantProperties)
                 }
+            }
+        }
 
-                if (enabled) {
-                    doOnce(android, "ApplicationReleaseConfigurator$name") {
-                        _releaseConfigurator.releaseCallbacks.forEach {
-                            it(AppReleaseInfoImpl(name, packageName, _appVersion))
-                        }
-                    }
+        if (enabled) {
+            doOnce(android, "ApplicationReleaseConfigurator$name") {
+                _releaseConfigurator.releaseCallbacks.forEach {
+                    it(AppReleaseInfoImpl(name, packageName, _appVersion))
                 }
             }
         }

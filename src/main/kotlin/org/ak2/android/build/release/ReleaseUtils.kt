@@ -23,30 +23,11 @@ import org.gradle.api.tasks.bundling.Zip
 import java.util.*
 import java.util.stream.Collectors
 
-fun Project.createZip(appInfo: AppReleaseInfo, archName: String, destDir: String, zipConfigurator: Zip.() -> Unit) {
-    val packageName = appInfo.packageName
-    val version = appInfo.version.versionName
+fun Project.createZip(appInfo: AppReleaseInfo, archiveName: String, destDir: String, zipConfigurator: Zip.() -> Unit) {
 
-    val zipTaskName = "zip${packageName.capitalize()}${archName.capitalize()}"
+    val task = DistributionTasks.customZipDistributionTask(this, appInfo, archiveName)
 
-    project.run {
-        val zipTask = tasks.create(zipTaskName, Zip::class.java)
-
-        zipTask.group = DistributionTasks.group
-        zipTask.archiveBaseName.set(packageName)
-        zipTask.archiveAppendix.set(archName)
-        zipTask.archiveVersion.set(appInfo.version.versionName)
-
-        zipTask.zipConfigurator()
-
-        val distTaskName = "distribute${appInfo.packageName.capitalize()}"
-
-        tasks.findByNameAndConfigure<AppDistributionTask>(distTaskName) {
-            dependsOn += zipTask
-            zipTask.destinationDirectory.value(this.distributionAppDir.map { dir -> dir.dir("$version/$destDir") })
-            println("${project.path}: add $zipTask to $this")
-        }
-    }
+    task.init(appInfo, archiveName, destDir, zipConfigurator)
 }
 
 fun Project.createI18nArchives(appInfo: AppReleaseInfo, languagesToPack: Set<String>? = null) {

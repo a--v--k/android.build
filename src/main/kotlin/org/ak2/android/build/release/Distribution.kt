@@ -19,8 +19,10 @@ package org.ak2.android.build.release
 import com.android.build.api.artifact.ArtifactType
 import com.android.build.api.variant.ApplicationVariantProperties
 import com.android.build.api.variant.impl.VariantOutputImpl
+import org.ak2.android.build.AppReleaseInfo
 import org.ak2.android.build.configurators.AppFlavorConfiguratorImpl
 import org.ak2.android.build.configurators.config
+import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -31,6 +33,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.bundling.Zip
 import java.io.File
 import javax.inject.Inject
 
@@ -48,20 +51,19 @@ object DistributionTasks {
         return project.tasks.maybeCreate(taskName, AppDistributionTask::class.java)
     }
 
-    fun apkDistributionTask(
-        project: Project,
-        v: ApplicationVariantProperties
-    ): ApkDistributionTask {
+    fun apkDistributionTask(project: Project, v: ApplicationVariantProperties): ApkDistributionTask {
         val taskName = "distribute${v.name.capitalize()}Apk"
         return project.tasks.maybeCreate(taskName, ApkDistributionTask::class.java)
     }
 
-    fun proGuardMappingDistributionTask(
-        project: Project,
-        v: ApplicationVariantProperties
-    ): ProGuardMappingDistributionTask {
+    fun proGuardMappingDistributionTask(project: Project,v: ApplicationVariantProperties): ProGuardMappingDistributionTask {
         val taskName = "distribute${v.name.capitalize()}ProGuardMapping"
         return project.tasks.maybeCreate(taskName, ProGuardMappingDistributionTask::class.java)
+    }
+
+    fun customZipDistributionTask(project: Project, appInfo: AppReleaseInfo, archiveName : String) : CustomZipDistributionTask {
+        val taskName = "distribute${appInfo.packageName.capitalize()}${archiveName.capitalize()}CustomZip"
+        return project.tasks.maybeCreate(taskName, CustomZipDistributionTask::class.java)
     }
 }
 
@@ -209,4 +211,30 @@ abstract class ProGuardMappingDistributionTask : AbstractDistributionTask() {
         original.copyTo(dest, overwrite = true)
     }
 }
+
+open class CustomZipDistributionTask : Zip() {
+
+    fun init(appInfo: AppReleaseInfo, archName: String, destDir: String, zipConfigurator: Zip.() -> Unit) {
+        val packageName = appInfo.packageName
+        val version = appInfo.version.versionName
+
+        group = DistributionTasks.group
+        archiveBaseName.set(packageName)
+        archiveAppendix.set(archName)
+        archiveVersion.set(appInfo.version.versionName)
+
+        let { task ->
+            task.zipConfigurator()
+
+            val distTaskName = "distribute${packageName.capitalize()}"
+
+            project.tasks.findByNameAndConfigure<AppDistributionTask>(distTaskName) {
+                dependsOn += task.name
+                task.destinationDirectory.value(this.distributionAppDir.map { dir -> dir.dir("$version/$destDir") })
+                println("${project.path}: add $task to $this")
+            }
+        }
+    }
+}
+
 

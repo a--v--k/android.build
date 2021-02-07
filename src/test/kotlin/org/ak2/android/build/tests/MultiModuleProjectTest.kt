@@ -25,10 +25,7 @@ class MultiModuleProjectTest : BaseTest("004-multi-module-project") {
             for(i in 1..3) {
                 assertFileExist("Release  APK     not found", distFolder, "app-set-app${i}/${i}.0.0/app-set-app${i}-${i}.0.0-${i}00000.apk")
                 assertFileExist("Proguard mapping not found", distFolder, "app-set-app${i}/${i}.0.0/mapping/app-set-app${i}-${i}.0.0-${i}00000.mapping.txt")
-            }
-
-            for(i in 1..1) {
-                assertFileExist("Source   ZIP     not found", distFolder,"app-set-app${i}/${i}.0.0/sources/app-set-app${i}-src-${i}.0.0.zip")
+                assertFileExist("Source   ZIP     not found", distFolder, "app-set-app${i}/${i}.0.0/sources/app-set-app${i}-src${i}-${i}.0.0.zip")
             }
         }
     }
