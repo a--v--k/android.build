@@ -2,32 +2,39 @@ package org.ak2.android.build.tests
 
 import org.junit.Assert
 import org.junit.Test
-import java.io.File
-import java.util.*
 
 class SimpleAppTest : BaseTest("002-simple-app") {
 
-
-    protected override fun onSetup() {
+    override fun onSetup() {
         super.onSetup();
         val cert = "test-app-certificate.jks";
-        Assert.assertTrue(resources.child(cert).copyTo(target.child(cert), overwrite = true).exists());
+        Assert.assertTrue(
+            resources.child(cert).copyTo(target.child(cert), overwrite = true).exists()
+        );
     }
 
     @Test
-    fun `assemble`() {
-        run("clean", "assemble") {
+    fun distribute() {
+        run("clean") {
+            Assert.assertFalse(buildFolder.exists())
+        }
 
-            val apkOutputFolder = buildFolder.child("outputs/packages")
+        run("distribute") {
+            val apkOutputFolder = buildFolder.child("outputs/apk")
 
-            Assert.assertTrue(
-                "Debug APK not found",
-                File(apkOutputFolder, "debug/002-simple-app/simple-app-debug.apk").isFile
-            )
-            Assert.assertTrue(
-                "Release APK not found",
-                File(apkOutputFolder, "release/002-simple-app/1.0.0/simple-app-1.0.0-100000.apk").isFile
-            )
+            assertFileNotExist("Debug APK found, but not expected", apkOutputFolder, "debug/002-simple-app-debug.apk")
+               assertFileExist("Release APK not found",             apkOutputFolder, "release/002-simple-app-release.apk")
+
+            val distFolder = buildFolder.child("outputs/dist")
+
+            assertFileExist("Release      APK not found", distFolder, "simple-app/1.0.0/simple-app-1.0.0-100000.apk")
+            assertFileExist("Proguard mapping not found", distFolder, "simple-app/1.0.0/mapping/simple-app-1.0.0-100000.mapping.txt")
+        }
+
+        run("assemble") {
+            val apkOutputFolder = buildFolder.child("outputs/apk")
+
+            assertFileExist("Debug APK not found", apkOutputFolder, "debug/002-simple-app-debug.apk")
         }
     }
 }

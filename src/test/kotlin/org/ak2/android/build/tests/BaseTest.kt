@@ -25,7 +25,7 @@ open class BaseTest(val projectRootDir: String) {
 
     @Before
     fun setup() {
-        var rootDir = testProjectDir.root
+        var rootDir = File("build/tests").apply {  mkdirs(); }; //testProjectDir.root
 
         val sdkDir = sdkDir()
 
@@ -85,5 +85,21 @@ open class BaseTest(val projectRootDir: String) {
     }
 
     protected fun File.child(childFileName: String) = File(this, childFileName)
+
+    protected fun assertFileExist(msg: String, dir : File, fileName : String) {
+        assertFileExist(msg, File(dir, fileName))
+    }
+
+    protected fun assertFileExist(msg: String, file : File) {
+        Assert.assertTrue(msg + ": " + file.absoluteFile, file.isFile)
+    }
+
+    protected fun assertFileNotExist(msg: String, dir : File, fileName : String) {
+        assertFileNotExist(msg, File(dir, fileName))
+    }
+
+    protected fun assertFileNotExist(msg: String, file : File) {
+        Assert.assertFalse(msg + ": " + file.absoluteFile, file.exists())
+    }
 
 }

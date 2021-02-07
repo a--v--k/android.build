@@ -3,7 +3,6 @@ package org.ak2.android.build.tests
 import org.junit.Assert
 import org.junit.Test
 import java.io.File
-import java.util.*
 
 class SimpleLibraryTest : BaseTest("001-simple-library") {
 
