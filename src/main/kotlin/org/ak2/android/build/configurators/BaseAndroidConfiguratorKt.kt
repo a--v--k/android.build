@@ -72,6 +72,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                     configureDefaultBuildType()
                     configureVariants()
                     configureFlavors()
+                    configureMultidex()
                     configureDependencies()
                     configureManifests()
 
@@ -235,6 +236,14 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         project.androidExtension.flavorDimensions(* dimensionsNames.toTypedArray())
 
         variantConfigs.values.toFlavors().forEach { it.configure(project.androidExtension, config) }
+    }
+
+    protected fun configureMultidex() {
+        val multidexFile = project.file("multidex.cfg")
+        if (multidexFile.isFile) {
+            println("${project.path}: Configure multidex APK...")
+            knownDependencies.implementation += knownDependencies.library("androidx.multidex:multidex:2.0.1")
+        }
     }
 
     protected fun configureDependencies(appName: String? = null) {
