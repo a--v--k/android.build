@@ -17,7 +17,6 @@
 package org.ak2.android.build.release
 
 import org.ak2.android.build.AppReleaseInfo
-import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Zip
 import java.util.*

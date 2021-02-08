@@ -204,10 +204,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         }
     }
 
-    protected fun checkApplicationFlavors(
-        android: BaseExtension,
-        variantFilter: VariantFilter
-    ): Boolean {
+    protected fun checkApplicationFlavors(android: BaseExtension, variantFilter: VariantFilter): Boolean {
         if (variantFilter.flavors.isEmpty()) {
             return true
         }

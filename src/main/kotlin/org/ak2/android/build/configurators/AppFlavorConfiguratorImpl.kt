@@ -66,11 +66,7 @@ class AppFlavorConfiguratorImpl(
 
     override val project = parent.project
 
-    override val config = if (singleAppMode) parent.config else InnerProjectConfiguration(
-        parent.project,
-        appFolder,
-        parent.config
-    )
+    override val config = if (singleAppMode) parent.config else InnerProjectConfiguration(parent.project, appFolder, parent.config)
 
     override val languages: MutableSet<String> = LinkedHashSet()
 
@@ -90,14 +86,7 @@ class AppFlavorConfiguratorImpl(
     init {
         println("${parent.project.path}: App ${name}:${appFolder} init...")
 
-        require(config.buildProperties.buildPropertiesExist) {
-            "Application properties missed: ${
-                File(
-                    appFolder,
-                    "build.properties"
-                ).absolutePath
-            }"
-        }
+        require(config.buildProperties.buildPropertiesExist) { "Application properties missed: ${File(appFolder, "build.properties").absolutePath}" }
 
         println("${parent.project.path}: App build properties:\n${config.buildProperties}")
 
@@ -106,14 +95,12 @@ class AppFlavorConfiguratorImpl(
         _proguardFile = File(appFolder, "proguard.cfg")
     }
 
-    override fun version(block: AppVersion.() -> Unit) = _appVersion.block()
-    override fun dependsOn(block: DependencyBuilder.() -> Unit) = _localDependencies.block()
-    override fun release(block: AppReleaseConfigurator.() -> Unit) = _releaseConfigurator.block()
-    override fun debug(block: AppDebugConfigurator.() -> Unit) = _debugConfigurator.block()
-    override fun nativeOptions(block: NativeOptionsBuilder.() -> Unit) =
-        _localNativeConfigurator.block()
-
-    override fun checkStrings(block: StringCheckOptions.() -> Unit) = _stringCheckOptions.block()
+    override fun version(block: AppVersion.() -> Unit)                  = _appVersion.block()
+    override fun dependsOn(block: DependencyBuilder.() -> Unit)         = _localDependencies.block()
+    override fun release(block: AppReleaseConfigurator.() -> Unit)      = _releaseConfigurator.block()
+    override fun debug(block: AppDebugConfigurator.() -> Unit)          = _debugConfigurator.block()
+    override fun nativeOptions(block: NativeOptionsBuilder.() -> Unit)  = _localNativeConfigurator.block()
+    override fun checkStrings(block: StringCheckOptions.() -> Unit)     = _stringCheckOptions.block()
 
     fun configure(block: AppFlavorConfiguratorImpl.() -> Unit) = apply {
         this.block()
@@ -187,10 +174,7 @@ class AppFlavorConfiguratorImpl(
         if (productFlavor == null) {
             ReleaseSigningConfiguratorKt(config.releaseSigningConfig).defineSigningConfig(android)
         } else {
-            ReleaseAppFlavorSigningConfiguratorKt(
-                name,
-                config.releaseSigningConfig
-            ).defineSigningConfig(android, productFlavor)
+            ReleaseAppFlavorSigningConfiguratorKt(name, config.releaseSigningConfig).defineSigningConfig(android, productFlavor)
         }
 
         doOnce(android, "ApplicationVersionConfigurator") {
@@ -259,11 +243,7 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateSingleApplicationVersion(
-            android: BaseExtension,
-            appFlavor: AppFlavorConfiguratorImpl,
-            v: ApplicationVariantProperties
-        ) {
+        fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApplicationVariantProperties) {
             val variantConfigs = android.getVariantConfigs();
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
@@ -271,12 +251,7 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateApplicationVersion(
-            android: BaseExtension,
-            appFlavor: AppFlavorConfiguratorImpl,
-            variant: VariantConfig,
-            v: ApplicationVariantProperties
-        ) {
+        fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, v: ApplicationVariantProperties) {
 
             val apkConfig = when (variant.buildType) {
                 BuildTypeId.RELEASE -> ApkConfig.Release(android, appFlavor, variant)
@@ -305,17 +280,9 @@ class AppFlavorConfiguratorImpl(
         }
     }
 
-    sealed class ApkConfig(
-        var apkName: String? = null,
-        var versionName: String? = null,
-        var versionCode: Int = 0
-    ) {
+    sealed class ApkConfig(var apkName: String? = null, var versionName: String? = null, var versionCode: Int = 0) {
 
-        class Release(
-            android: BaseExtension,
-            appFlavor: AppFlavorConfiguratorImpl,
-            variant: VariantConfig
-        ) : ApkConfig() {
+        class Release(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig) : ApkConfig() {
             init {
 
                 versionCode = appFlavor._appVersion.versionCode
@@ -337,11 +304,7 @@ class AppFlavorConfiguratorImpl(
             }
         }
 
-        class Debug(
-            android: BaseExtension,
-            appFlavor: AppFlavorConfiguratorImpl,
-            variant: VariantConfig
-        ) : ApkConfig() {
+        class Debug(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig) : ApkConfig() {
             init {
                 apkName = listOf(appFlavor.packageName, variant.suffix.value, variant.buildType.id)
                     .filterNotNull()
