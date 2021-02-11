@@ -19,6 +19,7 @@ open class BaseTest(val projectRootDir: String) {
     protected val resources = File("src/test/resources")
     protected lateinit var source: File
     protected lateinit var target: File
+    protected lateinit var testKit: File
     protected lateinit var buildFolder: File
 
     protected lateinit var gradleRunner: GradleRunner
@@ -26,6 +27,7 @@ open class BaseTest(val projectRootDir: String) {
     @Before
     fun setup() {
         var rootDir = File("build/tests").apply {  mkdirs(); }; //testProjectDir.root
+        testKit = File("~/.gradle")
 
         val sdkDir = sdkDir()
 
@@ -49,7 +51,7 @@ open class BaseTest(val projectRootDir: String) {
             .withDebug(true)
             .withPluginClasspath()
             .withProjectDir(target)
-            .withTestKitDir(testProjectDir.newFolder())
+            .withTestKitDir(testKit)
     }
 
     protected open fun onSetup() {}
@@ -58,7 +60,7 @@ open class BaseTest(val projectRootDir: String) {
     protected fun run(vararg tasks: String, checkAction: (BuildResult) -> Unit = {}) {
         val result = gradleRunner
             .forwardOutput()
-            .withArguments(*tasks)
+            .withArguments(*tasks, "--info", "--stacktrace")
             .build()
 
         println(result.tasks)

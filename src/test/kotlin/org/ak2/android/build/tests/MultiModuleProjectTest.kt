@@ -2,7 +2,6 @@ package org.ak2.android.build.tests
 
 import org.junit.Assert
 import org.junit.Test
-import java.io.File
 
 class MultiModuleProjectTest : BaseTest("004-multi-module-project") {
 

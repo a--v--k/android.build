@@ -2,12 +2,6 @@ plugins {
     id("org.ak2.android.build")
 }
 
-repositories {
-    google()
-    jcenter()
-    mavenCentral()
-}
-
 androidApp {
 
     additionalManifests = project.fileTree("src/main/manifests").apply { include("*/AndroidManifest.xml") }

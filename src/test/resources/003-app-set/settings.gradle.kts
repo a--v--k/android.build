@@ -1,5 +1,7 @@
 pluginManagement {
 
+    val ak2AndroidBuildPluginVersion : String by settings
+
     repositories {
         google()
         jcenter()
@@ -8,6 +10,15 @@ pluginManagement {
     }
 
     plugins {
-        id("org.ak2.android.build")
+        id("org.ak2.android.build") version ak2AndroidBuildPluginVersion
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        gradlePluginPortal()
     }
 }

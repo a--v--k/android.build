@@ -2,12 +2,6 @@ plugins {
     id("org.ak2.android.build")
 }
 
-repositories {
-    google()
-    jcenter()
-    mavenCentral()
-}
-
 androidLibrary {
 
     dependsOn {
