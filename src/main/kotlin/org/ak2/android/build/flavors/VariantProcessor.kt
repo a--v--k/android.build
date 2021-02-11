@@ -17,12 +17,12 @@
 package org.ak2.android.build.flavors
 
 import com.android.build.api.variant.VariantFilter
-import com.android.build.api.variant.VariantProperties
+import com.android.build.api.variant.Variant
 import org.gradle.api.Project
 
 typealias VariantValidator = (VariantFilter) -> Boolean
 typealias VariantConfigurator = (VariantFilter) -> Unit
-typealias VariantPostConfigurator = (VariantProperties) -> Unit
+typealias VariantPostConfigurator = (Variant) -> Unit
 
 class VariantProcessor(val project: Project) {
 
@@ -52,7 +52,7 @@ class VariantProcessor(val project: Project) {
         }
     }
 
-    fun onVariantProperties(variant: VariantProperties) {
+    fun onVariantProperties(variant: Variant) {
         println("${project.path}: Configure variant properties ${variant.name}...")
             variantPostConfigurators.forEach { it(variant) }
     }

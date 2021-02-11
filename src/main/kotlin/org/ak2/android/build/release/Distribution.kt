@@ -17,7 +17,7 @@
 package org.ak2.android.build.release
 
 import com.android.build.api.artifact.ArtifactType
-import com.android.build.api.variant.ApplicationVariantProperties
+import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.impl.VariantOutputImpl
 import org.ak2.android.build.AppReleaseInfo
 import org.ak2.android.build.configurators.AppFlavorConfiguratorImpl
@@ -51,12 +51,12 @@ object DistributionTasks {
         return project.tasks.maybeCreate(taskName, AppDistributionTask::class.java)
     }
 
-    fun apkDistributionTask(project: Project, v: ApplicationVariantProperties): ApkDistributionTask {
+    fun apkDistributionTask(project: Project, v: ApplicationVariant): ApkDistributionTask {
         val taskName = "distribute${v.name.capitalize()}Apk"
         return project.tasks.maybeCreate(taskName, ApkDistributionTask::class.java)
     }
 
-    fun proGuardMappingDistributionTask(project: Project,v: ApplicationVariantProperties): ProGuardMappingDistributionTask {
+    fun proGuardMappingDistributionTask(project: Project,v: ApplicationVariant): ProGuardMappingDistributionTask {
         val taskName = "distribute${v.name.capitalize()}ProGuardMapping"
         return project.tasks.maybeCreate(taskName, ProGuardMappingDistributionTask::class.java)
     }
@@ -127,7 +127,7 @@ abstract class ApkDistributionTask : AbstractDistributionTask() {
     fun init(
         appDistributionTask: AppDistributionTask,
         apkConfig: AppFlavorConfiguratorImpl.ApkConfig,
-        v: ApplicationVariantProperties
+        v: ApplicationVariant
     ) {
         val apkOutput = v.outputs.filterIsInstance<VariantOutputImpl>().first()
 
@@ -179,7 +179,7 @@ abstract class ProGuardMappingDistributionTask : AbstractDistributionTask() {
     fun init(
         appDistributionTask: AppDistributionTask,
         apkConfig: AppFlavorConfiguratorImpl.ApkConfig,
-        v: ApplicationVariantProperties
+        v: ApplicationVariant
     ) {
         val originalMappingFileProvider = v.artifacts.get(ArtifactType.OBFUSCATION_MAPPING_FILE)
 

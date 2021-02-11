@@ -16,7 +16,7 @@
 
 package org.ak2.android.build.configurators
 
-import com.android.build.api.variant.ApplicationVariantProperties
+import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.VariantOutputConfiguration
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
@@ -180,9 +180,9 @@ class AppFlavorConfiguratorImpl(
         doOnce(android, "ApplicationVersionConfigurator") {
             android.addPostConfigurator {
                 if (singleAppMode) {
-                    updateSingleApplicationVersion(android,this, it as ApplicationVariantProperties)
+                    updateSingleApplicationVersion(android,this, it as ApplicationVariant)
                 } else {
-                    updateMultiApplicationVersion(android, it as ApplicationVariantProperties)
+                    updateMultiApplicationVersion(android, it as ApplicationVariant)
                 }
             }
         }
@@ -232,7 +232,7 @@ class AppFlavorConfiguratorImpl(
 
     companion object {
 
-        fun updateMultiApplicationVersion(android: BaseExtension, v: ApplicationVariantProperties) {
+        fun updateMultiApplicationVersion(android: BaseExtension, v: ApplicationVariant) {
             val variantConfigs = android.getVariantConfigs();
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
@@ -243,7 +243,7 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApplicationVariantProperties) {
+        fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApplicationVariant) {
             val variantConfigs = android.getVariantConfigs();
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
@@ -251,7 +251,7 @@ class AppFlavorConfiguratorImpl(
             updateApplicationVersion(android, appFlavor, variant, v)
         }
 
-        fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, v: ApplicationVariantProperties) {
+        fun updateApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig, v: ApplicationVariant) {
 
             val apkConfig = when (variant.buildType) {
                 BuildTypeId.RELEASE -> ApkConfig.Release(android, appFlavor, variant)

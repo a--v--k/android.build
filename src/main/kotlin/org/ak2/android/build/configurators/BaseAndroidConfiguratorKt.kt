@@ -17,6 +17,8 @@
 package org.ak2.android.build.configurators
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.extension.AndroidComponentsExtension
+import com.android.build.api.extension.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.VariantFilter
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
@@ -169,7 +171,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
     protected fun configureDefaultBuildType() {
         project.studioConfig.defaultBuildType?.configure(project.androidExtension) {
-                isDefault = true
+            isDefault = true
         }
     }
 
@@ -191,16 +193,11 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
             variantProcessor.doFilter(this)
         }
 
-        if (androidExtension is ApplicationExtension<*, *, *, *, *>) {
-            androidExtension.onVariantProperties {
-                variantProcessor.onVariantProperties(this)
+        val androidComponents = project.extensions.getByName("androidComponents") as AndroidComponentsExtension<*, *>
+        with(androidComponents) {
+            onVariants(selector()) {
+                variantProcessor.onVariantProperties(it)
             }
-        } else if (androidExtension is LibraryExtension) {
-            androidExtension.onVariantProperties {
-                variantProcessor.onVariantProperties(this)
-            }
-        } else {
-            throw  GradleException("Unknown type of android extension")
         }
     }
 

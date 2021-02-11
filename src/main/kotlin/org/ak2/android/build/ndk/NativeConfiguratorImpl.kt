@@ -16,7 +16,7 @@
 
 package org.ak2.android.build.ndk
 
-import com.android.build.api.variant.VariantProperties
+import com.android.build.api.variant.Variant
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
@@ -128,7 +128,7 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
 
     }
 
-    private fun addPluginTasks(android: BaseExtension, variantProperties: VariantProperties) {
+    private fun addPluginTasks(android: BaseExtension, variantProperties: Variant) {
         val variantName = variantProperties.name
         val variants = android.getVariantConfigs()
         val variantConfig = variants[variantName]
