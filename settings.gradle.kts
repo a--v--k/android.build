@@ -13,7 +13,18 @@ pluginManagement {
     }
 
     plugins {
-        id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
         id("com.gradle.plugin-publish") version "$publishPluginVersion"
     }
 }
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        gradlePluginPortal()
+    }
+}
+
+
+
