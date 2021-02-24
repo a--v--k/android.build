@@ -81,7 +81,7 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
     override var useViewBindings         : Boolean       = false
 
     override var ndkVersion              : NdkVersion?   = null
-    override var buildToolsVersion       : String        = "29.0.3"
+    override var buildToolsVersion       : String        = "30.0.2"
     override var supportLibraryVersion   : String        = "28.0.0"
     override var constraintLayoutVersion : String        = "1.1.3"
 
