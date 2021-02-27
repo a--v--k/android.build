@@ -29,11 +29,29 @@ class KnownDependencies : DependencyBuilder {
     private val _modules = TreeMap<String, ModuleDependencyKt>()
     private val _prefabs = TreeMap<String, PrefabModuleDependencyKt>()
 
-    override val api             : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.API, ::ScopedDependenciesImpl)
-    override val implementation  : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.IMPLEMENTATION, ::ScopedDependenciesImpl)
-    override val compileOnly     : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.COMPILE_ONLY, ::ScopedDependenciesImpl)
-    override val test            : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.TEST_COMPILE, ::ScopedDependenciesImpl)
-    override val testRuntime     : ScopedDependencies get() = _dependencies.computeIfAbsent(DependencyScope.TEST_RUNTIME, ::ScopedDependenciesImpl)
+    override val api                : ScopedDependencies get() = dependencies(DependencyScope.API)
+    override val implementation     : ScopedDependencies get() = dependencies(DependencyScope.IMPLEMENTATION)
+    override val compileOnly        : ScopedDependencies get() = dependencies(DependencyScope.COMPILE_ONLY)
+    override val test               : ScopedDependencies get() = dependencies(DependencyScope.TEST)
+    override val testRuntime        : ScopedDependencies get() = dependencies(DependencyScope.TEST_RUNTIME)
+    override val androidTest        : ScopedDependencies get() = dependencies(DependencyScope.ANDROID_TEST)
+    override val androidTestRuntime : ScopedDependencies get() = dependencies(DependencyScope.ANDROID_TEST_RUNTIME)
+
+    private fun dependencies(scope : DependencyScope) = _dependencies.computeIfAbsent(scope, ::ScopedDependenciesImpl)
+
+    override fun add(scope: Any, dependency: Any) {
+        val actualScope = when (scope) {
+            is DependencyScope  -> scope
+            else                -> DependencyScope.of(scope.toString())
+        }
+
+        val actualDependency = when (dependency) {
+            is DependencyKt     -> dependency
+            else                -> DependencyWrapper(dependency)
+        }
+
+        dependencies(actualScope).plusAssign(actualDependency)
+    }
 
     override fun module(path: String) = _modules.computeIfAbsent(path) { ModuleDependencyKt(dependencyPath = it) }
 

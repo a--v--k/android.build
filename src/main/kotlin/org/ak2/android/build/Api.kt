@@ -140,11 +140,15 @@ interface DependenciesConfigurator {
 
     interface DependencyBuilder {
 
-        val api             : ScopedDependencies
-        val implementation  : ScopedDependencies
-        val compileOnly     : ScopedDependencies
-        val test            : ScopedDependencies
-        val testRuntime     : ScopedDependencies
+        val api                 : ScopedDependencies
+        val implementation      : ScopedDependencies
+        val compileOnly         : ScopedDependencies
+        val test                : ScopedDependencies
+        val testRuntime         : ScopedDependencies
+        val androidTest         : ScopedDependencies
+        val androidTestRuntime  : ScopedDependencies
+
+        fun add(scope : Any, dependency : Any)
 
         fun module(path: String)            : ModuleDependencyKt
         fun modules(vararg aliases: String) : List<ModuleDependencyKt>

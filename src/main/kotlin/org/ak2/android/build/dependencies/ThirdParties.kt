@@ -16,28 +16,9 @@
 
 package org.ak2.android.build.dependencies
 
-import com.android.build.gradle.BaseExtension
-import org.ak2.android.build.configurators.androidProject
-import org.ak2.android.build.configurators.config
-import org.ak2.android.build.dependencies.base.DependencyKt
-import org.ak2.android.build.dependencies.base.DependencyScope
 import org.ak2.android.build.dependencies.base.LibraryDependencyKt
 
 object ThirdParties {
-
-    fun AndroidAnnotations(version: String) = object : DependencyKt {
-
-        override fun configure(appName: String?, scope: DependencyScope, android: BaseExtension) {
-            android.androidProject.dependencies.run {
-                if (android.androidProject.config.useKotlinInProd || android.androidProject.config.useKotlinInProd) {
-                    add(DependencyScope.KAPT.scopeName(appName), "org.androidannotations:androidannotations:$version")
-                } else {
-                    add(DependencyScope.ANNOTATION_PROCESSOR.scopeName(appName), "org.androidannotations:androidannotations:$version")
-                }
-                 add(scope.scopeName(appName), "org.androidannotations:androidannotations-api:$version")
-            }
-        }
-    }
 
     object Rx {
 
