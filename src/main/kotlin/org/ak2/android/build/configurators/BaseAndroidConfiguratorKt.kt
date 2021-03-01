@@ -103,9 +103,10 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         if (config.useKotlinInProd || config.useKotlinInTest) {
             println("${this.path}: Configure Kotlin ${config.kotlinVersion} ...")
 
-            plugins.apply("kotlin-android")
-            plugins.apply("kotlin-android-extensions")
-            plugins.apply("kotlin-kapt")
+            if (config.useKotlinInProd) {
+                plugins.apply("kotlin-android")
+                plugins.apply("kotlin-kapt")
+            }
 
             val stdlibVersion = when (config.javaVersion) {
                 JavaVersion.VERSION_1_6 -> "kotlin-stdlib-jdk6"
@@ -119,8 +120,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
                 if (config.useKotlinInProd) {
                     implementation += stdlib
-                }
-                if (config.useKotlinInTest) {
+                } else {
                     test += stdlib
                 }
             }
