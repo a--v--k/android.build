@@ -103,10 +103,8 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         if (config.useKotlinInProd || config.useKotlinInTest) {
             println("${this.path}: Configure Kotlin ${config.kotlinVersion} ...")
 
-            if (config.useKotlinInProd) {
-                plugins.apply("kotlin-android")
-                plugins.apply("kotlin-kapt")
-            }
+            plugins.apply("kotlin-android")
+            plugins.apply("kotlin-kapt")
 
             val stdlibVersion = when (config.javaVersion) {
                 JavaVersion.VERSION_1_6 -> "kotlin-stdlib-jdk6"
@@ -121,7 +119,24 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                 if (config.useKotlinInProd) {
                     implementation += stdlib
                 } else {
+                    // If only Test code should use Kotlin...
                     test += stdlib
+                    // Remove Kotlin libraries from Production code
+                    val excluded = setOf(
+                        "ApiDependenciesMetadata",
+                        "ImplementationDependenciesMetadata",
+                        "RuntimeOnlyDependenciesMetadata",
+                        "CompileClasspath",
+                        "RuntimeClasspath"
+                    )
+                    configurations.all {
+                        val isProduction = excluded.any {
+                            name.endsWith(it) && !name.endsWith("Test${it}")
+                        }
+                        if (isProduction) {
+                            exclude(group = "org.jetbrains.kotlin")
+                        }
+                    }
                 }
             }
         }
