@@ -16,15 +16,60 @@
 
 package org.ak2.android.build.dependencies.base
 
-enum class DependencyScope(val scope : String) {
+sealed class DependencyScope(val scope: String) : Comparable<DependencyScope> {
 
-    API                     ("api"),
-    IMPLEMENTATION          ("implementation"),
-    COMPILE_ONLY            ("compileOnly"),
-    TEST_COMPILE            ("testImplementation"),
-    TEST_RUNTIME            ("testRuntime"),
-    ANNOTATION_PROCESSOR    ("annotationProcessor"),
-    KAPT                    ("kapt");
+    object API                  : DependencyScope("api")
+    object IMPLEMENTATION       : DependencyScope("implementation")
+    object COMPILE_ONLY         : DependencyScope("compileOnly")
+    object TEST                 : DependencyScope("testImplementation")
+    object TEST_RUNTIME         : DependencyScope("testRuntime")
+    object ANDROID_TEST         : DependencyScope("androidTestImplementation")
+    object ANDROID_TEST_RUNTIME : DependencyScope("androidTestRuntime")
+    object APT                  : DependencyScope("annotationProcessor")
+    object KAPT                 : DependencyScope("kapt");
 
-    fun scopeName(appName : String?) = if (appName != null) appName + scope.capitalize() else scope
+    class CustomDependency(scope: String) : DependencyScope(scope)
+
+    fun scopeName(appName: String?) = if (appName != null) appName + scope.capitalize() else scope
+
+    override fun compareTo(other: DependencyScope): Int {
+        return this.scope.compareTo(other.scope)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is DependencyScope) {
+            return this.scope == other.scope
+        }
+
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return scope.hashCode()
+    }
+
+    override fun toString(): String {
+        return "DependencyScope($scope)"
+    }
+
+    companion object {
+
+        fun of(scope: String) = when (scope) {
+            API.scope                   -> API
+            IMPLEMENTATION.scope        -> IMPLEMENTATION
+            COMPILE_ONLY.scope          -> COMPILE_ONLY
+            TEST.scope                  -> TEST
+            TEST_RUNTIME.scope          -> TEST_RUNTIME
+            ANDROID_TEST.scope          -> ANDROID_TEST
+            ANDROID_TEST_RUNTIME.scope  -> ANDROID_TEST_RUNTIME
+            APT.scope                   -> APT
+            KAPT.scope                  -> KAPT
+            else                        -> CustomDependency(scope)
+        }
+    }
 }
+
+
