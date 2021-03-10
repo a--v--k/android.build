@@ -1,5 +1,6 @@
 package org.ak2.android.build.tests
 
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Assert
@@ -26,7 +27,11 @@ open class BaseTest(val projectRootDir: String) {
 
     @Before
     fun setup() {
-        var rootDir = File("build/tests").apply {  mkdirs(); }; //testProjectDir.root
+        val current = JavaVersion.current()
+        val minRequired = JavaVersion.VERSION_11
+        require(current.isCompatibleWith(minRequired)) { "Java ${minRequired} expected but found: ${current}"}
+
+        var rootDir = File("build/tests").apply { mkdirs(); }; //testProjectDir.root
         testKit = File("~/.gradle")
 
         val sdkDir = sdkDir()
@@ -88,19 +93,19 @@ open class BaseTest(val projectRootDir: String) {
 
     protected fun File.child(childFileName: String) = File(this, childFileName)
 
-    protected fun assertFileExist(msg: String, dir : File, fileName : String) {
+    protected fun assertFileExist(msg: String, dir: File, fileName: String) {
         assertFileExist(msg, File(dir, fileName))
     }
 
-    protected fun assertFileExist(msg: String, file : File) {
+    protected fun assertFileExist(msg: String, file: File) {
         Assert.assertTrue(msg + ": " + file.absoluteFile, file.isFile)
     }
 
-    protected fun assertFileNotExist(msg: String, dir : File, fileName : String) {
+    protected fun assertFileNotExist(msg: String, dir: File, fileName: String) {
         assertFileNotExist(msg, File(dir, fileName))
     }
 
-    protected fun assertFileNotExist(msg: String, file : File) {
+    protected fun assertFileNotExist(msg: String, file: File) {
         Assert.assertFalse(msg + ": " + file.absoluteFile, file.exists())
     }
 
