@@ -11,6 +11,12 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.util.*
 
+val gradleCmdArgs  = arrayOf(
+    "--info",
+    "--stacktrace",
+    "-Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl"
+)
+
 open class BaseTest(val projectRootDir: String) {
 
     @get:Rule
@@ -60,7 +66,7 @@ open class BaseTest(val projectRootDir: String) {
     protected fun run(vararg tasks: String, checkAction: (BuildResult) -> Unit = {}) {
         val result = gradleRunner
             .forwardOutput()
-            .withArguments(*tasks, "--info", "--stacktrace")
+            .withArguments(*tasks, *gradleCmdArgs)
             .build()
 
         println(result.tasks)
