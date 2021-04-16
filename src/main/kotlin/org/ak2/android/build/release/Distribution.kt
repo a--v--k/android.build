@@ -16,7 +16,7 @@
 
 package org.ak2.android.build.release
 
-import com.android.build.api.artifact.ArtifactType
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.impl.VariantOutputImpl
 import org.ak2.android.build.AppReleaseInfo
@@ -30,7 +30,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.file.FilePropertyFactory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Zip
@@ -82,7 +82,7 @@ abstract class AbstractDistributionTask : DefaultTask() {
 
 abstract class ProjectDistributionTask : AbstractDistributionTask() {
 
-    @get:OutputDirectory
+    @get:Internal
     abstract val distributionRootDir: DirectoryProperty
 
     init {
@@ -97,14 +97,18 @@ abstract class ProjectDistributionTask : AbstractDistributionTask() {
 
 abstract class AppDistributionTask : AbstractDistributionTask() {
 
-    @get:OutputDirectory
+    @get:Internal
     abstract val distributionAppDir: DirectoryProperty
 
     fun init(
         projectDistributionTask: ProjectDistributionTask,
         appFlavor: AppFlavorConfiguratorImpl
     ) {
-        distributionAppDir.value(projectDistributionTask.distributionRootDir.dir(appFlavor.packageName))
+        val distributionRootDirProvider = projectDistributionTask.distributionRootDir.map { root ->
+            root.dir(appFlavor.packageName)
+        }
+        this.distributionAppDir.value(distributionRootDirProvider)
+
         projectDistributionTask.dependsOn += this.name
     }
 
@@ -118,7 +122,7 @@ abstract class ApkDistributionTask : AbstractDistributionTask() {
     @get:InputFile
     abstract val originalApkFile: RegularFileProperty
 
-    @get:OutputDirectory
+    @get:Internal
     abstract val distributionRootDir: DirectoryProperty
 
     @get:OutputFile
@@ -133,7 +137,7 @@ abstract class ApkDistributionTask : AbstractDistributionTask() {
 
         val apkFileNameProvider = apkOutput.outputFileName;
 
-        val originalApkDirProvider = v.artifacts.get(ArtifactType.APK)
+        val originalApkDirProvider = v.artifacts.get(SingleArtifact.APK)
 
         this.originalApkFile.value(originalApkDirProvider.map { dir -> dir.file(apkFileNameProvider.get()) })
 
@@ -170,7 +174,7 @@ abstract class ProGuardMappingDistributionTask : AbstractDistributionTask() {
     @get:InputFile
     abstract val originalMappingFile: RegularFileProperty
 
-    @get:OutputDirectory
+    @get:Internal
     abstract val distributionRootDir: DirectoryProperty
 
     @get:OutputFile
@@ -181,7 +185,7 @@ abstract class ProGuardMappingDistributionTask : AbstractDistributionTask() {
         apkConfig: AppFlavorConfiguratorImpl.ApkConfig,
         v: ApplicationVariant
     ) {
-        val originalMappingFileProvider = v.artifacts.get(ArtifactType.OBFUSCATION_MAPPING_FILE)
+        val originalMappingFileProvider = v.artifacts.get(SingleArtifact.OBFUSCATION_MAPPING_FILE)
 
         this.originalMappingFile.value(originalMappingFileProvider)
 
