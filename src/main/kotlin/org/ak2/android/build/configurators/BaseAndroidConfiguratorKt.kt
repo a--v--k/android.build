@@ -16,12 +16,9 @@
 
 package org.ak2.android.build.configurators
 
-import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.extension.AndroidComponentsExtension
-import com.android.build.api.extension.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.VariantFilter
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.RepositoryConfigurator
 import org.ak2.android.build.dependencies.KnownDependencies
@@ -29,7 +26,6 @@ import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.flavors.getDimensions
 import org.ak2.android.build.flavors.toFlavors
 import org.ak2.android.build.ndk.NativeConfiguratorImpl
-import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler

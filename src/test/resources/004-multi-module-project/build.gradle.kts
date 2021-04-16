@@ -16,7 +16,6 @@ androidRoot {
 
     addRepositories {
         google()
-        jcenter()
         mavenCentral()
     }
 }

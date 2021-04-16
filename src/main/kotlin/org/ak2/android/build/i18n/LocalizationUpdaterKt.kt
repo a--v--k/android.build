@@ -19,7 +19,6 @@ package org.ak2.android.build.i18n
 import com.android.build.gradle.BaseExtension
 import org.ak2.android.build.ResourceCheckConfigurator.StringCheckOptions
 import org.ak2.android.build.utils.*
-import org.apache.commons.io.IOUtils
 import org.gradle.api.GradleException
 import org.languagetool.JLanguageTool
 import org.languagetool.Language
@@ -174,7 +173,7 @@ fun updateAppLocalization(appLocalization: AppLocalization) {
 
                     println("Written $outputFile")
                 } finally {
-                    IOUtils.closeQuietly(output)
+                    output.close()
                 }
 
             } catch (ex: IOException) {

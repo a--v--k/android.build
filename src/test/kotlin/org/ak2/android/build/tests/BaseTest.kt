@@ -1,5 +1,6 @@
 package org.ak2.android.build.tests
 
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Assert
@@ -32,6 +33,10 @@ open class BaseTest(val projectRootDir: String) {
 
     @Before
     fun setup() {
+        val current = JavaVersion.current()
+        val minRequired = JavaVersion.VERSION_1_8
+        require(current.isCompatibleWith(minRequired)) { "Java ${minRequired} expected but found: ${current}"}
+
         var rootDir = File("build/tests").apply {  mkdirs(); }; //testProjectDir.root
         testKit = File("~/.gradle")
 
