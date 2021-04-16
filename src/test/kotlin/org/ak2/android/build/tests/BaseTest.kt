@@ -1,5 +1,6 @@
 package org.ak2.android.build.tests
 
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Assert
@@ -10,6 +11,11 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.util.*
+
+val gradleCmdArgs  = arrayOf(
+    "--info",
+    "--stacktrace"
+)
 
 open class BaseTest(val projectRootDir: String) {
 
@@ -26,6 +32,10 @@ open class BaseTest(val projectRootDir: String) {
 
     @Before
     fun setup() {
+        val current = JavaVersion.current()
+        val minRequired = JavaVersion.VERSION_1_8
+        require(current.isCompatibleWith(minRequired)) { "Java ${minRequired} expected but found: ${current}"}
+
         var rootDir = File("build/tests").apply {  mkdirs(); }; //testProjectDir.root
         testKit = File("~/.gradle")
 
@@ -60,7 +70,7 @@ open class BaseTest(val projectRootDir: String) {
     protected fun run(vararg tasks: String, checkAction: (BuildResult) -> Unit = {}) {
         val result = gradleRunner
             .forwardOutput()
-            .withArguments(*tasks, "--info", "--stacktrace")
+            .withArguments(*tasks, *gradleCmdArgs)
             .build()
 
         println(result.tasks)
