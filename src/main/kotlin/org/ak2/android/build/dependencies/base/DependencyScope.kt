@@ -16,6 +16,20 @@
 
 package org.ak2.android.build.dependencies.base
 
+val DependencyScope.Companion.standardScopes : List<DependencyScope> by lazy {
+    listOf(
+        DependencyScope.API,
+        DependencyScope.IMPLEMENTATION,
+        DependencyScope.COMPILE_ONLY,
+        DependencyScope.TEST,
+        DependencyScope.TEST_RUNTIME,
+        DependencyScope.ANDROID_TEST,
+        DependencyScope.ANDROID_TEST_RUNTIME,
+        DependencyScope.APT,
+        DependencyScope.KAPT
+    )
+}
+
 sealed class DependencyScope(val scope: String) : Comparable<DependencyScope> {
 
     object API                  : DependencyScope("api")
