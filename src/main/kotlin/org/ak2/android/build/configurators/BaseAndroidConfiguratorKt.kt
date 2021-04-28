@@ -22,6 +22,9 @@ import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.RepositoryConfigurator
 import org.ak2.android.build.dependencies.KnownDependencies
+import org.ak2.android.build.dependencies.base.DependencyScope
+import org.ak2.android.build.dependencies.base.standardScopes
+import org.ak2.android.build.dependencies.constraints.dependencyConstraints
 import org.ak2.android.build.flavors.VariantConfig
 import org.ak2.android.build.flavors.getDimensions
 import org.ak2.android.build.flavors.toFlavors
@@ -71,6 +74,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                     configureVariants()
                     configureFlavors()
                     configureMultidex()
+                    configureDependencyConstraints()
                     configureDependencies()
                     configureManifests()
 
@@ -254,6 +258,17 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
             }
 
             knownDependencies.implementation += knownDependencies.library("androidx.multidex:multidex:2.0.1")
+        }
+    }
+
+    protected fun configureDependencyConstraints() {
+        println("${project.path}: Configure dependency constraints...")
+        for (scope in DependencyScope.standardScopes) {
+            project.configurations.maybeCreate(scope.scope)
+            val constraints = project.dependencyConstraints
+            for (constraint in constraints.values) {
+                constraint.apply(project.dependencies.constraints, scope)
+            }
         }
     }
 
