@@ -62,8 +62,8 @@ enum class AndroidPlatforms (
             productFlavor.isDefault = true
         }
 
-        this.minSdkVersion.let(AndroidVersion::code).let(productFlavor::setMinSdkVersion)
-        this.maxSdkVersion?.let(AndroidVersion::code)?.let(productFlavor::setMaxSdkVersion)
+        this.minSdkVersion.let(AndroidVersion::code).let { version -> productFlavor.minSdk = version }
+        this.maxSdkVersion?.let(AndroidVersion::code)?.let { version -> productFlavor.maxSdk = version }
 
         val targetSdkVersion = Math.min(this.maxSdkVersion?.code ?: Integer.MAX_VALUE, projectConfig.effectiveTargetSdkVersionCode)
         productFlavor.setTargetSdkVersion(targetSdkVersion)

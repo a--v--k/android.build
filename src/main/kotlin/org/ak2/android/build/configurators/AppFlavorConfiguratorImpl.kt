@@ -152,19 +152,19 @@ class AppFlavorConfiguratorImpl(
         if (singleAppMode) {
             android.defaultConfig {
                 if (languages.isNotEmpty()) {
-                    resConfigs(languages)
+                    resourceConfigurations.addAll(languages)
                 }
                 if (densities.isNotEmpty()) {
-                    resConfigs(densities)
+                    resourceConfigurations.addAll(densities)
                 }
             }
         } else {
             productFlavor?.run {
                 if (languages.isNotEmpty()) {
-                    resConfigs(languages)
+                    resourceConfigurations.addAll(languages)
                 }
                 if (densities.isNotEmpty()) {
-                    resConfigs(densities)
+                    resourceConfigurations.addAll(densities)
                 }
             }
         }

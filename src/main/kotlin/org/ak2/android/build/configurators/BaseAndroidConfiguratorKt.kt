@@ -173,8 +173,8 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
             }
 
             defaultConfig {
-                minSdkVersion(minSdkVersion)
-                targetSdkVersion(targetSdkVersion)
+                minSdk = minSdkVersion
+                targetSdk = targetSdkVersion
                 javaCompileOptions {
                     annotationProcessorOptions {
                         arguments += hashMapOf("androidManifestFile" to "${project.projectDir}/src/main/AndroidManifest.xml")
@@ -208,7 +208,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
             variantProcessor.doFilter(this)
         }
 
-        val androidComponents = project.extensions.getByName("androidComponents") as AndroidComponentsExtension<*, *>
+        val androidComponents = project.extensions.getByName("androidComponents") as AndroidComponentsExtension<*, *,*>
         with(androidComponents) {
             onVariants(selector()) {
                 variantProcessor.onVariantProperties(it)
