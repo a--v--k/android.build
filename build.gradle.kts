@@ -11,6 +11,10 @@ val ak2AndroidBuildPluginVersion    : String by project
 val kotlinVersion                   : String by project
 val androidBuildPluginVersion       : String by project
 
+val jacocoVersion : String by project
+val languageToolVersion : String by project
+val junitVersion : String by project
+
 group = "org.ak2"
 version = ak2AndroidBuildPluginVersion
 
@@ -29,16 +33,23 @@ kotlinDslPluginOptions {
 dependencies {
     implementation(gradleApi())
     implementation("com.android.tools.build:gradle:$androidBuildPluginVersion")
-    implementation("org.jacoco:org.jacoco.core:0.7.9")
-    implementation("org.languagetool:languagetool-core:4.2")
+    implementation("org.jacoco:org.jacoco.core:$jacocoVersion")
+    implementation("org.languagetool:languagetool-core:$languageToolVersion")
     implementation(kotlin("reflect", kotlinVersion))
 
     testImplementation(gradleTestKit())
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("junit:junit:$junitVersion")
 }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.test {
+    useJUnit()
+    testLogging {
+        events("failed", "skipped", "failed", "standard_out", "standard_error")
+    }
 }
 
 gradlePlugin {
