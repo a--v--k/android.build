@@ -233,7 +233,7 @@ class AppFlavorConfiguratorImpl(
     companion object {
 
         fun updateMultiApplicationVersion(android: BaseExtension, v: ApplicationVariant) {
-            val variantConfigs = android.getVariantConfigs();
+            val variantConfigs = android.getVariantConfigs()
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
 
@@ -244,7 +244,7 @@ class AppFlavorConfiguratorImpl(
         }
 
         fun updateSingleApplicationVersion(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, v: ApplicationVariant) {
-            val variantConfigs = android.getVariantConfigs();
+            val variantConfigs = android.getVariantConfigs()
             val variant = variantConfigs[v.name]
             require(variant != null) { GradleException("Update app version: variant config missed for ${v.name}: ${variantConfigs.keys}") }
 
@@ -289,7 +289,7 @@ class AppFlavorConfiguratorImpl(
 
                 if (variant.hasFlavors()) {
                     if (!appFlavor._releaseConfigurator.localFlavors.isEmpty()) {
-                        val index = appFlavor._releaseConfigurator.localFlavors.toFlavors().indexOf(variant.toFlavorConfig());
+                        val index = appFlavor._releaseConfigurator.localFlavors.toFlavors().indexOf(variant.toFlavorConfig())
                         require(index >= 0) { "Cannot find variant ${variant.name} in ${android.androidProject.path}" }
                         versionCode += index
                     }
@@ -306,8 +306,7 @@ class AppFlavorConfiguratorImpl(
 
         class Debug(android: BaseExtension, appFlavor: AppFlavorConfiguratorImpl, variant: VariantConfig) : ApkConfig() {
             init {
-                apkName = listOf(appFlavor.packageName, variant.suffix.value, variant.buildType.id)
-                    .filterNotNull()
+                apkName = listOfNotNull(appFlavor.packageName, variant.suffix.value, variant.buildType.id)
                     .filter { it.isNotEmpty() }
                     .joinToString(separator = "-")
 

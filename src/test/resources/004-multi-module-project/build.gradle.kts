@@ -10,7 +10,6 @@ androidRoot {
     with(config) {
         compileSdkVersion = ANDROID_11_0
         ndkVersion = R21
-        dropSupportLibrary = true
         distributionRootDir = file("releases")
     }
 

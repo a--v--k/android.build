@@ -30,7 +30,7 @@ import org.gradle.api.file.FileCollection
 
 class AppSetConfiguratorImpl(project: Project, private val defaultApp : String?) : BaseAndroidConfiguratorKt(project, "com.android.application"), AppSetConfigurator {
 
-    private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
+    private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>()
 
     private val knownApplications = project.applicationFolders()
             .map { AppFlavorConfiguratorImpl(this, it.name, it) }
@@ -64,11 +64,11 @@ class AppSetConfiguratorImpl(project: Project, private val defaultApp : String?)
     }
 
     override fun before(block: AppExtension.() -> Unit) {
-        lowLevelHooks.before(block);
+        lowLevelHooks.before(block)
     }
 
     override fun after(block: AppExtension.() -> Unit) {
-        lowLevelHooks.after(block);
+        lowLevelHooks.after(block)
     }
 
     override fun beforeConfiguration() {

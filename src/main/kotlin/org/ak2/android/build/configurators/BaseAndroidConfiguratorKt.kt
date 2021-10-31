@@ -35,7 +35,9 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.kotlin.dsl.exclude
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) : RepositoryConfigurator {
+@Suppress("UnstableApiUsage")
+abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPluginId: String) :
+    RepositoryConfigurator {
 
     val config: ProjectConfiguration
         get() = project.config
@@ -58,7 +60,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
             project.run {
                 plugins.apply(androidPluginId)
 
-                configureRespositories();
+                configureRespositories()
                 configureKotlin()
 
                 project.extensions.configure<BaseExtension>("android") {
@@ -66,7 +68,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
                     project.link(this)
 
-                    beforeConfiguration();
+                    beforeConfiguration()
 
                     configureBaseProperties()
                     configureNative()
@@ -78,7 +80,7 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                     configureDependencies()
                     configureManifests()
 
-                    afterConfiguration();
+                    afterConfiguration()
                 }
             }
 
@@ -94,10 +96,8 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
 
     protected fun Project.configureRespositories() {
         config.repositories(repositories)
-        if (config.dropSupportLibrary) {
-            configurations.all {
-                exclude("com.android.support")
-            }
+        configurations.all {
+            exclude("com.android.support")
         }
     }
 
@@ -166,15 +166,25 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
                 setTargetCompatibility(javaVersion)
             }
 
-            buildFeatures.viewBinding = config.useViewBindings
+            with(buildFeatures) {
+                aidl                    = config.useAidl
+                buildConfig             = config.generateBuildConfig
+                compose                 = config.useCompose
+                dataBinding.isEnabled   = config.useDataBinding
+                prefab                  = false
+                renderScript            = config.useRenderScript
+                resValues               = config.generateResValues
+                shaders                 = config.useShaders
+                viewBinding             = config.useViewBindings
+            }
 
             lintOptions {
                 isAbortOnError = false
             }
 
             defaultConfig {
-                minSdkVersion(minSdkVersion)
-                targetSdkVersion(targetSdkVersion)
+                minSdk = minSdkVersion
+                targetSdk = targetSdkVersion
                 javaCompileOptions {
                     annotationProcessorOptions {
                         arguments += hashMapOf("androidManifestFile" to "${project.projectDir}/src/main/AndroidManifest.xml")
@@ -216,18 +226,21 @@ abstract class BaseAndroidConfiguratorKt(val project: Project, val androidPlugin
         }
     }
 
-    protected fun checkApplicationFlavors(android: BaseExtension, variantFilter: VariantFilter): Boolean {
+    protected fun checkApplicationFlavors(
+        android: BaseExtension,
+        variantFilter: VariantFilter
+    ): Boolean {
         if (variantFilter.flavors.isEmpty()) {
             return true
         }
 
-        val variantConfigs = android.getVariantConfigs();
+        val variantConfigs = android.getVariantConfigs()
         val variant = variantConfigs[variantFilter.name]
 
         return variant?.enabled ?: false
     }
 
-    protected abstract fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>);
+    protected abstract fun buildVariants(variantConfigs: LinkedHashMap<String, VariantConfig>)
 
     protected open fun configureFlavors() {
         println("${project.path}: Configure flavors...")

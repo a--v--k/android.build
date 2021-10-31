@@ -18,7 +18,7 @@ package org.ak2.android.build.flavors
 
 class VariantNameBuilder {
 
-    private val buf = StringBuilder();
+    private val buf = StringBuilder()
 
     fun append(flavor: Flavor?) = append(flavor?.name)
 

@@ -39,14 +39,17 @@ interface ProjectConfiguration {
     var useKotlinInProd         : Boolean
     var useKotlinInTest         : Boolean
 
+    var useAidl                 : Boolean
+    var generateBuildConfig     : Boolean
+    var useCompose              : Boolean
+    var useDataBinding          : Boolean
+    var useRenderScript         : Boolean
+    var generateResValues       : Boolean
+    var useShaders              : Boolean
     var useViewBindings         : Boolean
 
     var ndkVersion              : NdkVersion?
     var buildToolsVersion       : String
-    var supportLibraryVersion   : String
-    var constraintLayoutVersion : String
-
-    var dropSupportLibrary      : Boolean
 
     var minSdkVersion           : org.ak2.android.build.AndroidVersion
     var compileSdkVersion       : org.ak2.android.build.AndroidVersion
@@ -74,21 +77,24 @@ class RootConfiguration(val project: Project) : ProjectConfiguration {
 
     override var javaVersion             : JavaVersion   = JavaVersion.VERSION_1_8
 
-    override var kotlinVersion           : String        = "1.4.0"
+    override var kotlinVersion           : String        = "1.5.31"
     override var useKotlinInProd         : Boolean       = false
     override var useKotlinInTest         : Boolean       = false
 
+    override var useAidl                 : Boolean       = false
+    override var generateBuildConfig     : Boolean       = false
+    override var useCompose              : Boolean       = false
+    override var useDataBinding          : Boolean       = false
+    override var useRenderScript         : Boolean       = false
+    override var generateResValues       : Boolean       = true
+    override var useShaders              : Boolean       = false
     override var useViewBindings         : Boolean       = false
 
     override var ndkVersion              : NdkVersion?   = null
     override var buildToolsVersion       : String        = "30.0.2"
-    override var supportLibraryVersion   : String        = "28.0.0"
-    override var constraintLayoutVersion : String        = "1.1.3"
-
-    override var dropSupportLibrary      : Boolean       = false
 
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion = ANDROID_4_1
-    override var compileSdkVersion       : org.ak2.android.build.AndroidVersion = ANDROID_9_0
+    override var compileSdkVersion       : org.ak2.android.build.AndroidVersion = ANDROID_12_0
     override var targetSdkVersion        : org.ak2.android.build.AndroidVersion? = null
 
     override val debugSigningConfig      : SigningConfigParams? = loadSigningConfig(BuildTypeId.DEBUG, buildProperties)
@@ -125,6 +131,27 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
         get()      = getProperty("useKotlinInTest") { useKotlinInTest }
         set(value) = setProperty("useKotlinInTest", value)
 
+    override var useAidl : Boolean
+        get()      = getProperty("useAidl") { useViewBindings }
+        set(value) = setProperty("useAidl", value)
+    override var generateBuildConfig : Boolean
+        get()      = getProperty("generateBuildConfig") { useViewBindings }
+        set(value) = setProperty("generateBuildConfig", value)
+    override var useCompose : Boolean
+        get()      = getProperty("useCompose") { useViewBindings }
+        set(value) = setProperty("useCompose", value)
+    override var useDataBinding : Boolean
+        get()      = getProperty("useDataBinding") { useViewBindings }
+        set(value) = setProperty("useDataBinding", value)
+    override var useRenderScript : Boolean
+        get()      = getProperty("useRenderScript") { useViewBindings }
+        set(value) = setProperty("useRenderScript", value)
+    override var generateResValues : Boolean
+        get()      = getProperty("generateResValues") { useViewBindings }
+        set(value) = setProperty("generateResValues", value)
+    override var useShaders : Boolean
+        get()      = getProperty("useShaders") { useViewBindings }
+        set(value) = setProperty("useShaders", value)
     override var useViewBindings: Boolean
         get()      = getProperty("useViewBindings") { useViewBindings }
         set(value) = setProperty("useViewBindings", value)
@@ -136,18 +163,6 @@ class InnerProjectConfiguration(val project: Project, val appFolder : File, val 
     override var buildToolsVersion       : String
         get()      = getProperty("buildToolsVersion") { buildToolsVersion }
         set(value) = setProperty("buildToolsVersion", value)
-
-    override var supportLibraryVersion   : String
-        get()      = getProperty("supportLibraryVersion") { supportLibraryVersion }
-        set(value) = setProperty("supportLibraryVersion", value)
-
-    override var constraintLayoutVersion : String
-        get()      = getProperty("constraintLayoutVersion") { constraintLayoutVersion }
-        set(value) = setProperty("constraintLayoutVersion", value)
-
-    override var dropSupportLibrary      : Boolean
-        get()      = getProperty("dropSupportLibrary") { dropSupportLibrary }
-        set(value) = setProperty("dropSupportLibrary", value)
 
     override var minSdkVersion           : org.ak2.android.build.AndroidVersion
         get()      = getProperty("minSdkVersion") { minSdkVersion }

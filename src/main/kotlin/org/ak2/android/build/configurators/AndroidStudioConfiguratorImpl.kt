@@ -20,7 +20,6 @@ import org.ak2.android.build.AndroidStudioConfigurator
 import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.flavors.AndroidPlatforms
 import org.ak2.android.build.flavors.NativePlatforms
-import org.gradle.api.Project
 
 class AndroidStudioConfiguratorImpl : AndroidStudioConfigurator {
 

@@ -26,6 +26,7 @@ import org.ak2.android.build.utils.findByNameAndConfigure
 import org.gradle.api.GradleException
 import org.gradle.api.Task
 
+@Suppress("UnstableApiUsage")
 class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
 
     override fun configure(appName: String?, scope: DependencyScope, android: BaseExtension) {
@@ -37,7 +38,7 @@ class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
         }
 
         android.addVariantConfigurator { variant ->
-            val variantConfigs = android.getVariantConfigs();
+            val variantConfigs = android.getVariantConfigs()
             val variantConfig = variantConfigs[variant.name]
             require(variantConfig != null) { GradleException("Variant config missed for ${variant.name}: ${variantConfigs.keys}") }
 

@@ -20,8 +20,8 @@ import com.android.build.gradle.BaseExtension
 
 class LowLevelConfiguratorImpl<T : BaseExtension> {
 
-    private val beforeHooks = ArrayList<T.() -> Unit>();
-    private val  afterHooks = ArrayList<T.() -> Unit>();
+    private val beforeHooks = ArrayList<T.() -> Unit>()
+    private val  afterHooks = ArrayList<T.() -> Unit>()
 
     fun before(hook : T.() -> Unit) = beforeHooks.add(hook)
     fun  after(hook : T.() -> Unit) =  afterHooks.add(hook)
