@@ -52,7 +52,7 @@ sealed class AppFlavorBuildTypeConfigurator(val buildType: BuildTypeId, val appF
 
     class AppReleaseConfiguratorImpl(appFlavor: AppFlavorConfiguratorImpl) : AppFlavorBuildTypeConfigurator(BuildTypeId.RELEASE, appFlavor), AppReleaseConfigurator {
 
-        val releaseCallbacks = ArrayList<ReleaseCallback>();
+        val releaseCallbacks = ArrayList<ReleaseCallback>()
 
         override fun proguard(block: ProguardConfig.() -> Unit) {
             appFlavor.config.proguardConfig = ProguardConfig().apply { this.block() }

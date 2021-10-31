@@ -51,7 +51,7 @@ data class VariantConfig(val buildType: BuildTypeId, val appFlavor: AppFlavorCon
     fun toFlavorConfig() = FlavorConfig(androidFlavor, nativeFlavor)
 
     override fun toString(): String {
-        return name.value;
+        return name.value
     }
 }
 

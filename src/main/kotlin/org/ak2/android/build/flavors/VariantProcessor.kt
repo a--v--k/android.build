@@ -26,20 +26,20 @@ typealias VariantPostConfigurator = (Variant) -> Unit
 
 class VariantProcessor(val project: Project) {
 
-    val variantValidators = ArrayList<VariantValidator>();
-    val variantConfigurators = ArrayList<VariantConfigurator>();
-    val variantPostConfigurators = ArrayList<VariantPostConfigurator>();
+    val variantValidators = ArrayList<VariantValidator>()
+    val variantConfigurators = ArrayList<VariantConfigurator>()
+    val variantPostConfigurators = ArrayList<VariantPostConfigurator>()
 
     fun addValidator(validator: VariantValidator) {
-        variantValidators.add(validator);
+        variantValidators.add(validator)
     }
 
     fun addConfigurator(configurator: VariantConfigurator) {
-        variantConfigurators.add(configurator);
+        variantConfigurators.add(configurator)
     }
 
     fun addPostConfigurator(postConfigurator: VariantPostConfigurator) {
-        variantPostConfigurators.add(postConfigurator);
+        variantPostConfigurators.add(postConfigurator)
     }
 
     fun doFilter(variant: VariantFilter) {

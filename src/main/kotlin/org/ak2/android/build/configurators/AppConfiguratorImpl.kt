@@ -34,7 +34,7 @@ class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project,
 
     private val appFlavor = AppFlavorConfiguratorImpl(this, project.name).apply { enabled = true }
 
-    private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>();
+    private val lowLevelHooks = LowLevelConfiguratorImpl<AppExtension>()
 
     override var additionalManifests : FileCollection? = null
 
@@ -58,16 +58,16 @@ class AppConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(project,
     }
 
     override fun configureFlavors() {
-        super.configureFlavors();
+        super.configureFlavors()
         appFlavor.configure(project.androidExtension, appFlavor.config)
     }
 
     override fun before(block: AppExtension.() -> Unit) {
-        lowLevelHooks.before(block);
+        lowLevelHooks.before(block)
     }
 
     override fun after(block: AppExtension.() -> Unit) {
-        lowLevelHooks.after(block);
+        lowLevelHooks.after(block)
     }
 
     override fun beforeConfiguration() {

@@ -40,7 +40,7 @@ sealed class DependencyScope(val scope: String) : Comparable<DependencyScope> {
     object ANDROID_TEST         : DependencyScope("androidTestImplementation")
     object ANDROID_TEST_RUNTIME : DependencyScope("androidTestRuntime")
     object APT                  : DependencyScope("annotationProcessor")
-    object KAPT                 : DependencyScope("kapt");
+    object KAPT                 : DependencyScope("kapt")
 
     class CustomDependency(scope: String) : DependencyScope(scope)
 

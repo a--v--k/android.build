@@ -32,7 +32,7 @@ class LibraryConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proj
 
     private val flavors = FlavorConfigs()
 
-    private val lowLevelHooks = LowLevelConfiguratorImpl<LibraryExtension>();
+    private val lowLevelHooks = LowLevelConfiguratorImpl<LibraryExtension>()
 
     override fun buildFor(flavor: AndroidPlatforms, innerBuilder: VariantBuilder.() -> Unit) { flavors.buildFor(flavor, innerBuilder) }
 
@@ -58,11 +58,11 @@ class LibraryConfiguratorImpl(project: Project) : BaseAndroidConfiguratorKt(proj
     }
 
     override fun before(block: LibraryExtension.() -> Unit) {
-        lowLevelHooks.before(block);
+        lowLevelHooks.before(block)
     }
 
     override fun after(block: LibraryExtension.() -> Unit) {
-        lowLevelHooks.after(block);
+        lowLevelHooks.after(block)
     }
 
     override fun beforeConfiguration() {

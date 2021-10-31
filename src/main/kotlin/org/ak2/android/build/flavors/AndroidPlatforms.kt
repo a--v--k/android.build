@@ -25,8 +25,8 @@ import org.ak2.android.build.configurators.effectiveTargetSdkVersionCode
 import org.ak2.android.build.configurators.studioConfig
 
 enum class AndroidPlatforms (
-    val minSdkVersion : org.ak2.android.build.AndroidVersion,
-    val maxSdkVersion : org.ak2.android.build.AndroidVersion? = null
+    val minSdkVersion : AndroidVersion,
+    val maxSdkVersion : AndroidVersion? = null
 ) : Flavor {
 
     android2x    (minSdkVersion = GINGERBREAD,              maxSdkVersion = GINGERBREAD_MR1         ),
