@@ -26,10 +26,6 @@ gradle.publish.secret
 
 loadProperties("local.properties").forEach { key, value -> project.ext.set(key.toString(), value) }
 
-kotlinDslPluginOptions {
-    experimentalWarning.set(false)
-}
-
 dependencies {
     implementation(gradleApi())
     implementation("com.android.tools.build:gradle:$androidBuildPluginVersion")
