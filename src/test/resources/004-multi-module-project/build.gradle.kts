@@ -1,5 +1,5 @@
-import org.ak2.android.build.AndroidVersion.ANDROID_11_0
-import org.ak2.android.build.ndk.NdkVersion.R21
+import org.ak2.android.build.AndroidVersion.*
+import org.ak2.android.build.ndk.NdkVersion.*
 
 plugins {
     id("org.ak2.android.build")
@@ -8,8 +8,8 @@ plugins {
 androidRoot {
 
     with(config) {
-        compileSdkVersion = ANDROID_11_0
-        ndkVersion = R21
+        compileSdkVersion = ANDROID_12_0
+        ndkVersion = R22
         distributionRootDir = file("releases")
     }
 
