@@ -24,9 +24,9 @@ import kotlin.reflect.KClassifier
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-open class PropertyDelegateImpl : PropertyDelegate {
+open class PropertyDelegateImpl(parentProperty: Properties? = null) : PropertyDelegate {
 
-    protected val properties = Properties()
+    protected val properties = Properties(parentProperty)
 
     override fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
         return getValue(property.name, property.returnType.classifier, property.returnType.isMarkedNullable);

@@ -36,5 +36,7 @@ sealed class BuildTypeId(val id: String) {
             else                                                -> CUSTOM(buildTypeId)
         }
     }
+
+    override fun toString() = id
 }
 

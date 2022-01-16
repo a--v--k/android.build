@@ -22,18 +22,12 @@ import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.util.*
 
-class BuildProperties(val appFolder: File, parent: BuildProperties? = null) : PropertyDelegateImpl() {
+class BuildProperties(val appFolder: File, parent: BuildProperties? = null) : PropertyDelegateImpl(parent?.properties ?: System.getProperties()) {
 
-    val buildPropertiesExist: Boolean;
-    val localPropertiesExist: Boolean;
+    val buildPropertiesExist: Boolean
+    val localPropertiesExist: Boolean
 
     init {
-        if (parent == null) {
-            System.getProperties()?.also { properties.putAll(it) }
-        } else {
-            properties.putAll(parent.properties)
-        }
-
         val buildProperties = File(appFolder, "build.properties")
         val localProperties = File(appFolder, "local.properties")
 
@@ -45,4 +39,6 @@ class BuildProperties(val appFolder: File, parent: BuildProperties? = null) : Pr
             .map { file -> InputStreamReader(FileInputStream(file), Charsets.UTF_8) }
             .forEach { reader -> reader.use { properties.load(it) } }
     }
+
+    override fun toString() = "BuildProperties[$appFolder, $buildPropertiesExist, $localPropertiesExist, ${properties.keys}]"
 }

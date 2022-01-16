@@ -8,8 +8,8 @@ plugins {
 }
 
 val ak2AndroidBuildPluginVersion    : String by project
-val kotlinVersion                   : String by project
-val androidBuildPluginVersion       : String by project
+val kotlinVersion                               : String by project
+val androidBuildPluginVersion          : String by project
 
 val jacocoVersion : String by project
 val languageToolVersion : String by project
