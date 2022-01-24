@@ -1,10 +1,12 @@
-local.properties
+**/local.properties
 
-*.log
+**/*.log
 
 /.idea/
-/.gradle/
-/build/
+/releases/
+
+**/.gradle/
+**/build/
 
 **/*.li
 **/*.iml

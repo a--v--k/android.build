@@ -1,11 +1,3 @@
-rootProject.name = "android.build"
-
-includeBuild("plugin")
-
-include(":samples:001-simple-library")
-include(":samples:002-simple-app")
-include(":samples:003-app-set")
-
 pluginManagement {
 
     repositories {
