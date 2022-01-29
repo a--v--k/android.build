@@ -33,7 +33,7 @@ sealed class NdkVersion(val version: String) {
     object R22_1 : NdkVersion("22.1.7171670")
     object R22_0 : NdkVersion("22.0.7026061")
 
-    object R21_4 : NdkVersion("21.4.7026061")
+    object R21_4 : NdkVersion("21.4.7075529")
     object R21_3 : NdkVersion("21.3.6528147")
 
     object R20_1 : NdkVersion("20.1.5948944")
