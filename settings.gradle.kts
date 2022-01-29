@@ -1,4 +1,4 @@
-rootProject.name = "android.build"
+rootProject.name = "android.build.plugin.project"
 
 includeBuild("plugin")
 

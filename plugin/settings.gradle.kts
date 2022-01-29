@@ -1,4 +1,4 @@
-rootProject.name = "android.build.plugin"
+rootProject.name = "android.build"
 
 pluginManagement {
 
