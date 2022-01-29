@@ -22,16 +22,16 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.ak2.android.build.NativeConfigurator
 import org.ak2.android.build.buildtype.BuildTypeId
-import org.ak2.android.build.configurators.addPostConfigurator
-import org.ak2.android.build.configurators.androidProject
-import org.ak2.android.build.configurators.config
-import org.ak2.android.build.configurators.getVariantConfigs
+import org.ak2.android.build.configurators.*
 import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.extras.putExtraIfAbsent
+import org.ak2.android.build.flavors.VariantNameBuilder
 import org.ak2.android.build.utils.findByNameAndConfigure
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
+import java.io.File
 
 const val JNI_ANDROID_MK = "src/main/jni/Android.mk"
 
@@ -88,7 +88,7 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
         }
 
         if (prefabLibraries.isNotEmpty()) {
-            require(android is LibraryExtension) { throw GradleException("Prefab publishing available only in Android Library modules")}
+            require(android is LibraryExtension) { throw GradleException("Prefab publishing available only in Android Library modules") }
 
             android.run {
                 buildFeatures {
@@ -99,6 +99,45 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
                     prefab.register(lib.name) {
                         if (!lib.headersDir.isNullOrEmpty()) {
                             this.headers = androidProject.file(lib.headersDir).absolutePath
+                        }
+                    }
+
+                    addVariantConfigurator { variant ->
+                        val variantConfigs = android.getVariantConfigs()
+                        val variantConfig = variantConfigs[variant.name]
+                        require(variantConfig != null) { GradleException("Variant config missed for ${variant.name}: ${variantConfigs.keys}") }
+                        require(variantConfig.nativeFlavor != null) { GradleException("Native ABI missed for ${variant.name}: ${variantConfigs.keys}") }
+
+                        if (variantConfig.buildType == BuildTypeId.RELEASE) {
+
+                            val appName = flavor?.name
+
+                            if (appName == null || variant.name.startsWith(appName)) {
+                                val expectedPrefabVariantName = VariantNameBuilder()
+                                    .append(variantConfig.androidFlavor)
+                                    .append(variantConfig.nativeFlavor)
+                                    .append(variantConfig.buildType.id)
+                                    .build()
+
+                                val fixTaskName = "prefab${expectedPrefabVariantName.capitalize()}PackageFix"
+                                val taskToFix = "bundle${expectedPrefabVariantName.capitalize()}LocalLintAar"
+
+                                with(androidProject) {
+                                    println("${path}/${variantConfig.name}: register package fix task ${fixTaskName} for ${taskToFix}")
+
+                                    val fromDir = file("build/intermediates/ndkBuild/${variant.name}/obj/local/${variantConfig.nativeFlavor.abi}")
+                                    val toDir = file("build/intermediates/prefab_package/${variant.name}/prefab/modules/${lib.name}/libs/android.${variantConfig.nativeFlavor.abi}")
+                                    val fileName = "lib${lib.name}.a"
+
+                                    tasks.register(fixTaskName, Copy::class.java) {
+                                        dependsOn += taskToFix
+                                        from(fromDir) {
+                                            include(fileName)
+                                        }
+                                        into(toDir)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -125,7 +164,6 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
                 }
             }
         }
-
     }
 
     private fun addPluginTasks(android: BaseExtension, variantProperties: Variant) {

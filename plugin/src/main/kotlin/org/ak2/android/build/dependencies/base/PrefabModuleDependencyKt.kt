@@ -17,6 +17,7 @@
 package org.ak2.android.build.dependencies.base
 
 import com.android.build.gradle.BaseExtension
+import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.configurators.addVariantConfigurator
 import org.ak2.android.build.configurators.androidProject
 import org.ak2.android.build.configurators.getVariantConfigs
@@ -41,11 +42,12 @@ class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
             val variantConfigs = android.getVariantConfigs()
             val variantConfig = variantConfigs[variant.name]
             require(variantConfig != null) { GradleException("Variant config missed for ${variant.name}: ${variantConfigs.keys}") }
+            require(variantConfig.nativeFlavor != null) { GradleException("Native ABI missed for ${variant.name}: ${variantConfigs.keys}") }
 
             if (appName == null || variant.name.startsWith(appName)) {
-                println("${project.path}: Add module dependency $dependencyPath[${scope.scope}]")
+                println("${project.path}/${variantConfig}: Add module dependency $dependencyPath[${scope.scope}]: ${variantConfig}")
 
-                val ownTask = "generateJsonModel${variant.name.capitalize()}"
+                val ownTask = "configureNdkBuild${variantConfig.buildType.id.capitalize()}[${variantConfig.nativeFlavor.abi}]"
 
                 val expectedPrefabVariantName = VariantNameBuilder()
                     .append(variantConfig.androidFlavor)
@@ -53,13 +55,22 @@ class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
                     .append(variantConfig.buildType.id)
                     .build()
 
-                val prefabTask = "${dependencyPath}:prefab${expectedPrefabVariantName.capitalize()}Package"
+                val prefabPackageTaskName = if (variantConfig.buildType == BuildTypeId.RELEASE) {
+                    "prefab${expectedPrefabVariantName.capitalize()}PackageFix"
+                } else {
+                    "prefab${expectedPrefabVariantName.capitalize()}Package"
+                }
 
-                project.run {
+                val dependencyPrefabTask = "${dependencyPath}:${prefabPackageTaskName}"
+
+                println("${project.path}/${variantConfig}:  Task ${project.path}:$ownTask  would be executed after $dependencyPrefabTask")
+
+                with(project) {
                     dependencies.add(scope.scope, project(dependencyPath))
 
                     tasks.findByNameAndConfigure<Task>(ownTask) {
-                        dependsOn += prefabTask
+                        println("${project.path}/${variantConfig}:  Task ${project.path}:$name will be executed after $dependencyPrefabTask")
+                        dependsOn += dependencyPrefabTask
                     }
                 }
             } else {
