@@ -18,6 +18,7 @@ package org.ak2.android.build.release
 
 import org.ak2.android.build.AppReleaseInfo
 import org.gradle.api.Project
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.bundling.Zip
 import java.util.*
 import java.util.stream.Collectors
@@ -34,6 +35,7 @@ fun Project.createI18nArchives(appInfo: AppReleaseInfo, languagesToPack: Set<Str
 
     getLocales(appName, languagesToPack).forEach { locale ->
         createZip(appInfo, "i18n-$locale", "i18n") {
+            duplicatesStrategy = DuplicatesStrategy.WARN
             getLocaleFolders(appName, locale).forEach { folder ->
                 from(folder) {
                     this.include("strings_*.xml")
