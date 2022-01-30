@@ -20,6 +20,7 @@ import com.android.build.api.variant.Variant
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import org.ak2.android.build.NativeConfigurator
 import org.ak2.android.build.buildtype.BuildTypeId
 import org.ak2.android.build.configurators.*
@@ -27,11 +28,9 @@ import org.ak2.android.build.extras.doOnce
 import org.ak2.android.build.extras.putExtraIfAbsent
 import org.ak2.android.build.flavors.VariantNameBuilder
 import org.ak2.android.build.utils.findByNameAndConfigure
-import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
-import java.io.File
 
 const val JNI_ANDROID_MK = "src/main/jni/Android.mk"
 
@@ -101,41 +100,48 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
                             this.headers = androidProject.file(lib.headersDir).absolutePath
                         }
                     }
+                }
 
-                    addVariantConfigurator { variant ->
-                        val variantConfigs = android.getVariantConfigs()
-                        val variantConfig = variantConfigs[variant.name]
-                        require(variantConfig != null) { GradleException("Variant config missed for ${variant.name}: ${variantConfigs.keys}") }
-                        require(variantConfig.nativeFlavor != null) { GradleException("Native ABI missed for ${variant.name}: ${variantConfigs.keys}") }
+                addVariantConfigurator { variant ->
+                    val variantConfigs = android.getVariantConfigs()
+                    val variantConfig = variantConfigs[variant.name]
+                    require(variantConfig != null) { GradleException("Variant config missed for ${variant.name}: ${variantConfigs.keys}") }
+                    require(variantConfig.nativeFlavor != null) { GradleException("Native ABI missed for ${variant.name}: ${variantConfigs.keys}") }
 
-                        if (variantConfig.buildType == BuildTypeId.RELEASE) {
+                    if (variantConfig.buildType == BuildTypeId.RELEASE) {
+                        val appName = flavor?.name
+                        if (appName == null || variant.name.startsWith(appName)) {
+                            val expectedPrefabVariantName = VariantNameBuilder()
+                                .append(variantConfig.androidFlavor)
+                                .append(variantConfig.nativeFlavor)
+                                .append(variantConfig.buildType.id)
+                                .build()
 
-                            val appName = flavor?.name
-
-                            if (appName == null || variant.name.startsWith(appName)) {
-                                val expectedPrefabVariantName = VariantNameBuilder()
-                                    .append(variantConfig.androidFlavor)
-                                    .append(variantConfig.nativeFlavor)
-                                    .append(variantConfig.buildType.id)
-                                    .build()
+                            with(androidProject) {
 
                                 val fixTaskName = "prefab${expectedPrefabVariantName.capitalize()}PackageFix"
-                                val taskToFix = "bundle${expectedPrefabVariantName.capitalize()}LocalLintAar"
+                                val taskToFix   = "bundle${expectedPrefabVariantName.capitalize()}LocalLintAar"
 
-                                with(androidProject) {
-                                    println("${path}/${variantConfig.name}: register package fix task ${fixTaskName} for ${taskToFix}")
+                                val fixTask = tasks.register(fixTaskName)
 
-                                    val fromDir = file("build/intermediates/ndkBuild/${variant.name}/obj/local/${variantConfig.nativeFlavor.abi}")
-                                    val toDir = file("build/intermediates/prefab_package/${variant.name}/prefab/modules/${lib.name}/libs/android.${variantConfig.nativeFlavor.abi}")
+                                prefabLibraries.forEach { lib ->
+                                    val fixLibTaskName = "${fixTaskName}[${lib.name}]"
+
+                                    println("${path}/${variantConfig.name}: register package fix task ${fixLibTaskName} for ${taskToFix}")
+
+                                    val fromDir  = file("build/intermediates/ndkBuild/${variant.name}/obj/local/${variantConfig.nativeFlavor.abi}")
+                                    val toDir    = file("build/intermediates/prefab_package/${variant.name}/prefab/modules/${lib.name}/libs/android.${variantConfig.nativeFlavor.abi}")
                                     val fileName = "lib${lib.name}.a"
 
-                                    tasks.register(fixTaskName, Copy::class.java) {
+                                    val fixLibTask = tasks.register(fixLibTaskName, Copy::class.java) {
                                         dependsOn += taskToFix
                                         from(fromDir) {
                                             include(fileName)
                                         }
                                         into(toDir)
                                     }
+
+                                    fixTask.dependsOn(fixLibTask)
                                 }
                             }
                         }
