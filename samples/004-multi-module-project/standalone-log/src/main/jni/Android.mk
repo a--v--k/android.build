@@ -1,0 +1,15 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := standalone-log
+
+LOCAL_CFLAGS    := $(APP_CFLAGS)
+LOCAL_CPPFLAGS  := $(APP_CPPFLAGS)
+LOCAL_ARM_MODE  := $(APP_ARM_MODE)
+
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+
+LOCAL_SRC_FILES :=  $(LOCAL_PATH)/src/StLog.cpp
+
+include $(BUILD_STATIC_LIBRARY)
