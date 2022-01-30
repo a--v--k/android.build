@@ -55,11 +55,7 @@ class PrefabModuleDependencyKt(val dependencyPath: String) : DependencyKt {
                     .append(variantConfig.buildType.id)
                     .build()
 
-                val prefabPackageTaskName = if (variantConfig.buildType == BuildTypeId.RELEASE) {
-                    "prefab${expectedPrefabVariantName.capitalize()}PackageFix"
-                } else {
-                    "prefab${expectedPrefabVariantName.capitalize()}Package"
-                }
+                val prefabPackageTaskName = "prefab${expectedPrefabVariantName.capitalize()}PackageFix"
 
                 val dependencyPrefabTask = "${dependencyPath}:${prefabPackageTaskName}"
 

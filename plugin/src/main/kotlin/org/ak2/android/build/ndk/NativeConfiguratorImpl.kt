@@ -108,44 +108,47 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
                     require(variantConfig != null) { GradleException("Variant config missed for ${variant.name}: ${variantConfigs.keys}") }
                     require(variantConfig.nativeFlavor != null) { GradleException("Native ABI missed for ${variant.name}: ${variantConfigs.keys}") }
 
-                    if (variantConfig.buildType == BuildTypeId.RELEASE) {
-                        val appName = flavor?.name
-                        if (appName == null || variant.name.startsWith(appName)) {
-                            val expectedPrefabVariantName = VariantNameBuilder()
-                                .append(variantConfig.androidFlavor)
-                                .append(variantConfig.nativeFlavor)
-                                .append(variantConfig.buildType.id)
-                                .build()
+                    val appName = flavor?.name
+                    if (appName == null || variant.name.startsWith(appName)) {
+                        val expectedPrefabVariantName = VariantNameBuilder()
+                            .append(variantConfig.androidFlavor)
+                            .append(variantConfig.nativeFlavor)
+                            .append(variantConfig.buildType.id)
+                            .build()
 
-                            with(androidProject) {
+                        with(androidProject) {
 
-                                val fixTaskName = "prefab${expectedPrefabVariantName.capitalize()}PackageFix"
-                                val taskToFix   = "bundle${expectedPrefabVariantName.capitalize()}LocalLintAar"
+                            val fixTaskName = "prefab${expectedPrefabVariantName.capitalize()}PackageFix"
 
-                                val fixTask = tasks.register(fixTaskName)
+                            val taskToFix = if (variantConfig.buildType == BuildTypeId.RELEASE) {
+                                "bundle${expectedPrefabVariantName.capitalize()}LocalLintAar"
+                            } else {
+                                "prefab${expectedPrefabVariantName.capitalize()}Package"
+                            }
 
-                                prefabLibraries.forEach { lib ->
-                                    val fixLibTaskName = "${fixTaskName}[${lib.name}]"
+                            val fixTask = tasks.register(fixTaskName)
 
-                                    println("${path}/${variantConfig.name}: register package fix task ${fixLibTaskName} for ${taskToFix}")
+                            prefabLibraries.forEach { lib ->
+                                val fixLibTaskName = "${fixTaskName}[${lib.name}]"
 
-                                    val fromDir  = file("build/intermediates/ndkBuild/${variant.name}/obj/local/${variantConfig.nativeFlavor.abi}")
-                                    val toDir    = file("build/intermediates/prefab_package/${variant.name}/prefab/modules/${lib.name}/libs/android.${variantConfig.nativeFlavor.abi}")
-                                    val fileName = "lib${lib.name}.a"
+                                println("${path}/${variantConfig.name}: register package fix task ${fixLibTaskName} for ${taskToFix}")
 
-                                    val fixLibTask = tasks.register(fixLibTaskName, Copy::class.java) {
-                                        from(fromDir) {
-                                            include(fileName)
-                                        }
-                                        into(toDir)
+                                val fromDir  = file("build/intermediates/ndkBuild/${variant.name}/obj/local/${variantConfig.nativeFlavor.abi}")
+                                val toDir    = file("build/intermediates/prefab_package/${variant.name}/prefab/modules/${lib.name}/libs/android.${variantConfig.nativeFlavor.abi}")
+                                val fileName = "lib${lib.name}.a"
+
+                                val fixLibTask = tasks.register(fixLibTaskName, Copy::class.java) {
+                                    from(fromDir) {
+                                        include(fileName)
                                     }
-
-                                    fixLibTask.dependsOn(taskToFix)
-                                    println("${project.path}/${variantConfig}:  Task ${project.path}:$fixLibTaskName will be executed after ${project.path}:$taskToFix")
-
-                                    fixTask.dependsOn(fixLibTask)
-                                    println("${project.path}/${variantConfig}:  Task ${project.path}:$fixTaskName will be executed after ${project.path}:$fixLibTaskName")
+                                    into(toDir)
                                 }
+
+                                fixLibTask.dependsOn(taskToFix)
+                                println("${project.path}/${variantConfig}:  Task ${project.path}:$fixLibTaskName will be executed after ${project.path}:$taskToFix")
+
+                                fixTask.dependsOn(fixLibTask)
+                                println("${project.path}/${variantConfig}:  Task ${project.path}:$fixTaskName will be executed after ${project.path}:$fixLibTaskName")
                             }
                         }
                     }
