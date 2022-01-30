@@ -134,14 +134,17 @@ class NativeConfiguratorImpl : NativeOptions(), NativeConfigurator.NativeOptions
                                     val fileName = "lib${lib.name}.a"
 
                                     val fixLibTask = tasks.register(fixLibTaskName, Copy::class.java) {
-                                        dependsOn += taskToFix
                                         from(fromDir) {
                                             include(fileName)
                                         }
                                         into(toDir)
                                     }
 
+                                    fixLibTask.dependsOn(taskToFix)
+                                    println("${project.path}/${variantConfig}:  Task ${project.path}:$fixLibTaskName will be executed after ${project.path}:$taskToFix")
+
                                     fixTask.dependsOn(fixLibTask)
+                                    println("${project.path}/${variantConfig}:  Task ${project.path}:$fixTaskName will be executed after ${project.path}:$fixLibTaskName")
                                 }
                             }
                         }
